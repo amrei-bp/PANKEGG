@@ -14,7 +14,7 @@ finally:
 
 from glob import glob
 
-if sys.version_info = (3,8):
+if sys.version_info == (3,8):
     print >> sys.stderr, "ERROR: NEED PYTHON 3.8"
     sys.exit()
 

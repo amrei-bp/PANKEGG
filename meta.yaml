@@ -3,14 +3,15 @@ package:
   version: "0.1.0"
 
 source:
-  git_rev: https://github.com/RVanDamme/PANKEGG.git
+  # git_rev: https://github.com/RVanDamme/PANKEGG.git
   git_url: https://github.com/RVanDamme/PANKEGG.git
 
 requirements:
   build:
-    - python = 3.8
+    - python  3.8
+
   run:
-    - python = 3.8
+    - python  3.8
 
 test:
   imports:
