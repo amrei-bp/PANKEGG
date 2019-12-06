@@ -20,10 +20,12 @@ requirements:
 
   # commands:
   #   - PANKEGG/parser.py -v > /dev/null
+app:
+  entry: PANKEGG/parser.py
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/
-  license: LICENSE
+  license_file: LICENSE
   summary: 'Parsing eggnog annotation file and quantitication file from trinity'
   description: |
     This script is part of the MAFIN pipeline and parse the annotations files from eggnog
