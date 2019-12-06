@@ -8,13 +8,15 @@ source:
 
 requirements:
   build:
-    - python
+    - python = 3.8
   run:
-    - python
+    - python = 3.8
 
 test:
   imports:
-    - PANKEGG
+
+  commands:
+    - parser.py -v > /dev/null
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/
