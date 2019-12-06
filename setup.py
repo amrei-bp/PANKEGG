@@ -31,7 +31,7 @@ def main():
           author='Renaud Van Damme',
           author_email='renaud.van.damme@slu.se',
           license='GNU 3.0',
-          scripts=glob('PANKEGG/parser.py'),
+          scripts=glob('parser.py'),
           )
 
 
