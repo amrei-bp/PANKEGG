@@ -15,7 +15,7 @@ requirements:
 
 test:
   imports:
-    - PANKEGG
+    - #
 
   commands:
     - PANKEGG/parser.py -v > /dev/null
