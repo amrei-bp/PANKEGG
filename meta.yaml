@@ -3,8 +3,9 @@ package:
   version: "0.1.0"
 
 source:
-  # git_rev: https://github.com/RVanDamme/PANKEGG.git
   git_url: https://github.com/RVanDamme/PANKEGG.git
+  git_rev: 0.1.0
+  git_depth: 1
 
 requirements:
   build:
@@ -13,16 +14,16 @@ requirements:
   run:
     - python  3.8
 
-test:
-  imports:
-    - #
+# test:
+  # imports:
+  #   - #
 
-  commands:
-    - PANKEGG/parser.py -v > /dev/null
+  # commands:
+  #   - PANKEGG/parser.py -v > /dev/null
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/
-  license: GNU 3.0
+  license: LICENSE
   summary: 'Parsing eggnog annotation file and quantitication file from trinity'
   description: |
     This script is part of the MAFIN pipeline and parse the annotations files from eggnog
