@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/RVanDamme/PANKEGG/archive/{{ version }}.tar.gz
-  sha256: 4784b3c6ad064d8cb097b6cccc6782a3b3ac256b407dd9f37d1c31e934a77285
+  sha256: e0b0923934cc506336f7e3e336029078071f30f6c53a851d5dac8d4903888e96
 
 build:
   number: 0
