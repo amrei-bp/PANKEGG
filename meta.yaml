@@ -28,7 +28,7 @@ test:
     - PANKEGG
 
   commands:
-    #- pankegg -v > /dev/null
+    - pankegg -v > /dev/null
 app:
   entry: pankegg
 
