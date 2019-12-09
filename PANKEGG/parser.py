@@ -25,7 +25,7 @@ def parse(args):
     """
     logger = logging.getLogger(__name__)
     output = args.output
-    bins = args.bins
+    bins = args.bins[0].split()
     level = args.level
     rna = args.rna
     # try:
