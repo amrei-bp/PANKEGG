@@ -10,18 +10,19 @@ source:
 requirements:
   build:
     - python  3.8
+    - cp -r $SRC_DIR $SP_DIR/PANKEGG
 
   run:
     - python  3.8
 
-# test:
-  # imports:
-  #   - #
+test:
+  imports:
+    - #
 
-  # commands:
-  #   - PANKEGG/parser.py -v > /dev/null
+  commands:
+    - $SP_DIR/PANKEGG/parser.py -v > /dev/null
 app:
-  entry: PANKEGG/parser.py
+  entry: $SP_DIR/PANKEGG/parser.py
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/
