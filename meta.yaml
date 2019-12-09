@@ -1,5 +1,5 @@
 {% set name = "PANKEGG" %}
-{% set version = "0.2.0" %}
+{% set version = "0.4.0" %}
 
 package:
   name: {{ name|lower }}
@@ -11,9 +11,9 @@ source:
 
 build:
   number: 0
-  script:
-    - cp -r $SRC_DIR $SP_DIR/PANKEGG
-
+  # script:
+  #   - cp -r $SRC_DIR $SP_DIR/PANKEGG
+  #   - ls $SRC_DIR/PANKEGG/parser.py 
 requirements:
   build:
     - python  3.8
@@ -26,7 +26,7 @@ test:
     - PANKEGG
 
   commands:
-    - PANKEGG/parser.py -v > /dev/null
+    - pankegg-v > /dev/null
 app:
   entry: PANKEGG/parser.py
 

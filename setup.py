@@ -4,13 +4,7 @@ import sys
 import platform
 
 # Automatically download setuptools if not available
-try:
-    from setuptools import *
-except ImportError:
-    from distribute_setup import use_setuptools
-    use_setuptools()
-finally:
-    from setuptools import *
+from setuptools import *
 
 from glob import glob
 
@@ -31,7 +25,7 @@ def main():
           author='Renaud Van Damme',
           author_email='renaud.van.damme@slu.se',
           license='GNU 3.0',
-          scripts=glob('PANKEGG/parser.py'),
+          scripts=glob('bin/*'),
           )
 
 
