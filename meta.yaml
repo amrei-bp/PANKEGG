@@ -1,23 +1,30 @@
+{% set name = "PANKEGG" %}
+{% set version = "0.1.0" %}
+
 package:
-  name: "pankegg"
-  version: "0.1.0"
+  name: {{ name|lower }}
+  version: {{ version }}
 
 source:
-  git_url: https://github.com/RVanDamme/PANKEGG.git
+  git_url: https://github.com/RVanDamme/PANKEGG/
   git_rev: 0.1.0
   git_depth: 1
+
+build:
+  number: 0
+  script:
+    - cp -r $SRC_DIR $SP_DIR/PANKEGG
 
 requirements:
   build:
     - python  3.8
-    - cp -r $SRC_DIR $SP_DIR/PANKEGG
 
   run:
     - python  3.8
 
 test:
   imports:
-    - #
+    - $SP_DIR/PANKEGG
 
   commands:
     - $SP_DIR/PANKEGG/parser.py -v > /dev/null
