@@ -23,12 +23,12 @@ requirements:
 
 test:
   imports:
-    - $SP_DIR/PANKEGG
+    - PANKEGG
 
   commands:
-    - $SP_DIR/PANKEGG/parser.py -v > /dev/null
+    - PANKEGG/parser.py -v > /dev/null
 app:
-  entry: $SP_DIR/PANKEGG/parser.py
+  entry: PANKEGG/parser.py
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/
