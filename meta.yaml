@@ -7,13 +7,15 @@ package:
 
 source:
   url: https://github.com/RVanDamme/PANKEGG/archive/{{ version }}.tar.gz
-  sha256: 0517c71ea9116ed71211a05570cf6fdef47b4446099b51e90ba6557bce1451cb
+  sha256: 4784b3c6ad064d8cb097b6cccc6782a3b3ac256b407dd9f37d1c31e934a77285
 
 build:
   number: 0
-  # script:
-  #   - cp -r $SRC_DIR $SP_DIR/PANKEGG
-  #   - ls $SRC_DIR/PANKEGG/parser.py 
+  script: cp -r $SRC_DIR/PANKEGG $SP_DIR/PANKEGG;
+    python $SRC_DIR/setup.py install --single-version-externally-managed --record=record.txt;
+    cp $SRC_DIR/bin/pankegg $PREFIX/bin/pankegg # [not win]
+  link: bin/pankegg
+
 requirements:
   build:
     - python  3.8
@@ -26,9 +28,9 @@ test:
     - PANKEGG
 
   commands:
-    - pankegg-v > /dev/null
+    #- pankegg -v > /dev/null
 app:
-  entry: PANKEGG/parser.py
+  entry: pankegg
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/

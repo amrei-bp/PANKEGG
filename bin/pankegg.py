@@ -2,8 +2,9 @@
 from __future__ import print_function
 
 import PANKEGG
-from PANKEGG import parser
+print(dir(PANKEGG))
+import PANKEGG.parser
 import sys
 
 if __name__ == '__main__':
-    sys.exit(app.main(arg_src=sys.argv[1:]).run())
+    sys.exit(PANKEGG.parser.main(arg_src=sys.argv[1:]).run())
