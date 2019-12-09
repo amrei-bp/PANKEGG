@@ -6,7 +6,7 @@ import shutil
 import logging
 import argparse
 from collections import defaultdict
-
+import PANKEGG
 from PANKEGG.modules.version import __version__
 from PANKEGG.modules.bin_parse import bin_parse
 from PANKEGG.modules.rna_parse import rna_parse
