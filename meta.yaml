@@ -1,5 +1,5 @@
 {% set name = "PANKEGG" %}
-{% set version = "0.1.0" %}
+{% set version = "0.2.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,8 +7,7 @@ package:
 
 source:
   url: https://github.com/RVanDamme/PANKEGG/archive/{{ version }}.tar.gz
-  git_rev: 0.1.0
-  git_depth: 1
+  sha256: 0517c71ea9116ed71211a05570cf6fdef47b4446099b51e90ba6557bce1451cb
 
 build:
   number: 0
