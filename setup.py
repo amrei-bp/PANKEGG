@@ -26,7 +26,7 @@ def main():
           author_email='renaud.van.damme@slu.se',
           license='GNU 3.0',
           packages=find_packages(),
-          scripts=glob('bin/*'),
+          scripts=glob('PANKEGG/parser.py'),
           include_package_data=True,
           zip_safe=False,
           )
