@@ -1,5 +1,5 @@
 {% set name = "PANKEGG" %}
-{% set version = "0.10.0" %}
+{% set version = "0.11.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,13 +7,11 @@ package:
 
 source:
   url: https://github.com/RVanDamme/PANKEGG/archive/{{ version }}.tar.gz
-  sha256: 264643d0e0b9cc8bff94db8f037f838f017dc99313f543ccc98918e531375d08
+  sha256: 6dd32b274644739bebd49fd5ca8395fed8122ef186f51f1d5ea8a6e8c43b4a8f
 
 build:
   number: 0
-  script: cp -r $SRC_DIR/PANKEGG $SP_DIR/PANKEGG;
-    python $SRC_DIR/setup.py install --single-version-externally-managed --record=record.txt;
-    ln -s $SP_DIR/PANKEGG/parser.py $PREFIX/bin/pankegg # [not win]
+  script: cp -r $SRC_DIR/PANKEGG $SP_DIR/PANKEGG; # [not win]
   # link: bin/pankegg
 
 requirements:
@@ -27,10 +25,10 @@ test:
   imports:
     - PANKEGG
 
-  commands:
-    - pankegg -v > /dev/null
-app:
-  entry: pankegg
+  # commands:
+
+# app:
+#   entry: parser.py
 
 about:
   home: https://github.com/RVanDamme/PANKEGG/

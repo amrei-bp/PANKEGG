@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-
 import os
 import sys
 import shutil
 import logging
 import argparse
 from collections import defaultdict
-import PANKEGG
+
+import PANKEGG.modules
 from PANKEGG.modules.version import __version__
 from PANKEGG.modules.bin_parse import bin_parse
 from PANKEGG.modules.rna_parse import rna_parse
@@ -28,40 +28,40 @@ def parse(args):
     bins = args.bins
     level = args.level
     rna = args.rna
-    # try:
-    os.makedirs(args.output)
+    try:
+        os.makedirs(args.output)
+            
+        dict_transcript = {}
+        dictrna = {}
+        rna_pathway_list=[]
+        dict_transcript, dictrna, rna_pathway_list = rna_parse(
+            rna, dict_transcript, dictrna, rna_pathway_list)
+            
+        dictquant = {}
+        dictquant = quant_parse(dictquant, level)
         
-    dict_transcript = {}
-    dictrna = {}
-    rna_pathway_list=[]
-    dict_transcript, dictrna, rna_pathway_list = rna_parse(
-        rna, dict_transcript, dictrna, rna_pathway_list)
-        
-    dictquant = {}
-    dictquant = quant_parse(dictquant, level)
-    
-    genelevel(output, dict_transcript, dictquant)
+        genelevel(output, dict_transcript, dictquant)
 
-    globalpathwaylist=[]
-    binnamelist=[]
-    dict_global_sample=defaultdict(dict)
-    dict_global_bin=defaultdict(dict)  
-    dict_global_sample, dict_global_bin, globalpathwaylist, binnamelist = bin_parse(bins,
-                    globalpathwaylist, binnamelist,
-                    dict_global_sample, dict_global_bin, dictrna)
-    write_html_sample(dict_global_sample, output,
-                        globalpathwaylist, binnamelist, rna_pathway_list,
+        globalpathwaylist=[]
+        binnamelist=[]
+        dict_global_sample=defaultdict(dict)
+        dict_global_bin=defaultdict(dict)  
+        dict_global_sample, dict_global_bin, globalpathwaylist, binnamelist = bin_parse(bins,
+                        globalpathwaylist, binnamelist,
+                        dict_global_sample, dict_global_bin, dictrna)
+        write_html_sample(dict_global_sample, output,
+                            globalpathwaylist, binnamelist, rna_pathway_list,
+                            dictrna)
+        write_html_bins(dict_global_bin, output,
+                        globalpathwaylist, rna_pathway_list,
                         dictrna)
-    write_html_bins(dict_global_bin, output,
-                    globalpathwaylist, rna_pathway_list,
-                    dictrna)
 
 
-    # except OSError as e:
-    #     logger.error(f"{args.output} output directory already exists. Aborting.")
-    #     sys.exit(1)
-    # else:
-    #     pass
+    except OSError as e:
+        logger.error(f"{args.output} output directory already exists. Aborting.")
+        sys.exit(1)
+    else:
+        pass
 
 
 def main():
