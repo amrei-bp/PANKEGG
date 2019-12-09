@@ -12,7 +12,7 @@ if sys.version_info == (3,8):
     print >> sys.stderr, "ERROR: NEED PYTHON 3.8"
     sys.exit()
 
-version = open('PANKEGG/PANKEGG/modules/version.py').read().split("=")[1]
+version = open('PANKEGG/modules/version.py').read().split("=")[1]
 
 
 def main():
