@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2>{{ context | safe }}</h2>
+    <button class="btn btn-secondary mb-3" onclick="toggleAllCollapses()">Toggle All Details</button>
+    <form action="{{ url_for('export_maps') }}" method="post">
+        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
+        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
+        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
+        <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
+        <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
+    </form>
+    <!-- Legend Section -->
+    <div class="legend mb-4 p-3 border rounded">
+        <strong>Legend:</strong>
+        <ul class="list-unstyled">
+            <li><span class="legend-box kegg-id"></span> KEGG ID officially present in the pathway (Dark Blue)</li>
+            <li><span class="legend-box light-blue-ko"></span> KEGG ID not officially present in the pathway (Light Blue)</li>
+            {% if request.values.get('ko_id') %}
+            <li><span class="legend-box highlighted-ko"></span> Highlighted KEGG ID (Orange)</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Search Form -->
+    <form method="post" action="{{ url_for('show_maps') }}" class="mb-4">
+        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
+        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
+        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
+        <div class="input-group">
+            <input type="text" name="search_query" class="form-control" placeholder="Search by Map Number or Pathway Name" value="{{ request.form.get('search_query', '') }}">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Map Number</th>
+                <th>Pathway Name</th>
+                <th>Pathway completion</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for (map_number, pathway_name), data in maps %}
+            <tr>
+                <td>{{ map_number }}</td>
+                <td>{{ pathway_name }}</td>
+                <td>
+                    {% if data.completion is not none %}
+                    <div class="d-flex justify-content-center"> <!-- Center the donut chart -->
+                        <div class="progress-circle" style="background: conic-gradient(#17ECFD {{ data.completion }}%, #d3d3d3 {{ data.completion }}%);">
+                            <span>{{ data.completion | round(2) }}%</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    Undefined
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('show_bins', map_number=map_number) }}" class="btn btn-info">View Bins</a>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                        Toggle ko_ids
+                    </button>
+                    <a href="https://www.kegg.jp/entry/{{ map_number }}" target="_blank" class="btn btn-warning">KEGG info</a>
+                    <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHighlight{{ loop.index }}" aria-expanded="false" aria-controls="offcanvasHighlight{{ loop.index }}">
+                        Highlight pathways
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="collapse" id="collapse{{ loop.index }}">
+                        <strong>Associated KEGG IDs:</strong>
+                        {% if data.kegg_ids %}
+                        {% for ko_id, kegg_name, real_pathway_id in data.kegg_ids %}
+                            <a href="{{ url_for('kegg', ko_id=ko_id.strip()) }}" class="{% if ko_id == request.values.get('ko_id') %}highlighted-ko{% else %}{% if real_pathway_id == 0 %}light-blue-ko{% else %}kegg-id{% endif %}{% endif %}">
+                                {{ ko_id.strip() }}
+                            </a>: {{ kegg_name | safe }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        None associated
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <!-- Offcanvas for Highlight Pathways -->
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasHighlight{{ loop.index }}" aria-labelledby="offcanvasHighlightLabel{{ loop.index }}">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasHighlightLabel{{ loop.index }}">{{ pathway_name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <a href="https://www.kegg.jp/pathway/{{ map_number }}" target="_blank" class="btn btn-warning">Go to KEGG</a>
+                    <p>To highlight pathways, please copy the following IDs in the KEGG map search box and press go:</p>
+                    {% if data.kegg_ids %}
+                        <button class="btn btn-secondary mb-2" onclick="copyOffcanvasToClipboard({{ loop.index }})">Copy to Clipboard</button>
+                        <ul id="offcanvasKeggList{{ loop.index }}">
+                        {% for ko_id, kegg_name, real_pathway_id in data.kegg_ids %}
+                            {% if real_pathway_id == 1 %}
+                                <li>{{ ko_id }}</li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No associated KEGG IDs.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Bouton pour exporter l'état actuel -->
+    <form action="{{ url_for('export_maps') }}" method="post">
+        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
+        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
+        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
+        <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
+        <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
+    </form>
+
+</div>
+
+<script>
+    function copyToClipboard(index) {
+        var text = document.getElementById('keggList' + index).innerText;
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Ko ids copied to clipboard!');
+        }, function(err) {
+            console.error('Error copying to clipboard: ', err);
+        });
+    }
+
+    function copyOffcanvasToClipboard(index) {
+        var text = Array.from(document.getElementById('offcanvasKeggList' + index).getElementsByTagName('li'))
+                        .map(li => li.textContent)
+                        .join('\n');
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Ko ids copied to clipboard!');
+        }, function(err) {
+            console.error('Error copying to clipboard: ', err);
+        });
+    }
+
+    function toggleAllCollapses() {
+        var collapses = document.querySelectorAll('.collapse');
+        collapses.forEach(function(collapse) {
+            if (collapse.classList.contains('show')) {
+                collapse.classList.remove('show');
+            } else {
+                collapse.classList.add('show');
+            }
+        });
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Bin vs Bin Comparison{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Bin vs Bin Comparison</h2>
+
+    <!-- Sélection des échantillons et des bins -->
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label for="sample1">Select Sample 1:</label>
+            <select class="form-control" id="sample1" name="sample1">
+                <option value="" selected>Select sample</option>
+            </select>
+            <label for="bin1" class="mt-3">Select Bin 1:</label>
+            <select class="form-control" id="bin1" name="bin1">
+                <option value="" selected>Select bin</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="sample2">Select Sample 2:</label>
+            <select class="form-control" id="sample2" name="sample2">
+                <option value="" selected>Select sample</option>
+            </select>
+            <label for="bin2" class="mt-3">Select Bin 2:</label>
+            <select class="form-control" id="bin2" name="bin2">
+                <option value="" selected>Select bin</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Section Common Pathways -->
+    <div class="mt-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Common Pathways</strong>
+
+            </div>
+
+                <div class="card-body">
+                    <div class="container mt-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                Full table
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#common-pathways-table-content" aria-expanded="false" aria-controls="common-pathways-table-content">
+                                    Show/Hide
+                                </button>
+                            </div>
+                            <div class="collapse" id="common-pathways-table-content">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped" id="common-pathways-table">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Pathway Name</th>
+                                                    <th>Both</th>
+                                                    <th id="bin1Header">Bin 1</th>
+                                                    <th id="bin2Header">Bin 2</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Les données seront insérées ici dynamiquement -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="common-pathways-barplot" style="width:100%; height:500px;"></div>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Include Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    var sample1Select = document.getElementById('sample1');
+    var sample2Select = document.getElementById('sample2');
+    var bin1Select = document.getElementById('bin1');
+    var bin2Select = document.getElementById('bin2');
+    var errorDiv = document.getElementById('error');
+
+    // Récupère la liste des échantillons pour remplir les dropdowns
+    fetch("{{ url_for('get_samples') }}")
+        .then(response => response.json())
+        .then(data => {
+            data.samples.forEach(sample => {
+                var option1 = document.createElement('option');
+                option1.value = sample;
+                option1.text = sample;
+                sample1Select.add(option1);
+
+                var option2 = document.createElement('option');
+                option2.value = sample;
+                option2.text = sample;
+                sample2Select.add(option2);
+            });
+        });
+
+    // Fonction pour récupérer les bins d'un échantillon et les remplir dans le dropdown
+    function fetchBins(sampleSelect, binSelect) {
+        if (sampleSelect.value === "") {
+            binSelect.innerHTML = '<option value="" selected>Select bin</option>';
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('sample', sampleSelect.value);
+
+        fetch("{{ url_for('get_bins') }}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            binSelect.innerHTML = '<option value="" selected>Select bin</option>';  // Clear previous bins and add default option
+            data.bins.forEach(bin => {
+                var option = document.createElement('option');
+                option.value = bin;
+                option.text = bin;
+                binSelect.add(option);
+            });
+        });
+    }
+
+    // Mettez à jour les bins lorsque l'échantillon est sélectionné
+    sample1Select.addEventListener('change', function() {
+        fetchBins(sample1Select, bin1Select);
+    });
+    sample2Select.addEventListener('change', function() {
+        fetchBins(sample2Select, bin2Select);
+    });
+
+    // Fonction pour récupérer et afficher les pathways communs entre deux bins
+    function fetchCommonPathwaysForBins(bin1, bin2, bin1Name, bin2Name) {
+        if (bin1 === "" || bin2 === "") {
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('bin1', bin1);
+        formData.append('bin2', bin2);
+
+        fetch("{{ url_for('get_common_pathways_for_bins') }}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(`Common Pathways data for bins:`, data);  // Log de débogage
+            if (data.error) {
+                errorDiv.innerHTML = data.error;
+                return;
+            }
+
+            var tableBody = document.getElementById('common-pathways-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';  // Clear previous data
+
+            var pathwayNames = [];
+            var bin1Counts = [];
+            var bin2Counts = [];
+
+            data.forEach(row => {
+                var tr = document.createElement('tr');
+                var tdPathway = document.createElement('td');
+                tdPathway.textContent = row.pathway_name;
+                tr.appendChild(tdPathway);
+
+                var tdBoth = document.createElement('td');
+                tdBoth.textContent = row.both;
+                tr.appendChild(tdBoth);
+
+                var tdBin1 = document.createElement('td');
+                tdBin1.textContent = row.bin1;
+                tr.appendChild(tdBin1);
+
+                var tdBin2 = document.createElement('td');
+                tdBin2.textContent = row.bin2;
+                tr.appendChild(tdBin2);
+
+                // Apply color based on comparison
+                if (row.bin1 > row.bin2) {
+                    tdBin1.classList.add('text-success', 'font-weight-bold');
+                    tdBin2.classList.add('text-danger', 'font-weight-bold');
+                } else if (row.bin1 < row.bin2) {
+                    tdBin1.classList.add('text-danger', 'font-weight-bold');
+                    tdBin2.classList.add('text-success', 'font-weight-bold');
+                }
+
+                tableBody.appendChild(tr);
+
+                pathwayNames.push(row.pathway_name);
+                bin1Counts.push(row.bin1);
+                bin2Counts.push(row.bin2);
+            });
+
+            var barData = [
+                {
+                    x: pathwayNames,
+                    y: bin1Counts,
+                    name: bin1Name,
+                    type: 'bar'
+                },
+                {
+                    x: pathwayNames,
+                    y: bin2Counts,
+                    name: bin2Name,
+                    type: 'bar'
+                }
+            ];
+
+            var barLayout = {
+                barmode: 'group',
+                title: 'Common Pathways Counts',
+                xaxis: {
+                    title: 'Pathway Names',
+                    tickangle: -45,
+                    automargin: true
+                },
+                yaxis: {
+                    title: 'Counts'
+                },
+                margin: {
+                    b: 150  // Increase bottom margin to allow space for pathway names
+                },
+                height: 500 // Increase the height of the plot
+            };
+
+            Plotly.newPlot('common-pathways-barplot', barData, barLayout);
+        });
+    }
+
+    // Mettez à jour les pathways communs lorsqu'un bin est sélectionné
+    bin1Select.addEventListener('change', function() {
+        fetchCommonPathwaysForBins(bin1Select.value, bin2Select.value, bin1Select.selectedOptions[0].text, bin2Select.selectedOptions[0].text);
+    });
+    bin2Select.addEventListener('change', function() {
+        fetchCommonPathwaysForBins(bin1Select.value, bin2Select.value, bin1Select.selectedOptions[0].text, bin2Select.selectedOptions[0].text);
+    });
+});
+</script>
+{% endblock %}
