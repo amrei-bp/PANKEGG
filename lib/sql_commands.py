@@ -197,9 +197,10 @@ SELECT_BIN_ID = "SELECT id FROM bin WHERE bin_name = ? AND sample_id = ?"
 # SELECT_BIN_ID = "SELECT id FROM bin WHERE bin_name = ?"
 
 UPDATE_BIN_QUALITY = """
-    UPDATE bin SET completeness = ?, contamination = ? WHERE bin_name = ?;
+   UPDATE Bin SET completeness = ?, contamination = ? WHERE bin_name = ? AND sample_id = ?
+
 """
 
 UPDATE_BIN_TAXONOMY = """
-    UPDATE bin SET taxonomic_id = ? WHERE bin_name = ? ;
+   UPDATE Bin SET taxonomic_id = ? WHERE bin_name = ? AND sample_id = ?
 """
