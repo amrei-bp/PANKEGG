@@ -74,6 +74,148 @@ def load_ko_descriptions(ko_file):
             ko_dict[ko_id] = description
     return ko_dict
 
+# Tests
+
+# Input CSV Validation
+def check_input_csv(input_csv):
+    required_cols = {'Sample name', 'Annotation_dir', 'classification_dir', 'Checkm2_dir'}
+    sample_names = set()
+    with open(input_csv, newline='') as f:
+        reader = csv.DictReader(f)
+        if not required_cols.issubset(reader.fieldnames):
+            raise ValueError(f"CSV missing required columns: {required_cols - set(reader.fieldnames)}")
+        for i, row in enumerate(reader, 2):
+            for field in required_cols:
+                if not row.get(field):
+                    raise ValueError(f"Blank field '{field}' at line {i}")
+            name = row['Sample name']
+            if name in sample_names:
+                raise ValueError(f"Duplicate sample name '{name}' at line {i}")
+            sample_names.add(name)
+
+
+# File Existence and Header Detection
+def check_required_files_and_headers(csv_file):
+    failures = []
+    required_annot_cols = {'KEGG_Pathway', 'KEGG_ko'}
+    required_quality_cols = {'Name', 'Completeness', 'Contamination'}
+    with open(csv_file, newline='') as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader, 2):
+            sample = row['Sample name']
+            ann_files = glob.glob(row['Annotation_dir'])
+            if not ann_files:
+                failures.append((i, sample, f"No annotation files found for pattern: {row['Annotation_dir']}"))
+            for annot in ann_files:
+                try:
+                    with open(annot, 'r', encoding='utf-8') as af:
+                        lines = af.readlines()
+                        if not lines:
+                            failures.append((i, sample, f"Annotation file {annot} is empty"))
+                            continue
+                        header = lines[1 if lines[0].startswith('##') else 0].strip().split('\t')
+                        if not required_annot_cols.issubset(header):
+                            failures.append((i, sample, f"Annotation file {annot} missing columns: {required_annot_cols - set(header)}"))
+                except Exception as e:
+                    failures.append((i, sample, f"Cannot read annotation file {annot}: {e}"))
+            q_files = glob.glob(row['Checkm2_dir'])
+            if not q_files:
+                failures.append((i, sample, f"No quality report files found for pattern: {row['Checkm2_dir']}"))
+            for qfile in q_files:
+                try:
+                    with open(qfile, 'r') as qf:
+                        header = qf.readline().strip().split('\t')
+                        if not required_quality_cols.issubset(header):
+                            failures.append((i, sample, f"Quality file {qfile} missing columns: {required_quality_cols - set(header)}"))
+                except Exception as e:
+                    failures.append((i, sample, f"Cannot read quality file {qfile}: {e}"))
+    return failures
+
+
+# Database Schema Verification
+def check_db_schema(cur):
+    expected_tables = {'bin', 'taxonomy', 'sample', 'map', 'kegg', 'bin_map', 'map_kegg', 'bin_extra', 'bin_extra_kegg', 'bin_map_kegg'}
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = set(name for (name,) in cur.fetchall())
+    if not expected_tables.issubset(tables):
+        missing = expected_tables - tables
+        raise RuntimeError(f"Database is missing tables: {missing}")
+
+
+# Bin Mapping Consistency
+def check_bin_consistency(cur):
+    cur.execute("SELECT bin.id, bin.bin_name FROM bin LEFT JOIN taxonomy ON bin.taxonomic_id=taxonomy.id WHERE taxonomy.id IS NULL")
+    missing_taxa = cur.fetchall()
+    cur.execute("SELECT bin.id, bin.bin_name FROM bin LEFT JOIN sample ON bin.sample_id=sample.id WHERE sample.id IS NULL")
+    missing_sample = cur.fetchall()
+    issues = []
+    if missing_taxa:
+        issues.append(f"Bins missing taxonomy: {[b for _, b in missing_taxa]}")
+    if missing_sample:
+        issues.append(f"Bins missing sample: {[b for _, b in missing_sample]}")
+    return issues
+
+
+# File Read/Parse Exception Wrapper
+def safe_open_file(filepath, mode='r', encoding=None):
+    try:
+        return open(filepath, mode, encoding=encoding) if encoding else open(filepath, mode)
+    except Exception as e:
+        raise IOError(f"Failed to open {filepath}: {e}")
+
+
+# Flask DB Connection Test (to use in pankegg_app.py)
+def print_db_status(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    print("[Flask] Tables in DB:", [r[0] for r in cur.fetchall()])
+
+
+# Duplicate/Blank Bin Name Check (per sample)
+def check_duplicate_bins(cur, sample_id):
+    cur.execute("SELECT bin_name, COUNT(*) FROM bin WHERE sample_id=? GROUP BY bin_name HAVING COUNT(*)>1", (sample_id,))
+    duplicates = cur.fetchall()
+    return [b for b, _ in duplicates]
+
+
+# Classification mode check 
+def detect_file_type(filepath):
+    # Try both comma and tab as delimiter, inspect the first line
+    with open(filepath, 'r') as f:
+        peek = f.readline()
+        header = peek.strip().split('\t') if '\t' in peek else peek.strip().split(',')
+    # Decide type by columns present
+    if {'user_genome', 'classification'}.issubset(set(header)):
+        return 'gtdbtk'
+    if {'ID', 'status'}.issubset(set(header)):
+        return 'sourmash'
+    return 'unknown'
+
+
+def check_classification_mode_per_row(csv_file, gtdbtk_flag):
+    failures = []
+    with open(csv_file, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader, 2):  # start at 2 to match line numbers (header = line 1)
+            sample = row['Sample name']
+            classification_dir = row['classification_dir']
+            files = glob.glob(classification_dir)
+            file_types = set()
+            for fp in files:
+                kind = detect_file_type(fp)
+                if kind != 'unknown':
+                    file_types.add(kind)
+            if not file_types:
+                failures.append((i, sample, 'No recognizable classification files found.'))
+                continue
+            if gtdbtk_flag and ('sourmash' in file_types):
+                failures.append((i, sample, 'Sourmash classification file(s) found, but --gtdbtk flag was set.'))
+            if not gtdbtk_flag and ('gtdbtk' in file_types):
+                failures.append((i, sample, 'GTDBtk classification file(s) found, but --gtdbtk flag was NOT set.'))
+    return failures
+
+
+# Data process
 
 # def process_pathways_and_kos(cur, pathway, maps_dict, pathways_dict, kos, bin_map_list):
 #     if pathway not in bin_map_list:
@@ -211,6 +353,37 @@ def process_taxonomy_files(cur, file_path, sample_id):
             if assigned_status != "nomatch":
                 tax_id = insert_taxonomy(cur, data)
                 cur.execute(UPDATE_BIN_TAXONOMY, (tax_id, bin_name, sample_id))
+
+
+def process_gtdbtk_taxonomy_files(cur, gtdbtk_dir_pattern, annotation_files_path, sample_id):
+    # Find all bins from annotation (so we can detect 'nomatch' bins)
+    all_bin_files = glob.glob(annotation_files_path)
+    all_bins = set()
+    for fname in all_bin_files:
+        base = os.path.basename(fname)
+        name_part = base.split('.')[0] + '.' + base.split('.')[1]
+        if name_part.endswith('.fa'):
+            name_part = name_part[:-3]
+        all_bins.add(name_part)
+    found_bins = set()
+    for summary_path in glob.glob(gtdbtk_dir_pattern):
+        with open(summary_path, 'r') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                bin_name = row['user_genome']
+                tax_line = row['classification']
+                taxa = tax_line.split(';')
+                taxa = [t if t else None for t in taxa]
+                while len(taxa) < 7:
+                    taxa.append(None)
+                data = ['']*2 + taxa[:7]
+                tax_id = insert_taxonomy(cur, data)
+                cur.execute(UPDATE_BIN_TAXONOMY, (tax_id, bin_name, sample_id))
+                found_bins.add(bin_name)
+    for bin_name in all_bins - found_bins:
+        data = [bin_name, 'nomatch', None, None, None, None, None, None, None, None]
+        tax_id = insert_taxonomy(cur, data)
+        cur.execute(UPDATE_BIN_TAXONOMY, (tax_id, bin_name, sample_id))
 
 
 def sample_preliminary_process(cur, annotation_files_path, sample_id):
