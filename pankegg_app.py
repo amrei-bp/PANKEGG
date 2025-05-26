@@ -1279,6 +1279,7 @@ def show_bins():
         bin_name_sort_sql_command = " ORDER BY bin_number ASC"
         completeness_sort_sql_command = " ORDER BY bin.completeness DESC"
         contamination_sort_sql_command = " ORDER BY bin.contamination DESC"
+        search_fields = ['sample_name', 'bin_name']
 
         context = "Display of all bins"  # Initialisation par défaut du contexte
 
@@ -1333,10 +1334,33 @@ def show_bins():
         if gtdb_filter:
             conditions.append("(completeness - 5 * contamination > 50)")
         if search_query:
-            search_condition = "(sample.sample_name LIKE ? OR bin.bin_name LIKE ?)"
-            conditions.append(search_condition)
+            # Try to get the list of fields to search in; default to sample and bin name
+            search_fields = request.form.getlist('search_fields')
+            if not search_fields:
+                search_fields = ['sample_name', 'bin_name']
+
+            # Map the form field names to DB columns (as in your schema)
+            search_column_map = {
+                'sample_name': 'sample.sample_name',
+                'bin_name': 'bin.bin_name',
+                'kingdom': 'taxonomy."_kingdom_"',
+                'phylum': 'taxonomy."_phylum_"',
+                'class': 'taxonomy."_class_"',
+                'order': 'taxonomy."_order_"',
+                'family': 'taxonomy."_family_"',
+                'genus': 'taxonomy."_genus_"',
+                'species': 'taxonomy."_species_"'
+            }
+            search_subclauses = []
             search_pattern = f"%{search_query}%"
-            params.extend([search_pattern, search_pattern])
+            for field in search_fields:
+                dbcol = search_column_map.get(field)
+                if dbcol:
+                    search_subclauses.append(f"{dbcol} LIKE ?")
+                    params.append(search_pattern)
+            if search_subclauses:
+                search_condition = '(' + ' OR '.join(search_subclauses) + ')'
+                conditions.append(search_condition)
             context += f" with search pattern: <strong>{search_query}</strong>"
 
         if conditions:
@@ -1348,7 +1372,9 @@ def show_bins():
             query += completeness_sort_sql_command
         else:
             query += contamination_sort_sql_command
-
+        print('QUERY:', query)
+        print('PARAMS:', params)
+        print('SEARCH_FIELDS:', search_fields)
         cur.execute(query, params)
 
         rows = cur.fetchall()
@@ -1370,7 +1396,7 @@ def show_bins():
         sample_names = sorted(sample_names)  # Trier les noms de sample
 
         return render_template('bin.html', bins=bins, columns=display_column_labels, context=context,
-                            sample_names=sample_names)
+                       sample_names=sample_names, search_fields=search_fields, search_query=search_query)
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
 

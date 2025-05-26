@@ -57,6 +57,26 @@
                 </div>
                 <div class="col-md-6">
                     <form method="post" action="{{ url_for('show_bins') }}">
+                        <div class="mb-2">
+                            <label>Search in:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="search_fields" value="sample_name" id="fieldSampleName"
+                                    {% if 'sample_name' in search_fields %}checked{% endif %}>
+                                <label class="form-check-label" for="fieldSampleName">Sample Name</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="search_fields" value="bin_name" id="fieldBinName"
+                                    {% if 'bin_name' in search_fields %}checked{% endif %}>
+                                <label class="form-check-label" for="fieldBinName">Bin Name</label>
+                            </div>
+                            {% for rank in ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'] %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="search_fields" value="{{ rank }}" id="field{{ rank|capitalize }}"
+                                    {% if rank in search_fields %}checked{% endif %}>
+                                <label class="form-check-label" for="field{{ rank|capitalize }}">{{ rank|capitalize }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
                         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
                         <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id', '') }}">
                         <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
@@ -86,7 +106,9 @@
                             Toggle bins
                         </button>
                         <button class="btn btn-success btn-sm" type="button" onclick="generatePlot('{{ name }}')">Generate Plot</button>
+                        <button class="btn btn-warning btn-sm" type="button" onclick="toggleClassification('{{ name | escape }}')">Toggle classification</button>
                     </td>
+
                 </tr>
                 <tr id="collapseBins{{ loop.index }}" class="collapse bin-section show">
                     <td colspan="2">
@@ -94,6 +116,8 @@
                             <thead>
                                 <tr>
                                     <th>Bin Name</th>
+                                    <th>Genus</th>
+                                    <th>Species</th>
                                     <th>Completeness</th>
                                     <th>Contamination</th>
                                     <th>Actions</th>
@@ -103,6 +127,8 @@
                                 {% for bin in bins if bin['sample_name'] == name %}
                                     <tr>
                                         <td>{{ bin['bin_name'] }}</td>
+                                        <td>{{ bin['genus'] or 'Not Available' }}</td>
+                                        <td>{{ bin['species'] or 'Not Available' }}</td>
                                         <td>{{ bin['completeness'] }}</td>
                                         <td>{{ bin['contamination'] }}</td>
                                         <td>
@@ -113,7 +139,7 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr id="collapseTaxonomy{{ bin['bin_id'] }}" class="collapse">
+                                    <tr id="collapseTaxonomy{{ bin['bin_id'] }}" class="collapse taxonomy-rows-sample-{{ bin['sample_name']|escape }}">
                                         <td colspan="4">
                                             <div class="container">
                                                 <div class="row">
@@ -250,6 +276,17 @@ function generatePlot(sampleName) {
     Plotly.newPlot('plotContainer', [traceInFilter, traceOutFilter], layout);
     const plotModal = new bootstrap.Modal(document.getElementById('plotModal'));
     plotModal.show();
+}
+
+
+function toggleClassification(sampleName) {
+    // Escape special chars for use in querySelector (Bootstrap/Jinja escaping ensures safe classnames)
+    var safeSampleName = CSS.escape(sampleName);
+    var selectors = document.querySelectorAll('.taxonomy-rows-sample-' + safeSampleName);
+    selectors.forEach(row => {
+        const bsCollapse = new bootstrap.Collapse(row, { toggle: false });
+        bsCollapse.toggle();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', restoreState);
