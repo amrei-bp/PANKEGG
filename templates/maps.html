@@ -2,6 +2,8 @@
 {% block title %}Home Page{% endblock %}
 {% block content %}
 
+
+
 <div class="container mt-5">
     <h2>{{ context | safe }}</h2>
     <button class="btn btn-secondary mb-3" onclick="toggleAllCollapses()">Toggle All Details</button>
@@ -22,18 +24,176 @@
             <li><span class="legend-box highlighted-ko"></span> Highlighted KEGG ID (Orange)</li>
             {% endif %}
         </ul>
+        <div class="alert alert-info my-3">
+            <strong>About Pathway Completion:</strong>
+            The pathway completion percentage is calculated by counting the number of KEGG orthologs (KOs) detected in the selected bin(s) that are associated with this pathway in KEGG. The percentage shown is <strong>number of detected KOs / total theoretical KOs</strong> for this pathway. 
+            <br>
+            <span style="font-size:0.95em">
+                <em>Note:</em> Not all orthologs contribute equally to pathway functionality—this value is only an approximate indicator.
+                For detailed insight, use the "Highlight pathway" button to copy detected KOs and visualize them by clicking on the go to KEGG button or for a more detailed search use the <a href="https://www.kegg.jp/kegg/mapper/color.html" target="_blank">KEGG’s Color tool</a>.
+            </span>
+        </div>
     </div>
 
-    <!-- Search Form -->
-    <form method="post" action="{{ url_for('show_maps') }}" class="mb-4">
-        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
-        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
-        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
-        <div class="input-group">
-            <input type="text" name="search_query" class="form-control" placeholder="Search by Map Number or Pathway Name" value="{{ request.form.get('search_query', '') }}">
-            <button class="btn btn-outline-secondary" type="submit">Search</button>
+<form id="filterForm" method="POST" action="{{ url_for('show_maps') }}" class="mb-4">
+    <div class="input-group mb-2" style="align-items: flex-start;">
+        <div class="input-group-prepend" style="margin-right: 8px;">
+            <label class="input-group-text">
+                <input type="radio" name="filter_mode" value="sample"
+                {% if filter_mode == 'sample' %}checked{% endif %} style="margin-right:4px;"> Sample
+            </label>
+            <label class="input-group-text" style="margin-left: 5px;">
+                <input type="radio" name="filter_mode" value="bin"
+                {% if filter_mode == 'bin' %}checked{% endif %} style="margin-right:4px;"> Bin
+            </label>
         </div>
-    </form>
+        <div class="filter-tags" id="filterTags" style="display: flex; align-items: center;">
+            <!-- Chips/tags are rendered dynamically by JS below -->
+        </div>
+        <!-- Pathway/map search field (put after chips for visual clarity) -->
+        <input type="text" name="search_query" class="form-control" style="max-width:240px;margin-left:8px;" placeholder="Search Map Number or Pathway Name" value="{{ search_query or '' }}">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+        <button type="button" class="btn btn-outline-danger" id="clearTagsBtn" style="margin-left:6px;">Clear</button>
+    </div>
+</form>
+
+<script>
+let currentTags = new Set([{% for tag in active_filters %}'{{ tag|e }}',{% endfor %}]);
+let filterMode = '{{ filter_mode }}';
+let dropdown = null, dropdownIndex = -1;
+
+// Initial UI build on page load
+function updateTagUI() {
+    let filterTags = document.getElementById('filterTags');
+    filterTags.innerHTML = '';
+    currentTags.forEach(tag => {
+        let chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${tag} <button type="button" class="remove-tag" tabindex="-1" onclick="removeTag('${tag.replace(/'/g, "\\'")}')">&times;</button>` +
+            `<input type="hidden" name="active_filters" value="${tag}">`;
+        filterTags.appendChild(chip);
+    });
+    // Always add tagInput at the end
+    let tagInput = document.createElement('input');
+    tagInput.id = 'tagInput';
+    tagInput.type = 'text';
+    tagInput.className = 'form-control';
+    tagInput.style.minWidth = '180px';
+    tagInput.placeholder = "Type to add " + filterMode + "...";
+    tagInput.autocomplete = 'off';
+    filterTags.appendChild(tagInput);
+    attachTagInputHandlers(tagInput);
+}
+
+document.querySelectorAll('input[name="filter_mode"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        filterMode = this.value;
+        currentTags = new Set();
+        updateTagUI();
+    });
+});
+
+function removeTag(tag) {
+    currentTags.delete(tag);
+    updateTagUI();
+}
+
+function attachTagInputHandlers(input) {
+    input.addEventListener('input', function() {
+        let query = input.value.trim();
+        if (!query) {
+            if (dropdown) dropdown.remove();
+            dropdown = null;
+            dropdownIndex = -1;
+            return;
+        }
+        fetch('/get_bins_list?mode=' + filterMode)
+            .then(resp => resp.json())
+            .then(data => {
+                let suggestions = data.items.filter(x => x.toLowerCase().includes(query.toLowerCase()));
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.id = 'tagDropdown';
+                    dropdown.style.position = 'absolute';
+                    dropdown.style.background = '#fff';
+                    dropdown.style.border = '1px solid #ccc';
+                    dropdown.style.zIndex = 1000;
+                    dropdown.style.maxHeight = '180px';
+                    dropdown.style.overflowY = 'auto';
+                    dropdown.style.width = input.offsetWidth + 'px';
+                    input.parentNode.appendChild(dropdown);
+                }
+                dropdown.innerHTML = '';
+                suggestions.forEach((sugg, i) => {
+                    let opt = document.createElement('div');
+                    opt.textContent = sugg;
+                    opt.className = 'dropdown-item';
+                    if (i === 0) opt.classList.add('active');
+                    opt.onclick = function() {
+                        if (!currentTags.has(sugg)) {
+                            currentTags.add(sugg);
+                            updateTagUI();
+                        }
+                        input.value = '';
+                        dropdown.remove();
+                        dropdown = null;
+                        dropdownIndex = -1;
+                    };
+                    dropdown.appendChild(opt);
+                });
+                dropdownIndex = -1;
+            });
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (!dropdown) return;
+        let options = dropdown.querySelectorAll('.dropdown-item');
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (dropdownIndex < options.length - 1) dropdownIndex++;
+            else dropdownIndex = 0;
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (dropdownIndex > 0) dropdownIndex--;
+            else dropdownIndex = options.length - 1;
+        } else if (e.key === "Tab" || e.key === "Enter") {
+            if (options.length > 0) {
+                e.preventDefault();
+                options[dropdownIndex >= 0 ? dropdownIndex : 0].click();
+            }
+            return false;
+        }
+        options.forEach((opt, i) => {
+            if (i === dropdownIndex) opt.classList.add('active');
+            else opt.classList.remove('active');
+        });
+    });
+}
+
+// Clear Button: resets tags, then submits form (no filter)
+document.getElementById('clearTagsBtn').onclick = function() {
+    currentTags = new Set();
+    updateTagUI();
+    setTimeout(() => document.getElementById('filterForm').submit(), 50);
+};
+
+document.addEventListener('click', function(event) {
+    if (dropdown && !dropdown.contains(event.target) && event.target.id !== 'tagInput') {
+        dropdown.remove();
+        dropdown = null;
+    }
+});
+
+// Initial attach on page load
+updateTagUI();
+</script>
+
+<style>
+.tag-chip { display:inline-block; background:#eee; border-radius:2px; padding:2px 8px; margin:2px; }
+.remove-tag { background:none; border:none; color:#d33; font-weight:bold; cursor:pointer; }
+.dropdown-item.active { background:#d9edf7; color:#333; }
+</style>
+
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
