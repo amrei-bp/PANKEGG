@@ -67,6 +67,14 @@ def handle_sql_error(e):
     else:
         return f"<h2>[ERROR] Database operational error: {e}</h2>", 500
 
+def taxon_unclassified(val):
+    v = val or ''
+    if v in ['', 'G__', 'g__', 'S__', 's__', 'D__', 'd__', 'P__', 'p__', 'C__', 'c__', 'O__', 'o__', 'F__', 'f__']:
+        return '<span class="text-muted fst-italic">Unclassified</span>'
+    return v
+app.jinja_env.filters['taxon_unclassified'] = taxon_unclassified
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return "<h2>404 Not Found</h2><p>The item you requested was not found.</p>", 404
