@@ -1136,6 +1136,16 @@ def taxonomy():
 
 @app.route('/kegg', methods=['GET', 'POST'])
 def kegg():
+    def normalize_taxon_case(taxon):
+        # Handles cases like O__christensenellales → o__Christensenellales
+        if not taxon or len(taxon) < 4:
+            return taxon
+        prefix = taxon[:3].lower()
+        rest = taxon[3:]
+        if len(rest) == 0:
+            return prefix
+        return prefix + rest[0].upper() + rest[1:]
+
     try:
         ko_id = request.values.get('ko_id')
         bin_id = request.values.get('bin_id')
@@ -1145,7 +1155,7 @@ def kegg():
         conn = get_db_connection()
         cur = conn.cursor()
         kegg_entries = {}
-        bin_name = None  # Variable pour stocker le nom du bin
+        bin_name = None
 
         query = """
         SELECT k.ko_id, k.kegg_name, k.kegg_full_name, b.bin_name, be.go, be.ko, be.eggnog_desc
@@ -1162,21 +1172,51 @@ def kegg():
             conditions.append("k.ko_id = ?")
             params.append(ko_id)
         elif bin_id:
-            # Requête pour obtenir le nom du bin
             cur.execute("SELECT bin_name FROM bin WHERE id = ?", (bin_id,))
             bin_name_result = cur.fetchone()
-            bin_name = bin_name_result[0] if bin_name_result else "Unknown bin"  # Gestion si le bin n'est pas trouvé
-
-            context = f"KEGG inputs associated with <strong>{bin_name}</strong>"  # Utilisation du nom du bin dans le contexte
+            bin_name = bin_name_result[0] if bin_name_result else "Unknown bin"
+            context = f"KEGG inputs associated with <strong>{bin_name}</strong>"
             conditions.append("b.id = ?")
             params.append(bin_id)
         elif taxon:
+            # --- Begin Taxon Filtering ---
+            normalized_taxon = normalize_taxon_case(taxon)
+            prefix = normalized_taxon[:3].lower()
+            rank_map = {
+                'd__': '_kingdom_',
+                'p__': '_phylum_',
+                'c__': '_class_',
+                'o__': '_order_',
+                'f__': '_family_',
+                'g__': '_genus_',
+                's__': '_species_'
+            }
+            rank = rank_map.get(prefix)
+            query += " JOIN taxonomy t ON t.id = b.taxonomic_id "
+            if rank in ['_genus_', '_species_']:
+                cleaned_taxon = normalized_taxon.strip()
+                if cleaned_taxon.lower() in ['g__', 's__']:
+                    # Unclassified: match g__/s__, empty, or NULL
+                    conditions.append(
+                        f"(LOWER(t.{rank}) = ? OR t.{rank} = '' OR t.{rank} IS NULL)"
+                    )
+                    params.append(cleaned_taxon.lower())
+                else:
+                    # Normal classified genus/species
+                    conditions.append(f"t.{rank} LIKE ?")
+                    params.append(cleaned_taxon + '%')
+            elif rank:
+                conditions.append(f"t.{rank} = ?")
+                params.append(normalized_taxon)
+            else:
+                # fallback: match on any rank as before
+                conditions.append(
+                    "(t._kingdom_ = ? OR t._phylum_ = ? OR t._class_ = ? "
+                    "OR t._order_ = ? OR t._family_ = ? OR t._genus_ = ? OR t._species_ = ?)"
+                )
+                params.extend([normalized_taxon]*7)
             context = f"KEGG inputs associated with taxonomy: <strong>{taxon}</strong>"
-            query += """
-            JOIN taxonomy t ON t.id = b.taxonomic_id
-            """
-            conditions.append("? IN (t._kingdom_, t._phylum_, t._class_, t._order_, t._family_, t._genus_, t._species_)")
-            params.append(taxon if taxon != "none" else "")
+            # --- End Taxon Filtering ---
         else:
             context = "Display of all KEGG IDs"
 
@@ -1194,11 +1234,11 @@ def kegg():
 
         rows = cur.fetchall()
         for row in rows:
-            ko_key = (row[0], row[1], row[2])  # KO ID, Name, Full Name
+            ko_key = (row[0], row[1], row[2])
             if ko_key not in kegg_entries:
                 kegg_entries[ko_key] = []
             go_terms = row[4].split(',') if row[4] else []
-            kegg_entries[ko_key].append((row[3], go_terms, row[5], row[6]))  # Bin Name, GO (as list), KO, EggNOG Description
+            kegg_entries[ko_key].append((row[3], go_terms, row[5], row[6]))
 
         cur.close()
         conn.close()
@@ -1207,11 +1247,17 @@ def kegg():
         return handle_sql_error(e)
 
 
+
 @app.route('/map', methods=['GET', 'POST'])
 def show_maps():
     try:
-        # 1. Gather all filtering params (from POST preferred, fallback GET)
-        filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))  # 'sample' or 'bin'
+        # Sorting and pagination
+        sort_by = request.values.get('sort_by', 'map_number')
+        sort_dir = request.values.get('sort_dir', 'asc')
+        page = int(request.values.get('page', 1))
+        per_page = int(request.values.get('per_page', 25))
+
+        filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))
         active_filters = request.form.getlist('active_filters') or request.args.getlist('active_filters')
         bin_id = request.values.get('bin_id')
         ko_id = request.values.get('ko_id')
@@ -1221,13 +1267,12 @@ def show_maps():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        maps = {}
         context_tags = []
         filters_clause = []
         params = []
 
         base_query = """
-            SELECT m.map_number, m.pathway_name, k.ko_id, k.kegg_name, m.pathway_total_orthologs, mk.real_pathway_id
+            SELECT m.map_number, m.pathway_name, k.ko_id, k.kegg_name, m.pathway_total_orthologs, mk.real_pathway_id, b.id as bin_id, s.sample_name
             FROM map m
             LEFT JOIN map_kegg mk ON m.id = mk.map_id
             LEFT JOIN kegg k ON mk.kegg_id = k.id
@@ -1236,7 +1281,7 @@ def show_maps():
             JOIN sample s ON b.sample_id = s.id
         """
 
-        # --- Taxon-based filtering (if present, apply as a first filter)
+        # Filtering logic
         if taxon:
             filters_clause.append(
                 "(b.taxonomic_id IN (SELECT id FROM taxonomy WHERE "
@@ -1245,8 +1290,10 @@ def show_maps():
             )
             params.extend([taxon]*7)
             context_tags.append(f"<span class='tag-chip'>{taxon}</span>")
-
-        # --- Tag filtering (sample/bin, additive) ---
+        if ko_id:
+            filters_clause.append("k.ko_id = ?")
+            params.append(ko_id)
+            context_tags.append(f"<span class='tag-chip'>{ko_id}</span>")
         if active_filters:
             if filter_mode == "sample":
                 filters_clause.append('s.sample_name IN ({})'.format(','.join('?' for _ in active_filters)))
@@ -1262,7 +1309,7 @@ def show_maps():
                         bin_name, sample_name = entry[:-1].split(' [')
                     else:
                         bin_name, sample_name = entry, ""
-                    parsed_bins.append( (bin_name, sample_name) )
+                    parsed_bins.append((bin_name, sample_name))
                 if parsed_bins:
                     sub_clauses = []
                     for bin_name, sample_name in parsed_bins:
@@ -1280,61 +1327,188 @@ def show_maps():
                 context_tags.append(f"<span class='tag-chip'>Bin id: {bin_id}</span>")
             filters_clause.append("b.id = ?")
             params.append(bin_id)
-
-        # --- Pathway search (additive, always works with tag filters) ---
         if search_query:
             filters_clause.append("(m.map_number LIKE ? OR m.pathway_name LIKE ?)")
             params.extend([f"%{search_query}%", f"%{search_query}%"])
             context_tags.append(f"<span class='tag-chip'>{search_query}</span>")
 
-        # --- Final context string for display ---
         context = "Maps associated with search: " + ' '.join(context_tags) if context_tags else "All Maps"
 
-        if filters_clause:
-            base_query += " WHERE " + " AND ".join(filters_clause)
+        # For SQL sorting
+        sort_map = {
+            'map_number': 'm.map_number',
+            'pathway_name': 'm.pathway_name'
+        }
+        sql_sort_col = sort_map.get(sort_by, 'm.map_number')
+        sql_sort_dir = 'DESC' if sort_dir == 'desc' else 'ASC'
+        order_clause = f" ORDER BY {sql_sort_col} {sql_sort_dir}"
 
-        cur.execute(base_query, params)
+        # If NOT sorting by completion, do SQL pagination
+        if sort_by in ('map_number', 'pathway_name'):
+            # COUNT for pagination (distinct map_number in the filter)
+            count_query = "SELECT COUNT(DISTINCT m.map_number) FROM map m " \
+                          "LEFT JOIN map_kegg mk ON m.id = mk.map_id " \
+                          "LEFT JOIN kegg k ON mk.kegg_id = k.id " \
+                          "JOIN bin_map_kegg bmk ON mk.id = bmk.map_kegg_id " \
+                          "JOIN bin b ON bmk.bin_id = b.id " \
+                          "JOIN sample s ON b.sample_id = s.id "
+            if filters_clause:
+                count_query += " WHERE " + " AND ".join(filters_clause)
+            cur.execute(count_query, params)
+            total_maps = cur.fetchone()[0] or 0
+            total_pages = (total_maps // per_page) + (1 if total_maps % per_page else 0)
 
-        # --- Pathway completion calculation as before ---
-        map_completions = {}
-        for row in cur.fetchall():
-            map_key = (row[0], row[1])  # map_number, pathway_name
-            if map_key not in maps:
-                maps[map_key] = {
-                    'kegg_ids': [],
-                    'completion': '0.00%'
-                }
-            if row[2] and row[3]:  # Ensure ko_id and kegg_name are not None
-                maps[map_key]['kegg_ids'].append((row[2], row[3], row[5]))  # Include real_pathway_id
-            pathway_total_orthologs = row[4]
-            if map_key[0] not in map_completions:
-                map_completions[map_key[0]] = pathway_total_orthologs
+            # Get correct map_numbers for this page
+            subquery = f"""
+                SELECT DISTINCT m.map_number
+                FROM map m
+                LEFT JOIN map_kegg mk ON m.id = mk.map_id
+                LEFT JOIN kegg k ON mk.kegg_id = k.id
+                JOIN bin_map_kegg bmk ON mk.id = bmk.map_kegg_id
+                JOIN bin b ON bmk.bin_id = b.id
+                JOIN sample s ON b.sample_id = s.id
+                {"WHERE " + " AND ".join(filters_clause) if filters_clause else ""}
+                {order_clause}
+                LIMIT ? OFFSET ?
+            """
+            subquery_params = params + [per_page, (page-1)*per_page]
+            cur.execute(subquery, subquery_params)
+            page_map_numbers = [row[0] for row in cur.fetchall()]
 
-        for map_key in maps.keys():
-            kegg_ids = maps[map_key]['kegg_ids']
-            filtered_kegg_ids = [kegg_id[0] for kegg_id in kegg_ids if kegg_id[2] == 1]
-            count_id = len(set(filtered_kegg_ids))
-            pathway_total = map_completions[map_key[0]]
-            if pathway_total > 0:
-                completion_ratio = count_id / pathway_total * 100
-                maps[map_key]['completion'] = completion_ratio
-            else:
-                maps[map_key]['completion'] = None
+            if not page_map_numbers:
+                paginated_maps = []
+                cur.close()
+                conn.close()
+                return render_template(
+                    'maps.html',
+                    maps=paginated_maps,
+                    context=context,
+                    filter_mode=filter_mode,
+                    active_filters=active_filters or [],
+                    search_query=search_query,
+                    taxon=taxon,
+                    page=page,
+                    per_page=per_page,
+                    total_pages=total_pages,
+                    total_maps=total_maps,
+                    sort_by=sort_by,
+                    sort_dir=sort_dir
+                )
+
+            # Now get ALL rows for those map_numbers (but only filtered bins/samples)
+            placeholders = ','.join('?' for _ in page_map_numbers)
+            all_params = params + list(page_map_numbers)
+            all_query = base_query + ((" WHERE " + " AND ".join(filters_clause) + " AND m.map_number IN (" + placeholders + ")")
+                                      if filters_clause else " WHERE m.map_number IN (" + placeholders + ")")
+            cur.execute(all_query, all_params)
+
+            # Aggregate
+            maps = {}
+            map_completions = {}
+            for row in cur.fetchall():
+                map_key = (row[0], row[1])
+                if map_key not in maps:
+                    maps[map_key] = {
+                        'kegg_ids': set(),
+                        'completion': '0.00%'
+                    }
+                if row[2] and row[3]:
+                    maps[map_key]['kegg_ids'].add((row[2], row[3], row[5]))
+                pathway_total_orthologs = row[4]
+                if map_key[0] not in map_completions:
+                    map_completions[map_key[0]] = pathway_total_orthologs
+
+            for map_key in maps.keys():
+                kegg_ids = list(maps[map_key]['kegg_ids'])
+                filtered_kegg_ids = [ko_id for ko_id, _, real_pathway_id in kegg_ids if real_pathway_id == 1]
+                count_id = len(set(filtered_kegg_ids))
+                pathway_total = map_completions.get(map_key[0], 0)
+                if pathway_total > 0:
+                    completion_ratio = count_id / pathway_total * 100
+                    maps[map_key]['completion'] = completion_ratio
+                else:
+                    maps[map_key]['completion'] = None
+                maps[map_key]['kegg_ids'] = kegg_ids
+
+            # Retain map order from subquery
+            sorted_maps = []
+            for num in page_map_numbers:
+                for map_key in maps:
+                    if map_key[0] == num:
+                        sorted_maps.append((map_key, maps[map_key]))
+                        break
+
+        else:  # sort_by == "completion"
+            # Get all filtered maps (NO pagination yet!)
+            all_query = base_query
+            if filters_clause:
+                all_query += " WHERE " + " AND ".join(filters_clause)
+            cur.execute(all_query, params)
+
+            maps = {}
+            map_completions = {}
+            for row in cur.fetchall():
+                map_key = (row[0], row[1])
+                if map_key not in maps:
+                    maps[map_key] = {
+                        'kegg_ids': set(),
+                        'completion': '0.00%'
+                    }
+                if row[2] and row[3]:
+                    maps[map_key]['kegg_ids'].add((row[2], row[3], row[5]))
+                pathway_total_orthologs = row[4]
+                if map_key[0] not in map_completions:
+                    map_completions[map_key[0]] = pathway_total_orthologs
+
+            for map_key in maps.keys():
+                kegg_ids = list(maps[map_key]['kegg_ids'])
+                filtered_kegg_ids = [ko_id for ko_id, _, real_pathway_id in kegg_ids if real_pathway_id == 1]
+                count_id = len(set(filtered_kegg_ids))
+                pathway_total = map_completions.get(map_key[0], 0)
+                if pathway_total > 0:
+                    completion_ratio = count_id / pathway_total * 100
+                    maps[map_key]['completion'] = completion_ratio
+                else:
+                    maps[map_key]['completion'] = None
+                maps[map_key]['kegg_ids'] = kegg_ids
+
+            # Now sort ALL and then paginate
+            sorted_maps_all = sorted(
+                maps.items(),
+                key=lambda item: (item[1]['completion'] if item[1]['completion'] is not None else -1),
+                reverse=(sort_dir == 'desc')
+            )
+
+            total_maps = len(sorted_maps_all)
+            total_pages = (total_maps // per_page) + (1 if total_maps % per_page else 0)
+            # slice for pagination
+            start = (page - 1) * per_page
+            end = start + per_page
+            sorted_maps = sorted_maps_all[start:end]
 
         cur.close()
         conn.close()
 
         return render_template(
             'maps.html',
-            maps=maps.items(),
+            maps=sorted_maps,
             context=context,
             filter_mode=filter_mode,
             active_filters=active_filters or [],
             search_query=search_query,
             taxon=taxon,
+            page=page,
+            per_page=per_page,
+            total_pages=total_pages,
+            total_maps=total_maps,
+            sort_by=sort_by,
+            sort_dir=sort_dir
         )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
+
+
+
 
 
 @app.route('/bin', methods=['GET', 'POST'])
