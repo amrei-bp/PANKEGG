@@ -154,6 +154,13 @@
                                 <div id="common-pathways-content" class="collapse">
                                     <div class="card-body">
                                         <div class="table-responsive">
+                                            <!-- Simple Search Bar for Common Pathways Table -->
+                                            <div class="mb-3 d-flex">
+                                                <input type="text" class="form-control me-2" id="common-pathway-search" placeholder="Search pathway name...">
+                                                <button class="btn btn-primary me-2" id="common-pathway-search-btn">Search</button>
+                                                <button class="btn btn-secondary" id="common-pathway-reset-btn">Reset</button>
+                                            </div>
+
                                             <table class="table table-bordered table-striped" id="common-pathways-table">
                                                 <thead class="thead-dark">
                                                     <tr>
@@ -601,6 +608,45 @@ document.addEventListener('DOMContentLoaded', function() {
     updateScatterplots();
     updateCommonPathways();
     updatePCA();
+});
+
+// Pathway Table Filter
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('common-pathway-search');
+    var searchBtn = document.getElementById('common-pathway-search-btn');
+    var resetBtn = document.getElementById('common-pathway-reset-btn');
+    var pathwaysTable = document.getElementById('common-pathways-table');
+
+    // Helper: filter table rows by search text
+    function filterPathwayTable() {
+        var filterText = searchInput.value.trim().toLowerCase();
+        var tbody = pathwaysTable.getElementsByTagName('tbody')[0];
+        Array.from(tbody.getElementsByTagName('tr')).forEach(function(row) {
+            var cell = row.getElementsByTagName('td')[0]; // Pathway Name
+            if (!cell) return;
+            var text = cell.textContent.trim().toLowerCase();
+            if (!filterText || text.includes(filterText)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Search on click
+    searchBtn.addEventListener('click', filterPathwayTable);
+    // Search on enter
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            filterPathwayTable();
+        }
+    });
+    // Reset button
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        filterPathwayTable();
+    });
 });
 
 </script>
