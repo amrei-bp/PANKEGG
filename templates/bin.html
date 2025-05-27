@@ -6,7 +6,6 @@
     <button class="btn btn-secondary mb-3" onclick="toggleAllBins()">Toggle All Bins</button>
     <button class="btn btn-secondary mb-3" onclick="toggleAllCollapses()">Toggle All Taxonomy</button>
 
-    </script>
     <div class="card mb-4">
         <div class="card-header">
             <strong>Sorting, Search, and Filtering Options</strong>
@@ -34,16 +33,13 @@
                             <input class="form-check-input" type="checkbox" role="switch" id="gtdbFilter" name="gtdb_filter" {{ 'checked' if session.get('gtdb_filter', False) else '' }}>
                             <label class="form-check-label" for="gtdbFilter">GTDB quality filtering</label>
                         </div>
-                        <!-- Conserver les paramètres actuels de la requête -->
                         {% if request.values.get('map_number') %}
                             <input type="hidden" name="map_number" value="{{ request.values.get('map_number') }}">
                         {% endif %}
                         {% if request.values.get('kegg_id') %}
                             <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id') }}">
                         {% endif %}
-                        {% if request.values.get('taxon') %}
-                            <input type="hidden" name="taxon" value="{{ request.values.get('taxon') }}">
-                        {% endif %}
+                        <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
                         {% if request.values.get('search_query') %}
                             <input type="hidden" name="search_query" value="{{ request.values.get('search_query') }}">
                         {% endif %}
@@ -51,7 +47,7 @@
                     </form>
                     <script>
                     document.getElementById('gtdbFilter').onchange = function() {
-                        this.form.submit();  // Automatically submits the form when the checkbox changes
+                        this.form.submit();
                     };
                     </script>
                 </div>
@@ -79,9 +75,9 @@
                         </div>
                         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
                         <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id', '') }}">
-                        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
+                        <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
                         <div class="input-group">
-                            <input type="text" name="search_query" class="form-control" placeholder="Search by Sample or Bin Name" value="{{ request.form.get('search_query', '') }}">
+                            <input type="text" name="search_query" class="form-control" placeholder="Search by Sample or Bin Name" value="{{ request.form.get('search_query', request.values.get('search_query', '')) }}">
                             <button class="btn btn-outline-secondary" type="submit">Search</button>
                         </div>
                     </form>
@@ -127,8 +123,20 @@
                                 {% for bin in bins if bin['sample_name'] == name %}
                                     <tr>
                                         <td>{{ bin['bin_name'] }}</td>
-                                        <td>{{ bin['genus'] or 'Not Available' }}</td>
-                                        <td>{{ bin['species'] or 'Not Available' }}</td>
+                                        <td>
+                                        {% if bin['genus'] and bin['genus']|length > 3 and bin['genus'] != 'g__' %}
+                                            {{ bin['genus'] }}
+                                        {% else %}
+                                            Unclassified
+                                        {% endif %}
+                                        </td>
+                                        <td>
+                                        {% if bin['species'] and bin['species']|length > 3 and bin['species'] != 's__' %}
+                                            {{ bin['species'] }}
+                                        {% else %}
+                                            Unclassified
+                                        {% endif %}
+                                        </td>
                                         <td>{{ bin['completeness'] }}</td>
                                         <td>{{ bin['contamination'] }}</td>
                                         <td>
@@ -140,20 +148,62 @@
                                         </td>
                                     </tr>
                                     <tr id="collapseTaxonomy{{ bin['bin_id'] }}" class="collapse taxonomy-rows-sample-{{ bin['sample_name']|escape }}">
-                                        <td colspan="4">
-                                            <div class="container">
-                                                <div class="row">
-                                                    <div class="col-2"><strong>Kingdom</strong><br>{{ bin['kingdom'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Phylum</strong><br>{{ bin['phylum'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Class</strong><br>{{ bin['class'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Order</strong><br>{{ bin['order'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Family</strong><br>{{ bin['family'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Genus</strong><br>{{ bin['genus'] or 'Not Available' }}</div>
-                                                    <div class="col-2"><strong>Species</strong><br>{{ bin['species'] or 'Not Available' }}</div>
+                                    <td colspan="4">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-2"><strong>Kingdom</strong><br>
+                                                    {% if bin['kingdom'] and bin['kingdom']|length > 3 and bin['kingdom'][3:] %}
+                                                        {{ bin['kingdom'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Phylum</strong><br>
+                                                    {% if bin['phylum'] and bin['phylum']|length > 3 and bin['phylum'][3:] %}
+                                                        {{ bin['phylum'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Class</strong><br>
+                                                    {% if bin['class'] and bin['class']|length > 3 and bin['class'][3:] %}
+                                                        {{ bin['class'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Order</strong><br>
+                                                    {% if bin['order'] and bin['order']|length > 3 and bin['order'][3:] %}
+                                                        {{ bin['order'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Family</strong><br>
+                                                    {% if bin['family'] and bin['family']|length > 3 and bin['family'][3:] %}
+                                                        {{ bin['family'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Genus</strong><br>
+                                                    {% if bin['genus'] and bin['genus']|length > 3 and bin['genus'][3:] %}
+                                                        {{ bin['genus'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-2"><strong>Species</strong><br>
+                                                    {% if bin['species'] and bin['species']|length > 3 and bin['species'][3:] %}
+                                                        {{ bin['species'] }}
+                                                    {% else %}
+                                                        Unclassified
+                                                    {% endif %}
                                                 </div>
                                             </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -179,7 +229,7 @@
     <form action="{{ url_for('export_bins') }}" method="post">
         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
         <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id', '') }}">
-        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
+        <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
         <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
         <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
     </form>
@@ -265,11 +315,11 @@ function generatePlot(sampleName) {
         yaxis: { title: 'Contamination (%)'},
         showlegend: true,
         legend: {
-            orientation: 'h',  // Horizontal orientation
-            y: -0.3,  // Position below the plot
-            x: 0.5,  // Centered horizontally
-            xanchor: 'center',  // Anchor the legend to the center
-            yanchor: 'top'  // Anchor the legend to the top
+            orientation: 'h',
+            y: -0.3,
+            x: 0.5,
+            xanchor: 'center',
+            yanchor: 'top'
         }
     };
 
@@ -280,7 +330,6 @@ function generatePlot(sampleName) {
 
 
 function toggleClassification(sampleName) {
-    // Escape special chars for use in querySelector (Bootstrap/Jinja escaping ensures safe classnames)
     var safeSampleName = CSS.escape(sampleName);
     var selectors = document.querySelectorAll('.taxonomy-rows-sample-' + safeSampleName);
     selectors.forEach(row => {
@@ -307,7 +356,7 @@ document.querySelectorAll('input[name="inlineRadioOptions"]').forEach(radio => {
             credentials: 'include'
         }).then(response => {
             if (response.ok) {
-                location.reload(); // Reload the page to reflect changes
+                location.reload();
             } else {
                 alert('Something went wrong!');
             }

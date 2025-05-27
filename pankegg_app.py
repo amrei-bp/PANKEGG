@@ -1205,10 +1205,10 @@ def show_maps():
         # 1. Gather all filtering params (from POST preferred, fallback GET)
         filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))  # 'sample' or 'bin'
         active_filters = request.form.getlist('active_filters') or request.args.getlist('active_filters')
-        search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
-        bin_id = request.values.get('bin_id')   # legacy/compat
+        bin_id = request.values.get('bin_id')
         ko_id = request.values.get('ko_id')
         taxon = request.values.get('taxon')
+        search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -1228,6 +1228,16 @@ def show_maps():
             JOIN sample s ON b.sample_id = s.id
         """
 
+        # --- Taxon-based filtering (if present, apply as a first filter)
+        if taxon:
+            filters_clause.append(
+                "(b.taxonomic_id IN (SELECT id FROM taxonomy WHERE "
+                "(LOWER(_kingdom_) = LOWER(?) OR LOWER(_phylum_) = LOWER(?) OR LOWER(_class_) = LOWER(?) "
+                "OR LOWER(_order_) = LOWER(?) OR LOWER(_family_) = LOWER(?) OR LOWER(_genus_) = LOWER(?) OR LOWER(_species_) = LOWER(?))))"
+            )
+            params.extend([taxon]*7)
+            context_tags.append(f"<span class='tag-chip'>{taxon}</span>")
+
         # --- Tag filtering (sample/bin, additive) ---
         if active_filters:
             if filter_mode == "sample":
@@ -1237,7 +1247,6 @@ def show_maps():
             elif filter_mode == "bin":
                 parsed_bins = []
                 for entry in active_filters:
-                    # Support both "bin_name (Sample: sample_name)" and "bin_name [sample_name]" format
                     if ' (Sample: ' in entry:
                         bin_name, rest = entry.split(' (Sample: ')
                         sample_name = rest.replace(')', '')
@@ -1254,7 +1263,6 @@ def show_maps():
                     filters_clause.append('(' + ' OR '.join(sub_clauses) + ')')
                     context_tags += [f"<span class='tag-chip'>{bin_name} [{sample_name}]</span>" for bin_name, sample_name in parsed_bins]
         elif bin_id:
-            # Legacy direct-bin view
             cur.execute("SELECT bin_name, sample_name FROM bin JOIN sample ON bin.sample_id = sample.id WHERE bin.id = ?", (bin_id,))
             bin_row = cur.fetchone()
             if bin_row:
@@ -1264,7 +1272,6 @@ def show_maps():
                 context_tags.append(f"<span class='tag-chip'>Bin id: {bin_id}</span>")
             filters_clause.append("b.id = ?")
             params.append(bin_id)
-        # --- (ko_id/taxon support skipped for simplicity; can be added if you use those filters) ---
 
         # --- Pathway search (additive, always works with tag filters) ---
         if search_query:
@@ -1316,35 +1323,49 @@ def show_maps():
             filter_mode=filter_mode,
             active_filters=active_filters or [],
             search_query=search_query,
+            taxon=taxon,
         )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
 
 
-
-
 @app.route('/bin', methods=['GET', 'POST'])
 def show_bins():
+    def normalize_taxon_case(taxon):
+        # Handles cases like O__christensenellales → o__Christensenellales
+        if not taxon or len(taxon) < 4:
+            return taxon
+        prefix = taxon[:3].lower()
+        rest = taxon[3:]
+        if len(rest) == 0:
+            return prefix
+        return prefix + rest[0].upper() + rest[1:]
+
     try:
-        map_number = request.values.get('map_number')  # Récupérer le map_number de la requête
+        map_number = request.values.get('map_number')
         kegg_id = request.values.get('kegg_id')
         taxon = request.values.get('taxon')
-        search_query = request.form.get('search_query', '')
+        search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
         gtdb_filter = session.get('gtdb_filter', False)
         sort_filter = session.get('selected_sort_option', False)
         bin_name_sort_sql_command = " ORDER BY bin_number ASC"
         completeness_sort_sql_command = " ORDER BY bin.completeness DESC"
         contamination_sort_sql_command = " ORDER BY bin.contamination DESC"
-        search_fields = ['sample_name', 'bin_name']
+        search_fields = request.form.getlist('search_fields') or ['sample_name', 'bin_name']
 
-        context = "Display of all bins"  # Initialisation par défaut du contexte
+        context = "Display of all bins"
 
         conn = get_db_connection()
         cur = conn.cursor()
 
-        # Préparer les colonnes à récupérer de chaque table
-        bin_columns = ['bin.id as bin_id', 'bin.bin_name', 'bin.completeness', 'bin.contamination', "sample.sample_name",
-                    "CAST(SUBSTR(bin_name, INSTR(bin_name, '.') + 1) AS INTEGER) AS bin_number"]
+        bin_columns = [
+            'bin.id as bin_id',
+            'bin.bin_name',
+            'bin.completeness',
+            'bin.contamination',
+            'sample.sample_name',
+            'CAST(SUBSTR(bin.bin_name, INSTR(bin.bin_name, \'.\') + 1) AS INTEGER) AS bin_number'
+        ]
         taxonomy_columns = [
             'taxonomy."_kingdom_" as kingdom',
             'taxonomy."_phylum_" as phylum',
@@ -1354,25 +1375,20 @@ def show_bins():
             'taxonomy."_genus_" as genus',
             'taxonomy."_species_" as species'
         ]
-
-        # Joindre les tables bin et taxonomy
         join_query = "LEFT JOIN taxonomy ON bin.taxonomic_id = taxonomy.id"
-
-        # Construire la requête de base avec DISTINCT pour éviter les duplications
         query = f"SELECT DISTINCT {', '.join(bin_columns + taxonomy_columns)} FROM bin {join_query}"
         query += " JOIN sample ON sample.id = bin.sample_id "
 
         conditions = []
         params = []
 
-        # Ajouter des conditions basées sur map_number ou kegg_id
+        # Map, KEGG, Taxon filters
         if map_number:
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
             query += " JOIN map m ON mk.map_id = m.id"
             conditions.append("m.map_number = ?")
             params.append(map_number)
-            # Fetch pathway name for nicer context
             cur.execute("SELECT pathway_name FROM map WHERE map_number = ?", (map_number,))
             map_row = cur.fetchone()
             pathway_name = map_row[0] if map_row else None
@@ -1381,7 +1397,6 @@ def show_bins():
             else:
                 context = f"Display of bins for Map number: {map_number}"
         elif kegg_id:
-            # Modification ici pour utiliser ko_id
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
             query += " JOIN kegg k ON mk.kegg_id = k.id"
@@ -1389,79 +1404,120 @@ def show_bins():
             params.append(kegg_id)
             context = f"Display of bins for KEGG ID: <strong>{kegg_id}</strong>"
         elif taxon:
-            # Modification ici pour utiliser taxonomy_id
-            conditions.append("? IN (kingdom, phylum, class, \"order\", family, genus, species)")
-            params.append(taxon if taxon != "none" else "")
+            normalized_taxon = normalize_taxon_case(taxon)
+            prefix = normalized_taxon[:3].lower()
+            rank_map = {
+                'd__': 'kingdom',
+                'p__': 'phylum',
+                'c__': 'class',
+                'o__': 'order',
+                'f__': 'family',
+                'g__': 'genus',
+                's__': 'species'
+            }
+            rank = rank_map.get(prefix)
+            cleaned_taxon = normalized_taxon.strip()
+            if rank in ['genus', 'species']:
+                if cleaned_taxon.lower() in ['g__', 's__']:
+                    # Match unclassified: g__/s__, empty, or NULL
+                    conditions.append(
+                        f"(LOWER(taxonomy.\"_{rank}_\") = ? OR taxonomy.\"_{rank}_\" = '' OR taxonomy.\"_{rank}_\" IS NULL)"
+                    )
+                    params.append(cleaned_taxon.lower())
+                else:
+                    conditions.append(f'taxonomy."_{rank}_" LIKE ?')
+                    params.append(cleaned_taxon + '%')
+            elif rank:
+                conditions.append(f'taxonomy."_{rank}_" = ?')
+                params.append(normalized_taxon)
+            else:
+                # fallback: match on any rank as before (just in case)
+                conditions.append(
+                    "(taxonomy.\"_kingdom_\" = ? OR taxonomy.\"_phylum_\" = ? OR taxonomy.\"_class_\" = ? "
+                    "OR taxonomy.\"_order_\" = ? OR taxonomy.\"_family_\" = ? OR taxonomy.\"_genus_\" = ? OR taxonomy.\"_species_\" = ?)"
+                )
+                params.extend([normalized_taxon]*7)
             context = f"Display of bins for taxonomy entry: <strong>{taxon}</strong>"
 
         if gtdb_filter:
-            conditions.append("(completeness - 5 * contamination > 50)")
-        if search_query:
-            # Try to get the list of fields to search in; default to sample and bin name
-            search_fields = request.form.getlist('search_fields')
-            if not search_fields:
-                search_fields = ['sample_name', 'bin_name']
+            conditions.append("(bin.completeness - 5 * bin.contamination > 50)")
 
-            # Map the form field names to DB columns (as in your schema)
+        # -- Main Search Logic --
+        if search_query:
             search_column_map = {
                 'sample_name': 'sample.sample_name',
                 'bin_name': 'bin.bin_name',
-                'kingdom': 'taxonomy."_kingdom_"',
-                'phylum': 'taxonomy."_phylum_"',
-                'class': 'taxonomy."_class_"',
-                'order': 'taxonomy."_order_"',
-                'family': 'taxonomy."_family_"',
-                'genus': 'taxonomy."_genus_"',
-                'species': 'taxonomy."_species_"'
+                'kingdom': 'taxonomy.\"_kingdom_\"',
+                'phylum': 'taxonomy.\"_phylum_\"',
+                'class': 'taxonomy.\"_class_\"',
+                'order': 'taxonomy.\"_order_\"',
+                'family': 'taxonomy.\"_family_\"',
+                'genus': 'taxonomy.\"_genus_\"',
+                'species': 'taxonomy.\"_species_\"'
             }
             search_subclauses = []
             search_pattern = f"%{search_query}%"
+            # Check for "unclassified" (case-insensitive, any fragment)
+            is_unclassified = "unclassified" in search_query.lower()
             for field in search_fields:
                 dbcol = search_column_map.get(field)
                 if dbcol:
-                    search_subclauses.append(f"{dbcol} LIKE ?")
-                    params.append(search_pattern)
+                    # Taxonomic search for unclassified
+                    if is_unclassified and field in ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']:
+                        prefix = field[0].lower() + '__'  # e.g., 'g__' for genus
+                        search_subclauses.append(
+                            f"({dbcol} IS NULL OR {dbcol} = '' OR LOWER({dbcol}) = ?)"
+                        )
+                        params.append(prefix)
+                    else:
+                        search_subclauses.append(f"{dbcol} LIKE ?")
+                        params.append(search_pattern)
             if search_subclauses:
                 search_condition = '(' + ' OR '.join(search_subclauses) + ')'
                 conditions.append(search_condition)
             context += f" with search pattern: <strong>{search_query}</strong>"
 
+
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
+        # Sorting
         if sort_filter == "option1":
             query += bin_name_sort_sql_command
         elif sort_filter == "option2":
             query += completeness_sort_sql_command
         else:
             query += contamination_sort_sql_command
-        print('QUERY:', query)
-        print('PARAMS:', params)
-        print('SEARCH_FIELDS:', search_fields)
+
         cur.execute(query, params)
 
         rows = cur.fetchall()
         cur.close()
         conn.close()
 
-        # Préparer les noms des colonnes pour l'affichage
         display_column_labels = [col.split(' as ')[1] if ' as ' in col else col.split('.')[1] for col in bin_columns]
-
-        # Organiser les données pour le template
         bins = []
         sample_names = set()
         for row in rows:
-            bin_data = dict(
-                zip(display_column_labels + ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'], row))
+            bin_data = dict(zip(display_column_labels + ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'], row))
             bins.append(bin_data)
             sample_names.add(bin_data['sample_name'])
+        sample_names = sorted(sample_names)
 
-        sample_names = sorted(sample_names)  # Trier les noms de sample
-
-        return render_template('bin.html', bins=bins, columns=display_column_labels, context=context,
-                       sample_names=sample_names, search_fields=search_fields, search_query=search_query)
+        return render_template(
+            'bin.html',
+            bins=bins,
+            columns=display_column_labels,
+            context=context,
+            sample_names=sample_names,
+            search_fields=search_fields,
+            search_query=search_query,
+            taxon=taxon  # persist in form
+        )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
+
+
 
 
 @app.route('/toggle_gtdb_filter', methods=['POST'])
