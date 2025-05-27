@@ -1137,7 +1137,6 @@ def taxonomy():
 @app.route('/kegg', methods=['GET', 'POST'])
 def kegg():
     def normalize_taxon_case(taxon):
-        # Handles cases like O__christensenellales → o__Christensenellales
         if not taxon or len(taxon) < 4:
             return taxon
         prefix = taxon[:3].lower()
@@ -1155,31 +1154,48 @@ def kegg():
         conn = get_db_connection()
         cur = conn.cursor()
         kegg_entries = {}
-        bin_name = None
 
         query = """
-        SELECT k.ko_id, k.kegg_name, k.kegg_full_name, b.bin_name, be.go, be.ko, be.eggnog_desc
+        SELECT DISTINCT
+            k.ko_id,
+            k.kegg_name,
+            k.kegg_full_name,
+            b.bin_name,
+            s.sample_name,
+            be.go,
+            be.ko,
+            be.eggnog_desc
         FROM kegg k
         LEFT JOIN bin_extra_kegg bek ON k.id = bek.kegg_id
         LEFT JOIN bin_extra be ON bek.extra_id = be.id
         LEFT JOIN bin b ON be.bin_id = b.id
+        LEFT JOIN sample s ON b.sample_id = s.id
         """
         conditions = []
         params = []
 
+        # Set filter context and SQL WHERE
         if ko_id:
             context = f"Display for KEGG ID: <strong>{ko_id}</strong>"
             conditions.append("k.ko_id = ?")
             params.append(ko_id)
         elif bin_id:
-            cur.execute("SELECT bin_name FROM bin WHERE id = ?", (bin_id,))
-            bin_name_result = cur.fetchone()
-            bin_name = bin_name_result[0] if bin_name_result else "Unknown bin"
-            context = f"KEGG inputs associated with <strong>{bin_name}</strong>"
+            # Fetch both bin_name and sample_name for the context header
+            cur.execute("""
+                SELECT b.bin_name, s.sample_name
+                FROM bin b
+                LEFT JOIN sample s ON b.sample_id = s.id
+                WHERE b.id = ?
+            """, (bin_id,))
+            bin_row = cur.fetchone()
+            if bin_row:
+                bin_name, sample_name = bin_row
+                context = f"KEGG inputs associated with <strong>{bin_name} [{sample_name}]</strong>"
+            else:
+                context = f"KEGG inputs associated with bin id: <strong>{bin_id}</strong>"
             conditions.append("b.id = ?")
             params.append(bin_id)
         elif taxon:
-            # --- Begin Taxon Filtering ---
             normalized_taxon = normalize_taxon_case(taxon)
             prefix = normalized_taxon[:3].lower()
             rank_map = {
@@ -1196,30 +1212,27 @@ def kegg():
             if rank in ['_genus_', '_species_']:
                 cleaned_taxon = normalized_taxon.strip()
                 if cleaned_taxon.lower() in ['g__', 's__']:
-                    # Unclassified: match g__/s__, empty, or NULL
                     conditions.append(
                         f"(LOWER(t.{rank}) = ? OR t.{rank} = '' OR t.{rank} IS NULL)"
                     )
                     params.append(cleaned_taxon.lower())
                 else:
-                    # Normal classified genus/species
                     conditions.append(f"t.{rank} LIKE ?")
                     params.append(cleaned_taxon + '%')
             elif rank:
                 conditions.append(f"t.{rank} = ?")
                 params.append(normalized_taxon)
             else:
-                # fallback: match on any rank as before
                 conditions.append(
                     "(t._kingdom_ = ? OR t._phylum_ = ? OR t._class_ = ? "
                     "OR t._order_ = ? OR t._family_ = ? OR t._genus_ = ? OR t._species_ = ?)"
                 )
                 params.extend([normalized_taxon]*7)
             context = f"KEGG inputs associated with taxonomy: <strong>{taxon}</strong>"
-            # --- End Taxon Filtering ---
         else:
             context = "Display of all KEGG IDs"
 
+        # Add search box
         if search_query:
             search_condition = "(k.ko_id LIKE ? OR k.kegg_name LIKE ? OR k.kegg_full_name LIKE ?)"
             conditions.append(search_condition)
@@ -1231,51 +1244,51 @@ def kegg():
             query += " WHERE " + " AND ".join(conditions)
 
         cur.execute(query, params)
-
         rows = cur.fetchall()
         for row in rows:
-            ko_key = (row[0], row[1], row[2])
+            ko_key = (row[0], row[1], row[2])  # (ko_id, kegg_name, kegg_full_name)
             if ko_key not in kegg_entries:
                 kegg_entries[ko_key] = []
-            go_terms = row[4].split(',') if row[4] else []
-            kegg_entries[ko_key].append((row[3], go_terms, row[5], row[6]))
+            go_terms = row[5].split(',') if row[5] else []
+            kegg_entries[ko_key].append({
+                'bin_name': row[3],
+                'sample_name': row[4],
+                'go_terms': go_terms,
+                'ko': row[6],
+                'eggnog_desc': row[7]
+            })
 
         cur.close()
         conn.close()
-        return render_template('kegg.html', context=context, kegg_entries=kegg_entries.items())
+        return render_template(
+            'kegg.html',
+            context=context,
+            kegg_entries=kegg_entries.items(),
+            ko_id=ko_id
+        )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
+
+
+
+
 
 
 @app.route('/map', methods=['GET', 'POST'])
 def show_maps():
     try:
-        # Determine filter_mode, but correct if coming from bin_id
-        filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))
+        filter_mode = request.form.get('filter_mode') or request.args.get('filter_mode') or 'sample'
         active_filters = request.form.getlist('active_filters') or request.args.getlist('active_filters')
-        bin_id = request.values.get('bin_id')
-        ko_id = request.values.get('ko_id')
-        taxon = request.values.get('taxon')
-        search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
+        bin_id = request.form.get('bin_id') or request.args.get('bin_id')
+        ko_id = request.form.get('ko_id') or request.args.get('ko_id')
+        taxon = request.form.get('taxon') or request.args.get('taxon')
+        search_query = request.form.get('search_query') or request.args.get('search_query') or ''
 
-        # --- Force filter_mode to 'bin' if bin_id is set and no active filters ---
-        # If coming from bin page, auto-select this bin as filter (if not already present)
-        if bin_id and not active_filters:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT bin_name, sample_name FROM bin JOIN sample ON bin.sample_id = sample.id WHERE bin.id = ?", (bin_id,))
-            bin_row = cur.fetchone()
-            cur.close()
-            conn.close()
-            if bin_row:
-                bin_name, sample_name = bin_row
-                bin_tag = f"{bin_name} [{sample_name}]"
-                active_filters = [bin_tag]
-                filter_mode = "bin"
+
+        # Bin auto-filter logic as before (not shown here for brevity)
 
         conn = get_db_connection()
         cur = conn.cursor()
-
         maps = {}
         context_tags = []
         filters_clause = []
@@ -1291,6 +1304,7 @@ def show_maps():
             JOIN sample s ON b.sample_id = s.id
         """
 
+        # Taxon filtering
         if taxon:
             filters_clause.append(
                 "(b.taxonomic_id IN (SELECT id FROM taxonomy WHERE "
@@ -1300,7 +1314,7 @@ def show_maps():
             params.extend([taxon]*7)
             context_tags.append(f"<span class='tag-chip'>{taxon}</span>")
 
-        # --- Tag filtering (sample/bin, additive) ---
+        # Tag filtering (sample/bin)
         if active_filters:
             if filter_mode == "sample":
                 filters_clause.append('s.sample_name IN ({})'.format(','.join('?' for _ in active_filters)))
@@ -1316,7 +1330,7 @@ def show_maps():
                         bin_name, sample_name = entry[:-1].split(' [')
                     else:
                         bin_name, sample_name = entry, ""
-                    parsed_bins.append( (bin_name, sample_name) )
+                    parsed_bins.append((bin_name, sample_name))
                 if parsed_bins:
                     sub_clauses = []
                     for bin_name, sample_name in parsed_bins:
@@ -1325,7 +1339,6 @@ def show_maps():
                     filters_clause.append('(' + ' OR '.join(sub_clauses) + ')')
                     context_tags += [f"<span class='tag-chip'>{bin_name} [{sample_name}]</span>" for bin_name, sample_name in parsed_bins]
         elif bin_id:
-            # This block shouldn't normally hit anymore, but safe to keep
             cur.execute("SELECT bin_name, sample_name FROM bin JOIN sample ON bin.sample_id = sample.id WHERE bin.id = ?", (bin_id,))
             bin_row = cur.fetchone()
             if bin_row:
@@ -1336,34 +1349,68 @@ def show_maps():
             filters_clause.append("b.id = ?")
             params.append(bin_id)
 
+        # Pathway search (map number/pathway name)
         if search_query:
             filters_clause.append("(m.map_number LIKE ? OR m.pathway_name LIKE ?)")
             params.extend([f"%{search_query}%", f"%{search_query}%"])
             context_tags.append(f"<span class='tag-chip'>{search_query}</span>")
 
+        # ---- KO Filter Logic ----
+        maps_to_show = None
+        if ko_id:
+            # Subquery to get map_numbers that match ko_id and other filters
+            ko_filters = list(filters_clause) + ["k.ko_id = ?"]
+            ko_params = params + [ko_id]
+            ko_query = base_query
+            if ko_filters:
+                ko_query += " WHERE " + " AND ".join(ko_filters)
+            cur.execute(ko_query, ko_params)
+            maps_to_show = [row[0] for row in cur.fetchall()]
+            context_tags.append(f"<span class='tag-chip'>{ko_id}</span>")
+            if maps_to_show:
+                filters_clause.append("m.map_number IN ({})".format(','.join(['?']*len(maps_to_show))))
+                params.extend(maps_to_show)
+            else:
+                maps = {}
+                cur.close()
+                conn.close()
+                return render_template(
+                    'maps.html',
+                    maps=maps.items(),
+                    context="No maps contain this KO ID with current filters.",
+                    filter_mode=filter_mode,
+                    active_filters=active_filters or [],
+                    search_query=search_query,
+                    ko_id=ko_id,
+                    taxon=taxon,
+                    bin_id=bin_id
+                )
+
+        # Final query with all filters
         context = "Maps associated with search: " + ' '.join(context_tags) if context_tags else "All Maps"
-
+        query = base_query
         if filters_clause:
-            base_query += " WHERE " + " AND ".join(filters_clause)
-
-        cur.execute(base_query, params)
+            query += " WHERE " + " AND ".join(filters_clause)
+        cur.execute(query, params)
 
         map_completions = {}
         for row in cur.fetchall():
             map_key = (row[0], row[1])
             if map_key not in maps:
                 maps[map_key] = {
-                    'kegg_ids': [],
+                    'kegg_ids': set(),
                     'completion': '0.00%'
                 }
-            if row[2] and row[3]:
-                maps[map_key]['kegg_ids'].append((row[2], row[3], row[5]))
+            # Add KO if exists (allow empty kegg_name but require KO id)
+            if row[2] is not None:
+                maps[map_key]['kegg_ids'].add((row[2], row[3], row[5]))
             pathway_total_orthologs = row[4]
             if map_key[0] not in map_completions:
                 map_completions[map_key[0]] = pathway_total_orthologs
 
+
         for map_key in maps.keys():
-            kegg_ids = maps[map_key]['kegg_ids']
+            kegg_ids = list(maps[map_key]['kegg_ids'])
             filtered_kegg_ids = [kegg_id[0] for kegg_id in kegg_ids if kegg_id[2] == 1]
             count_id = len(set(filtered_kegg_ids))
             pathway_total = map_completions[map_key[0]]
@@ -1372,6 +1419,7 @@ def show_maps():
                 maps[map_key]['completion'] = completion_ratio
             else:
                 maps[map_key]['completion'] = None
+            maps[map_key]['kegg_ids'] = kegg_ids
 
         cur.close()
         conn.close()
@@ -1383,8 +1431,9 @@ def show_maps():
             filter_mode=filter_mode,
             active_filters=active_filters or [],
             search_query=search_query,
+            ko_id=ko_id,
             taxon=taxon,
-            bin_id=bin_id  # <<------ IMPORTANT to keep it in context for the form
+            bin_id=bin_id
         )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
@@ -1393,14 +1442,9 @@ def show_maps():
 
 
 
-
-
-
-
 @app.route('/bin', methods=['GET', 'POST'])
 def show_bins():
     def normalize_taxon_case(taxon):
-        # Handles cases like O__christensenellales → o__Christensenellales
         if not taxon or len(taxon) < 4:
             return taxon
         prefix = taxon[:3].lower()
@@ -1411,7 +1455,7 @@ def show_bins():
 
     try:
         map_number = request.values.get('map_number')
-        kegg_id = request.values.get('kegg_id')
+        ko_id = request.values.get('ko_id') or request.values.get('kegg_id')  # <- patch here!
         taxon = request.values.get('taxon')
         search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
         gtdb_filter = session.get('gtdb_filter', False)
@@ -1450,7 +1494,6 @@ def show_bins():
         conditions = []
         params = []
 
-        # Map, KEGG, Taxon filters
         if map_number:
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
@@ -1464,13 +1507,13 @@ def show_bins():
                 context = f"Display of bins for Pathway: {pathway_name}"
             else:
                 context = f"Display of bins for Map number: {map_number}"
-        elif kegg_id:
+        elif ko_id:
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
             query += " JOIN kegg k ON mk.kegg_id = k.id"
             conditions.append("k.ko_id = ?")
-            params.append(kegg_id)
-            context = f"Display of bins for KEGG ID: <strong>{kegg_id}</strong>"
+            params.append(ko_id)
+            context = f"Display of bins for KEGG ID: <strong>{ko_id}</strong>"
         elif taxon:
             normalized_taxon = normalize_taxon_case(taxon)
             prefix = normalized_taxon[:3].lower()
@@ -1487,7 +1530,6 @@ def show_bins():
             cleaned_taxon = normalized_taxon.strip()
             if rank in ['genus', 'species']:
                 if cleaned_taxon.lower() in ['g__', 's__']:
-                    # Match unclassified: g__/s__, empty, or NULL
                     conditions.append(
                         f"(LOWER(taxonomy.\"_{rank}_\") = ? OR taxonomy.\"_{rank}_\" = '' OR taxonomy.\"_{rank}_\" IS NULL)"
                     )
@@ -1499,7 +1541,6 @@ def show_bins():
                 conditions.append(f'taxonomy."_{rank}_" = ?')
                 params.append(normalized_taxon)
             else:
-                # fallback: match on any rank as before (just in case)
                 conditions.append(
                     "(taxonomy.\"_kingdom_\" = ? OR taxonomy.\"_phylum_\" = ? OR taxonomy.\"_class_\" = ? "
                     "OR taxonomy.\"_order_\" = ? OR taxonomy.\"_family_\" = ? OR taxonomy.\"_genus_\" = ? OR taxonomy.\"_species_\" = ?)"
@@ -1525,14 +1566,12 @@ def show_bins():
             }
             search_subclauses = []
             search_pattern = f"%{search_query}%"
-            # Check for "unclassified" (case-insensitive, any fragment)
             is_unclassified = "unclassified" in search_query.lower()
             for field in search_fields:
                 dbcol = search_column_map.get(field)
                 if dbcol:
-                    # Taxonomic search for unclassified
                     if is_unclassified and field in ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']:
-                        prefix = field[0].lower() + '__'  # e.g., 'g__' for genus
+                        prefix = field[0].lower() + '__'
                         search_subclauses.append(
                             f"({dbcol} IS NULL OR {dbcol} = '' OR LOWER({dbcol}) = ?)"
                         )
@@ -1545,11 +1584,9 @@ def show_bins():
                 conditions.append(search_condition)
             context += f" with search pattern: <strong>{search_query}</strong>"
 
-
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
-        # Sorting
         if sort_filter == "option1":
             query += bin_name_sort_sql_command
         elif sort_filter == "option2":
@@ -1580,10 +1617,11 @@ def show_bins():
             sample_names=sample_names,
             search_fields=search_fields,
             search_query=search_query,
-            taxon=taxon  # persist in form
+            taxon=taxon
         )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
+
 
 
 

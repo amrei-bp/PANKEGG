@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Home Page{% endblock%}
+{% block title %}KEGG Page{% endblock %}
 {% block content %}
 
 <div class="container mt-5">
@@ -31,9 +31,10 @@
                 <td>{{ ko_name }}</td>
                 <td>{{ ko_full_name }}</td>
                 <td>
-                    <a href="{{ url_for('show_bins', kegg_id=ko_id) }}" class="btn btn-info">View Bins</a>
-                    <a href="{{ url_for('show_maps', ko_id=ko_id) }}" class="btn btn-info">View Maps</a>
-                    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                    <!-- View Bins and View Maps: keep these! -->
+                    <a href="{{ url_for('show_bins', ko_id=ko_id) }}" class="btn btn-info">View Bins</a>
+                    <a href="{{ url_for('show_maps', ko_id=ko_id) }}" class="btn btn-primary">View Maps</a>
+                    <button class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
                         View Details
                     </button>
                     <a href="https://www.kegg.jp/entry/{{ ko_id }}" target="_blank" class="btn btn-warning">KEGG info</a>
@@ -43,53 +44,29 @@
                 <td colspan="4">
                     <div class="collapse" id="collapse{{ loop.index }}">
                         <table class="table">
-                            <thead>
+                           <thead>
                                 <tr>
                                     <th>Bin Name</th>
+                                    <th>Sample</th>
                                     <th>GO-terms</th>
-                                    <th>KO associated in the EggNOG annotation</th>
+                                    <th>KO associated in EggNOG annotation</th>
                                     <th>EggNOG Description</th>
-                                </tr>
-
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for detail in details %}
+                                {% for entry in details %}
                                 <tr>
-                                    <td>{{ detail[0] }}</td>
+                                    <td>{{ entry.bin_name or '—' }}</td>
+                                    <td>{{ entry.sample_name or '—' }}</td>
                                     <td>
-                                        {% if detail[1] %}
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasGO{{ loop.index }}">More</button>
-                                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasGO{{ loop.index }}">
-                                                <div class="offcanvas-header">
-                                                    <h5 class="offcanvas-title">GO Terms</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                                </div>
-                                                <div class="offcanvas-body">
-                                                    {% for go in detail[1] %}
-                                                        <div>{{ go }}</div>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
+                                        {% if entry.go_terms %}
+                                            {{ entry.go_terms | join(', ') }}
                                         {% else %}
-                                            <div style="max-height: 100px; overflow-y: auto;">
-                                                {% for go in detail[1] %}
-                                                    <div>{{ go }}</div>
-                                                {% endfor %}
-                                            </div>
+                                            —
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        {% if detail[2] %}
-                                            {% set kos = detail[2].split(',') %}
-                                            {% for ko in kos %}
-                                                <a href="{{ url_for('kegg', ko_id=ko.split(':')[1].strip()) }}" class="kegg-id">{{ ko.split(':')[1].strip() }}</a>{% if not loop.last %}, {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            Not available
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ detail[3] }}</td>
+                                    <td>{{ entry.ko or '—' }}</td>
+                                    <td>{{ entry.eggnog_desc or '—' }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -100,7 +77,6 @@
         {% endfor %}
         </tbody>
     </table>
-    <!-- Bouton pour exporter l'état actuel -->
     <form action="{{ url_for('export_kegg') }}" method="post">
         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
         <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
@@ -108,7 +84,17 @@
         <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
         <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
     </form>
-
 </div>
-
-{% endblock%}
+<script>
+function toggleAllCollapses() {
+    var collapses = document.querySelectorAll('.collapse');
+    collapses.forEach(function(collapse) {
+        if (collapse.classList.contains('show')) {
+            collapse.classList.remove('show');
+        } else {
+            collapse.classList.add('show');
+        }
+    });
+}
+</script>
+{% endblock %}

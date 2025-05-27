@@ -45,8 +45,8 @@
                         {% if request.values.get('map_number') %}
                             <input type="hidden" name="map_number" value="{{ request.values.get('map_number') }}">
                         {% endif %}
-                        {% if request.values.get('kegg_id') %}
-                            <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id') }}">
+                        {% if request.values.get('ko_id') %}
+                            <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id') }}">
                         {% endif %}
                         {% if request.values.get('taxon') %}
                             <input type="hidden" name="taxon" value="{{ request.values.get('taxon') }}">
@@ -85,7 +85,7 @@
                             {% endfor %}
                         </div>
                         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
-                        <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id', '') }}">
+                        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
                         <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
                         <div class="input-group">
                             <input type="text" name="search_query" class="form-control" placeholder="Search by Sample, Bin, or Taxonomy (type 'unclassified' for unclassified bins at a selected rank)" value="{{ request.form.get('search_query', '') }}">
@@ -208,7 +208,7 @@
     </div>
     <form action="{{ url_for('export_bins') }}" method="post">
         <input type="hidden" name="map_number" value="{{ request.values.get('map_number', '') }}">
-        <input type="hidden" name="kegg_id" value="{{ request.values.get('kegg_id', '') }}">
+        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
         <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
         <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
         <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
