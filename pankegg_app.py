@@ -1247,17 +1247,31 @@ def kegg():
         return handle_sql_error(e)
 
 
-
 @app.route('/map', methods=['GET', 'POST'])
 def show_maps():
     try:
-        # 1. Gather all filtering params (from POST preferred, fallback GET)
-        filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))  # 'sample' or 'bin'
+        # Determine filter_mode, but correct if coming from bin_id
+        filter_mode = request.form.get('filter_mode', request.args.get('filter_mode', 'sample'))
         active_filters = request.form.getlist('active_filters') or request.args.getlist('active_filters')
         bin_id = request.values.get('bin_id')
         ko_id = request.values.get('ko_id')
         taxon = request.values.get('taxon')
         search_query = request.form.get('search_query', '') or request.values.get('search_query', '')
+
+        # --- Force filter_mode to 'bin' if bin_id is set and no active filters ---
+        # If coming from bin page, auto-select this bin as filter (if not already present)
+        if bin_id and not active_filters:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT bin_name, sample_name FROM bin JOIN sample ON bin.sample_id = sample.id WHERE bin.id = ?", (bin_id,))
+            bin_row = cur.fetchone()
+            cur.close()
+            conn.close()
+            if bin_row:
+                bin_name, sample_name = bin_row
+                bin_tag = f"{bin_name} [{sample_name}]"
+                active_filters = [bin_tag]
+                filter_mode = "bin"
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -1277,7 +1291,6 @@ def show_maps():
             JOIN sample s ON b.sample_id = s.id
         """
 
-        # --- Taxon-based filtering (if present, apply as a first filter)
         if taxon:
             filters_clause.append(
                 "(b.taxonomic_id IN (SELECT id FROM taxonomy WHERE "
@@ -1312,6 +1325,7 @@ def show_maps():
                     filters_clause.append('(' + ' OR '.join(sub_clauses) + ')')
                     context_tags += [f"<span class='tag-chip'>{bin_name} [{sample_name}]</span>" for bin_name, sample_name in parsed_bins]
         elif bin_id:
+            # This block shouldn't normally hit anymore, but safe to keep
             cur.execute("SELECT bin_name, sample_name FROM bin JOIN sample ON bin.sample_id = sample.id WHERE bin.id = ?", (bin_id,))
             bin_row = cur.fetchone()
             if bin_row:
@@ -1322,13 +1336,11 @@ def show_maps():
             filters_clause.append("b.id = ?")
             params.append(bin_id)
 
-        # --- Pathway search (additive, always works with tag filters) ---
         if search_query:
             filters_clause.append("(m.map_number LIKE ? OR m.pathway_name LIKE ?)")
             params.extend([f"%{search_query}%", f"%{search_query}%"])
             context_tags.append(f"<span class='tag-chip'>{search_query}</span>")
 
-        # --- Final context string for display ---
         context = "Maps associated with search: " + ' '.join(context_tags) if context_tags else "All Maps"
 
         if filters_clause:
@@ -1336,17 +1348,16 @@ def show_maps():
 
         cur.execute(base_query, params)
 
-        # --- Pathway completion calculation as before ---
         map_completions = {}
         for row in cur.fetchall():
-            map_key = (row[0], row[1])  # map_number, pathway_name
+            map_key = (row[0], row[1])
             if map_key not in maps:
                 maps[map_key] = {
                     'kegg_ids': [],
                     'completion': '0.00%'
                 }
-            if row[2] and row[3]:  # Ensure ko_id and kegg_name are not None
-                maps[map_key]['kegg_ids'].append((row[2], row[3], row[5]))  # Include real_pathway_id
+            if row[2] and row[3]:
+                maps[map_key]['kegg_ids'].append((row[2], row[3], row[5]))
             pathway_total_orthologs = row[4]
             if map_key[0] not in map_completions:
                 map_completions[map_key[0]] = pathway_total_orthologs
@@ -1373,9 +1384,11 @@ def show_maps():
             active_filters=active_filters or [],
             search_query=search_query,
             taxon=taxon,
+            bin_id=bin_id  # <<------ IMPORTANT to keep it in context for the form
         )
     except sqlite3.OperationalError as e:
         return handle_sql_error(e)
+
 
 
 

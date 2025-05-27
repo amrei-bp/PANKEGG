@@ -2,17 +2,31 @@
 {% block title %}Home Page{% endblock %}
 {% block content %}
 
-
-
 <div class="container mt-5">
     <h2>{{ context | safe }}</h2>
-    <button class="btn btn-secondary mb-3" onclick="toggleAllCollapses()">Toggle All Details</button>
-    <form action="{{ url_for('export_maps') }}" method="post">
-        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
-        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
-        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
-        <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
-        <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
+    <form id="filterForm" method="POST" action="{{ url_for('show_maps') }}" class="mb-4">
+        <input type="hidden" name="bin_id" value="{{ bin_id or request.values.get('bin_id', '') }}">
+        <div class="input-group mb-2" style="align-items: flex-start;">
+            <div class="input-group-prepend" style="margin-right: 8px;">
+                <label class="input-group-text">
+                    <input type="radio" name="filter_mode" value="sample"
+                    {% if filter_mode == 'sample' %}checked{% endif %} style="margin-right:4px;"> Sample
+                </label>
+                <label class="input-group-text" style="margin-left: 5px;">
+                    <input type="radio" name="filter_mode" value="bin"
+                    {% if filter_mode == 'bin' %}checked{% endif %} style="margin-right:4px;"> Bin
+                </label>
+            </div>
+            <div class="filter-tags" id="filterTags" style="display: flex; align-items: center;">
+                <!-- Chips/tags rendered by JS -->
+            </div>
+            <input type="text" id="tagInput" class="form-control" style="max-width:240px;margin-left:8px;" placeholder="Type to add {{ 'Bin' if filter_mode=='bin' else 'Sample' }}" autocomplete="off">
+            <input type="text" name="search_query" class="form-control" style="max-width:240px;margin-left:8px;" placeholder="Search Map Number or Pathway Name" value="{{ search_query or '' }}">
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
+        </div>
+        <!-- Hidden tags submitted as active_filters[] -->
+        <div id="hiddenTagInputs"></div>
     </form>
     <!-- Legend Section -->
     <div class="legend mb-4 p-3 border rounded">
@@ -35,167 +49,6 @@
         </div>
     </div>
 
-<form id="filterForm" method="POST" action="{{ url_for('show_maps') }}" class="mb-4">
-    <div class="input-group mb-2" style="align-items: flex-start;">
-        <div class="input-group-prepend" style="margin-right: 8px;">
-            <label class="input-group-text">
-                <input type="radio" name="filter_mode" value="sample"
-                {% if filter_mode == 'sample' %}checked{% endif %} style="margin-right:4px;"> Sample
-            </label>
-            <label class="input-group-text" style="margin-left: 5px;">
-                <input type="radio" name="filter_mode" value="bin"
-                {% if filter_mode == 'bin' %}checked{% endif %} style="margin-right:4px;"> Bin
-            </label>
-        </div>
-        <div class="filter-tags" id="filterTags" style="display: flex; align-items: center;">
-            <!-- Chips/tags are rendered dynamically by JS below -->
-        </div>
-        <!-- Pathway/map search field (put after chips for visual clarity) -->
-        <input type="text" name="search_query" class="form-control" style="max-width:240px;margin-left:8px;" placeholder="Search Map Number or Pathway Name" value="{{ search_query or '' }}">
-        <button type="submit" class="btn btn-outline-secondary">Filter</button>
-        <button type="button" class="btn btn-outline-danger" id="clearTagsBtn" style="margin-left:6px;">Clear</button>
-        <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
-    </div>
-</form>
-
-<script>
-let currentTags = new Set([{% for tag in active_filters %}'{{ tag|e }}',{% endfor %}]);
-let filterMode = '{{ filter_mode }}';
-let dropdown = null, dropdownIndex = -1;
-
-// Initial UI build on page load
-function updateTagUI() {
-    let filterTags = document.getElementById('filterTags');
-    filterTags.innerHTML = '';
-    currentTags.forEach(tag => {
-        let chip = document.createElement('span');
-        chip.className = 'tag-chip';
-        chip.innerHTML = `${tag} <button type="button" class="remove-tag" tabindex="-1" onclick="removeTag('${tag.replace(/'/g, "\\'")}')">&times;</button>` +
-            `<input type="hidden" name="active_filters" value="${tag}">`;
-        filterTags.appendChild(chip);
-    });
-    // Always add tagInput at the end
-    let tagInput = document.createElement('input');
-    tagInput.id = 'tagInput';
-    tagInput.type = 'text';
-    tagInput.className = 'form-control';
-    tagInput.style.minWidth = '180px';
-    tagInput.placeholder = "Type to add " + filterMode + "...";
-    tagInput.autocomplete = 'off';
-    filterTags.appendChild(tagInput);
-    attachTagInputHandlers(tagInput);
-}
-
-document.querySelectorAll('input[name="filter_mode"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        filterMode = this.value;
-        currentTags = new Set();
-        updateTagUI();
-    });
-});
-
-function removeTag(tag) {
-    currentTags.delete(tag);
-    updateTagUI();
-}
-
-function attachTagInputHandlers(input) {
-    input.addEventListener('input', function() {
-        let query = input.value.trim();
-        if (!query) {
-            if (dropdown) dropdown.remove();
-            dropdown = null;
-            dropdownIndex = -1;
-            return;
-        }
-        fetch('/get_bins_list?mode=' + filterMode)
-            .then(resp => resp.json())
-            .then(data => {
-                let suggestions = data.items.filter(x => x.toLowerCase().includes(query.toLowerCase()));
-                if (!dropdown) {
-                    dropdown = document.createElement('div');
-                    dropdown.id = 'tagDropdown';
-                    dropdown.style.position = 'absolute';
-                    dropdown.style.background = '#fff';
-                    dropdown.style.border = '1px solid #ccc';
-                    dropdown.style.zIndex = 1000;
-                    dropdown.style.maxHeight = '180px';
-                    dropdown.style.overflowY = 'auto';
-                    dropdown.style.width = input.offsetWidth + 'px';
-                    input.parentNode.appendChild(dropdown);
-                }
-                dropdown.innerHTML = '';
-                suggestions.forEach((sugg, i) => {
-                    let opt = document.createElement('div');
-                    opt.textContent = sugg;
-                    opt.className = 'dropdown-item';
-                    if (i === 0) opt.classList.add('active');
-                    opt.onclick = function() {
-                        if (!currentTags.has(sugg)) {
-                            currentTags.add(sugg);
-                            updateTagUI();
-                        }
-                        input.value = '';
-                        dropdown.remove();
-                        dropdown = null;
-                        dropdownIndex = -1;
-                    };
-                    dropdown.appendChild(opt);
-                });
-                dropdownIndex = -1;
-            });
-    });
-
-    input.addEventListener('keydown', function(e) {
-        if (!dropdown) return;
-        let options = dropdown.querySelectorAll('.dropdown-item');
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            if (dropdownIndex < options.length - 1) dropdownIndex++;
-            else dropdownIndex = 0;
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            if (dropdownIndex > 0) dropdownIndex--;
-            else dropdownIndex = options.length - 1;
-        } else if (e.key === "Tab" || e.key === "Enter") {
-            if (options.length > 0) {
-                e.preventDefault();
-                options[dropdownIndex >= 0 ? dropdownIndex : 0].click();
-            }
-            return false;
-        }
-        options.forEach((opt, i) => {
-            if (i === dropdownIndex) opt.classList.add('active');
-            else opt.classList.remove('active');
-        });
-    });
-}
-
-// Clear Button: resets tags, then submits form (no filter)
-document.getElementById('clearTagsBtn').onclick = function() {
-    currentTags = new Set();
-    updateTagUI();
-    setTimeout(() => document.getElementById('filterForm').submit(), 50);
-};
-
-document.addEventListener('click', function(event) {
-    if (dropdown && !dropdown.contains(event.target) && event.target.id !== 'tagInput') {
-        dropdown.remove();
-        dropdown = null;
-    }
-});
-
-// Initial attach on page load
-updateTagUI();
-</script>
-
-<style>
-.tag-chip { display:inline-block; background:#eee; border-radius:2px; padding:2px 8px; margin:2px; }
-.remove-tag { background:none; border:none; color:#d33; font-weight:bold; cursor:pointer; }
-.dropdown-item.active { background:#d9edf7; color:#333; }
-</style>
-
-
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
@@ -212,7 +65,7 @@ updateTagUI();
                 <td>{{ pathway_name }}</td>
                 <td>
                     {% if data.completion is not none %}
-                    <div class="d-flex justify-content-center"> <!-- Center the donut chart -->
+                    <div class="d-flex justify-content-center">
                         <div class="progress-circle" style="background: conic-gradient(#17ECFD {{ data.completion }}%, #d3d3d3 {{ data.completion }}%);">
                             <span>{{ data.completion | round(2) }}%</span>
                         </div>
@@ -248,7 +101,6 @@ updateTagUI();
                     </div>
                 </td>
             </tr>
-            <!-- Offcanvas for Highlight Pathways -->
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasHighlight{{ loop.index }}" aria-labelledby="offcanvasHighlightLabel{{ loop.index }}">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasHighlightLabel{{ loop.index }}">{{ pathway_name }}</h5>
@@ -274,48 +126,98 @@ updateTagUI();
             {% endfor %}
         </tbody>
     </table>
-    <!-- Bouton pour exporter l'état actuel -->
-    <form action="{{ url_for('export_maps') }}" method="post">
-        <input type="hidden" name="bin_id" value="{{ request.values.get('bin_id', '') }}">
-        <input type="hidden" name="ko_id" value="{{ request.values.get('ko_id', '') }}">
-        <input type="hidden" name="taxon" value="{{ request.values.get('taxon', '') }}">
-        <input type="hidden" name="search_query" value="{{ request.values.get('search_query', '') }}">
-        <button type="submit" class="btn btn-secondary mb-3">Export Current State</button>
-    </form>
-
 </div>
 
 <script>
-    function copyToClipboard(index) {
-        var text = document.getElementById('keggList' + index).innerText;
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Ko ids copied to clipboard!');
-        }, function(err) {
-            console.error('Error copying to clipboard: ', err);
-        });
-    }
+const initialTags = [{% for tag in active_filters %}'{{ tag|e }}',{% endfor %}];
+let currentTags = new Set(initialTags);
+let filterMode = '{{ filter_mode }}';
 
-    function copyOffcanvasToClipboard(index) {
-        var text = Array.from(document.getElementById('offcanvasKeggList' + index).getElementsByTagName('li'))
-                        .map(li => li.textContent)
-                        .join('\n');
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Ko ids copied to clipboard!');
-        }, function(err) {
-            console.error('Error copying to clipboard: ', err);
-        });
-    }
+function updateTagUI() {
+    let filterTags = document.getElementById('filterTags');
+    let hiddenTagInputs = document.getElementById('hiddenTagInputs');
+    filterTags.innerHTML = '';
+    hiddenTagInputs.innerHTML = '';
+    currentTags.forEach(tag => {
+        let chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${tag} <button type="button" class="remove-tag" tabindex="-1" onclick="removeTag('${tag.replace(/'/g, "\\'")}')">&times;</button>`;
+        filterTags.appendChild(chip);
+        let inp = document.createElement('input');
+        inp.type = "hidden";
+        inp.name = "active_filters";
+        inp.value = tag;
+        hiddenTagInputs.appendChild(inp);
+    });
+}
+function removeTag(tag) { currentTags.delete(tag); updateTagUI(); }
 
-    function toggleAllCollapses() {
-        var collapses = document.querySelectorAll('.collapse');
-        collapses.forEach(function(collapse) {
-            if (collapse.classList.contains('show')) {
-                collapse.classList.remove('show');
-            } else {
-                collapse.classList.add('show');
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    updateTagUI();
+    const tagInput = document.getElementById('tagInput');
+    let dropdown = null, dropdownIndex = -1, suggestions = [];
+    tagInput.addEventListener('input', function() {
+        let query = tagInput.value.trim();
+        if (!query) { if (dropdown) dropdown.remove(); dropdown = null; return; }
+        fetch('/get_bins_list?mode=' + filterMode)
+            .then(resp => resp.json())
+            .then(data => {
+                suggestions = data.items.filter(x => x.toLowerCase().includes(query.toLowerCase()) && !currentTags.has(x));
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.id = 'tagDropdown';
+                    dropdown.style.position = 'absolute';
+                    dropdown.style.background = '#fff';
+                    dropdown.style.border = '1px solid #ccc';
+                    dropdown.style.zIndex = 1000;
+                    dropdown.style.maxHeight = '180px';
+                    dropdown.style.overflowY = 'auto';
+                    dropdown.style.width = tagInput.offsetWidth + 'px';
+                    tagInput.parentNode.appendChild(dropdown);
+                }
+                dropdown.innerHTML = '';
+                suggestions.forEach((sugg, i) => {
+                    let opt = document.createElement('div');
+                    opt.textContent = sugg;
+                    opt.className = 'dropdown-item';
+                    if (i === 0) opt.classList.add('active');
+                    opt.onclick = function() {
+                        currentTags.add(sugg); tagInput.value=''; dropdown.remove(); dropdown=null; updateTagUI();
+                    };
+                    dropdown.appendChild(opt);
+                });
+                dropdownIndex = -1;
+            });
+    });
+    tagInput.addEventListener('keydown', function(e) {
+        if (!dropdown) return;
+        let options = dropdown.querySelectorAll('.dropdown-item');
+        if (e.key === "ArrowDown") {
+            e.preventDefault(); dropdownIndex = (dropdownIndex + 1) % options.length;
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault(); dropdownIndex = (dropdownIndex - 1 + options.length) % options.length;
+        } else if (e.key === "Tab" || e.key === "Enter") {
+            if (options.length > 0) { e.preventDefault(); options[dropdownIndex>=0?dropdownIndex:0].click(); }
+            return false;
+        }
+        options.forEach((opt, i) => opt.classList.toggle('active', i===dropdownIndex));
+    });
+    document.querySelectorAll('input[name="filter_mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            filterMode = this.value; currentTags.clear(); updateTagUI();
         });
-    }
+    });
+    document.addEventListener('click', function(event) {
+        if (dropdown && !dropdown.contains(event.target) && event.target.id !== 'tagInput') {
+            dropdown.remove(); dropdown = null;
+        }
+    });
+});
 </script>
+<style>
+.tag-chip { display:inline-block; background:#eee; border-radius:2px; padding:2px 8px; margin:2px; }
+.remove-tag { background:none; border:none; color:#d33; font-weight:bold; cursor:pointer; }
+.dropdown-item.active { background:#d9edf7; color:#333; }
+</style>
 
 {% endblock %}
