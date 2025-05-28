@@ -4,10 +4,12 @@ import os
 import sys
 import csv
 from lib.db_utils import *
-import pkg_resources
+from importlib.resources import files
 
 def get_resource_path(relative_path):
-    return pkg_resources.resource_filename(__name__, relative_path)
+    # __package__ gives the current package name; or you can specify your package name as a string
+    return str(files(__package__) / relative_path)
+
 
 default_db_path = get_resource_path('data/pankegg.db')
 default_pathway_file = get_resource_path('data/kegg_map_orthologs.tsv')
