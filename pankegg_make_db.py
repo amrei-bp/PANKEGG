@@ -7,9 +7,20 @@ from lib.db_utils import *
 from importlib.resources import files
 
 def get_resource_path(relative_path):
-    # __package__ gives the current package name; or you can specify your package name as a string
-    return str(files(__package__) / relative_path)
-
+    """
+    Returns the absolute path to a resource file.
+    If running as __main__, resolves relative to this script's directory.
+    Otherwise (imported as a package), attempts to use importlib.resources.
+    """
+    # Try importlib.resources if available and __package__ is set
+    try:
+        if __package__:
+            from importlib.resources import files
+            return str(files(__package__) / relative_path)
+    except Exception:
+        pass
+    # Fallback: use file relative to the script location
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), relative_path))
 
 default_db_path = get_resource_path('data/pankegg.db')
 default_pathway_file = get_resource_path('data/kegg_map_orthologs.tsv')
