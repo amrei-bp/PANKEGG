@@ -47,7 +47,7 @@ def resolve_db_path():
 
 
 app = Flask(__name__)
-app.secret_key = 'local'  # Change this for production!
+app.secret_key = 'local'  # Change this before running a production server (for a local server this is acceptable)
 
 
 def get_db_connection():

@@ -3,7 +3,7 @@ package:
   version: "0.1.0"
 
 source:
-  path: ../
+  path: ./
 
 build:
   noarch: python
@@ -21,6 +21,9 @@ requirements:
     - numpy
     - scikit-learn
     - scipy
+    - jinja2
+    - click
+    - importlib-metadata
 
 test:
   requires:

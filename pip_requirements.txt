@@ -1,0 +1,9 @@
+flask
+pandas
+numpy
+scikit-learn
+scipy
+jinja2
+setuptools
+click
+importlib-metadata
