@@ -225,5 +225,81 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    function fetchAndRenderCommonPathwaysBarplot(bin1, bin2, bin1Name, bin2Name) {
+        var formData = new FormData();
+        formData.append('bin1', bin1);
+        formData.append('bin2', bin2);
+
+        fetch('/get_common_pathways_for_bins', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                Plotly.purge('common-pathways-barplot');
+                return;
+            }
+            var pathwayNames = [];
+            var bin1Counts = [];
+            var bin2Counts = [];
+            data.forEach(row => {
+                pathwayNames.push(row.pathway_name);
+                bin1Counts.push(row.bin1);
+                bin2Counts.push(row.bin2);
+            });
+            var barData = [
+                {
+                    x: pathwayNames,
+                    y: bin1Counts,
+                    name: bin1Name,
+                    type: 'bar'
+                },
+                {
+                    x: pathwayNames,
+                    y: bin2Counts,
+                    name: bin2Name,
+                    type: 'bar'
+                }
+            ];
+            var barLayout = {
+                barmode: 'group',
+                title: 'Common Pathways Counts'
+            };
+            Plotly.newPlot('common-pathways-barplot', barData, barLayout);
+        });
+    }
+
+    // Example: attach to a button click or after user selects bins.
+    function getSelectedBins() {
+        // update this logic to get currently selected bins from your UI
+        return [document.getElementById('bin1').value, document.getElementById('bin2').value];
+    }
+
+    // You need to call fetchAndRenderCommonPathwaysBarplot(bin1, bin2, ...) whenever bin selection changes!
+    // Example, if you have <select id="bin1"> and <select id="bin2">
+    ['bin1', 'bin2'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', function() {
+                var bins = getSelectedBins();
+                fetchAndRenderCommonPathwaysBarplot(
+                    bins[0], bins[1], bins[0] || 'Bin 1', bins[1] || 'Bin 2'
+                );
+            });
+        }
+    });
+
+    // Optionally: initial call to draw the plot if bins are pre-selected
+    var bins = getSelectedBins();
+    if (bins[0] && bins[1]) {
+        fetchAndRenderCommonPathwaysBarplot(
+            bins[0], bins[1], bins[0], bins[1]
+        );
+    }
+});
+
 </script>
 {% endblock %}
