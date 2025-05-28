@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pankegg',
-    version='0.1.0',
+    version='1.0',
     packages=find_packages(include=['lib', 'lib.*']),
     include_package_data=True,
     py_modules=['pankegg_make_db', 'pankegg_app'],
@@ -11,7 +11,11 @@ setup(
         'pandas',
         'numpy',
         'scikit-learn',
-        'scipy'
+        'scipy',
+        'jinja2',
+        'setuptools'
+        'click',
+        'importlib-metadata'
     ],
     entry_points={
         'console_scripts': [
@@ -23,6 +27,6 @@ setup(
         'lib': ['../data/*.db', '../templates/*.html', '../data/*.csv', '../data/*.tsv', '../data/*.txt'],
     },
     author='Arnaud Vanbelle & Renaud Van Damme',
-    author_email='arnaudvanbelle@live.be',
-    description='Application Flask pour PanKEGG',
+    author_email='renaud.van.damme@slu.se',
+    description='Flask App for PanKEGG',
 )

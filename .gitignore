@@ -1,0 +1,8 @@
+# Python stuff:
+lib/pycache/*
+pycache/*
+__pycache__/
+
+# Flask stuff:
+instance/
+.webassets-cache
