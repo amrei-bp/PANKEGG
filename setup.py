@@ -13,9 +13,9 @@ setup(
         'scikit-learn',
         'scipy',
         'jinja2',
-        'setuptools'
+        'setuptools',
         'click',
-        'importlib-metadata'
+        'importlib-metadata; python_version<"3.8"',
     ],
     entry_points={
         'console_scripts': [
@@ -23,10 +23,8 @@ setup(
             'pankegg_make_db=pankegg_make_db:main',
         ],
     },
-    package_data={
-        'lib': ['../data/*.db', '../templates/*.html', '../data/*.csv', '../data/*.tsv', '../data/*.txt'],
-    },
     author='Arnaud Vanbelle & Renaud Van Damme',
     author_email='renaud.van.damme@slu.se',
     description='Flask App for PanKEGG',
+    url='https://github.com/RVanDamme/PANKEGG',
 )

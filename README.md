@@ -173,7 +173,7 @@ conda activate pankegg_env
 From within the repository folder, install all dependencies by running:
 
 ```bash
-pip install -r pip_requirements.txt
+pip install .
 ```
 
 Or, to install dependencies only:
@@ -186,10 +186,10 @@ pip install flask pandas numpy scikit-learn scipy jinja2 click setuptools import
 
 #### Using pixi
 
-If you use [pixi](https://prefix.dev/docs/pixi/), you can generate your `pixi.toml` with:
+If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.toml` with:
 
 ```bash
-pixi init --import conda.recipe/meta.yalm
+pixi install
 ```
 
 ---
@@ -198,9 +198,16 @@ pixi init --import conda.recipe/meta.yalm
 
 Once the installation is complete, you can run Pankegg using:
 
+```bash
+pankegg_make_db --help
+pankegg_app --help
+```
+
+If the commands are not in your PATH then use the whole path to the executable or for Pixi use:
 
 ```bash
-pixi run <command>
+pixi run pankegg_make_db --help
+pixi run pankegg_app --help
 ```
 
 For more detailed instructions on how to use Pankegg, see the [Usage and Tests](#usage-and-tests) section.

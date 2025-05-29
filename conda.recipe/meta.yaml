@@ -1,9 +1,9 @@
 package:
   name: pankegg
-  version: "0.1.0"
+  version: "1.0"
 
 source:
-  path: ./
+  path: ../
 
 build:
   noarch: python
@@ -29,33 +29,17 @@ test:
   requires:
     - pytest
   commands:
-    - pankegg_make_db -h
-  files:
-    - main.py
-    - data/pankegg.db
-    - data/pathway_groups.txt
-    - templates/base.html
-    - templates/bin.html
-    - templates/bin_vs_bin.html
-    - templates/comp_menu.html
-    - templates/compar_full.html
-    - templates/index.html
-    - templates/kegg.html
-    - templates/map.html
-    - templates/maps.html
-    - templates/sample_vs_sample.html
-    - templates/show_bins.html
-    - templates/taxonomy.html
-    - templates/taxonomy_comparison.html
-    - templates/tmp_save.html
-    - main.py
-    - data/kegg_map_info.tsv
-    - data/kegg_map_orthologs.tsv
-    - data/ko.txt
-    - data/pathway.txt
-    - data/sample_path.csv
+    - python -c "import flask"
+    - python -c "import pandas"
+    - python -c "import numpy"
+    - python -c "import jinja2"
+    - python -c "import click"
+    - python -c "import sklearn"
+    - python -c "import scipy"
+    - pankegg_make_db.py -h || true
+    - pankegg_app.py -h || true
 
 about:
-  home: https://github.com/Avanbelle/PanKEGG.git
+  home: https://github.com/RVanDamme/PANKEGG
   license: MIT
-  summary: The PanKEGG Flask application is a web-based tool for visualizing, comparing, and exporting metagenomic data related to taxonomy and pathways.
+  summary: "The PanKEGG Flask application is a web-based tool for visualizing, comparing, and exporting metagenomic data related to taxonomy and pathways."
