@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2>Sample Taxonomy Comparison</h2>
 
-    <!-- Sélection du rang taxonomique -->
+    <!-- Taxonomic Rank Selector -->
     <div class="row mt-3">
         <div class="col-md-12">
             <label for="taxonomy-rank">Select Taxonomic Rank:</label>
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <!-- Conteneur pour le bar plot -->
+    <!-- Bar plot container -->
     <div class="mt-5">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <!-- Sélection de l'échantillon pour la heatmap -->
+    <!-- Sample Selector for Heatmap -->
     <div class="mt-5">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var sampleSelect = document.getElementById('sample-select');
     var errorDiv = document.getElementById('error');
 
-    // Récupère la liste des échantillons pour remplir les dropdowns
+    // Fetch sample list for dropdown
     fetch("{{ url_for('get_samples') }}")
         .then(response => response.json())
         .then(data => {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-    // Fonction pour récupérer et afficher les données taxonomiques
+    // Fetch and display taxonomic rank data
     function fetchTaxonomyData(rank) {
         if (rank === "") {
             return;
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(`Taxonomy data:`, data);  // Log de débogage
+            console.log(`Taxonomy data:`, data);  // Debug log
             if (data.error) {
                 errorDiv.innerHTML = data.error;
                 return;
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var traces = taxa.map(taxon => {
                 return {
                     x: samples.map(sample => `${sample} (Bins with classification: ${data[sample].bins_info.classified_bins}/${data[sample].bins_info.total_bins})`),
-                    y: samples.map(sample => (data[sample][taxon] || 0) / 100), // Diviser par 100 pour obtenir une plage de 0 à 1
+                    y: samples.map(sample => (data[sample][taxon] || 0) / 100), // Divided by 100 to have a 0 to 1 range
                     name: taxon,
                     type: 'bar'
                 };
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 yaxis: {
                     title: 'Percentage',
                     tickformat: ',.0%',
-                    range: [0, 1] // Plage de 0 à 1 pour afficher les pourcentages correctement
+                    range: [0, 1] // 0 to 1 range to display percentage correctly
                 },
                 margin: {
                     b: 150  // Increase bottom margin to allow space for sample names
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour récupérer et afficher les données de la heatmap
+    // Fetch and render Heatmap Data
     function fetchHeatmapData(sample, rank) {
         if (sample === "" || rank === "") {
             return;
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(`Heatmap data:`, data);  // Log de débogage
+            console.log(`Heatmap data:`, data);  // Debug log
             if (data.error) {
                 errorDiv.innerHTML = data.error;
                 return;
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var x = data.heatmap_data.x;
             var y = data.heatmap_data.y;
 
-            // Convert rank to human-readable form for the title
+            // Convert rank to human readable version for Title
             var rankText = rank.replace(/_/g, ' ').replace(/(^|\s)\S/g, letter => letter.toUpperCase());
 
             var plotData = [{
@@ -198,13 +198,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Mettez à jour le graphique lorsque le rang taxonomique est sélectionné
+    // Update graph when taxonomic rank is selected
     taxonomyRankSelect.addEventListener('change', function() {
         fetchTaxonomyData(taxonomyRankSelect.value);
         fetchHeatmapData(sampleSelect.value, taxonomyRankSelect.value);
     });
 
-    // Mettez à jour la heatmap lorsque l'échantillon est sélectionné
+    // Update Heatmap when sample is selected
     sampleSelect.addEventListener('change', function() {
         fetchHeatmapData(sampleSelect.value, taxonomyRankSelect.value);
     });

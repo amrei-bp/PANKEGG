@@ -396,7 +396,7 @@ def get_bins_list():
         return jsonify(items=[])
 
 
-# Route pour obtenir les données de la heatmap
+# Route to get heatmap data
 @app.route('/get_heatmap_data', methods=['POST'])
 def get_heatmap_data():
     try:
@@ -567,7 +567,7 @@ def get_pca_data():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        # Récupérer les bins et les maps associés pour le sample sélectionné
+        # Fetch bins and maps associated to the selected sample
         query = """
         SELECT bin.bin_name, map.map_number
         FROM bin
@@ -584,7 +584,7 @@ def get_pca_data():
         if not rows:
             return jsonify({'error': 'No data found for the selected sample.'})
 
-        # Créer une matrice binaire
+        # create binary matrix
         bin_names = sorted(set(row[0] for row in rows))
         map_numbers = sorted(set(row[1] for row in rows))
         bin_index = {bin_name: i for i, bin_name in enumerate(bin_names)}
@@ -596,12 +596,12 @@ def get_pca_data():
             bin_name, map_number = row
             matrix[bin_index[bin_name], map_index[map_number]] = 1
 
-        # Calculer les clusters K-means
-        n_clusters = 3  # Par exemple, on choisit de regrouper les bins en 3 clusters
+        # Calculate clusters K-means
+        n_clusters = 3  # E.g. we group the bins in 3 clusters
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
         clusters = kmeans.fit_predict(matrix)
 
-        # Calculer la PCA
+        # Calculate the PCA
         pca = PCA(n_components=2)
         pca_result = pca.fit_transform(matrix)
 
@@ -775,12 +775,12 @@ def export_bins():
         completeness_sort_sql_command = " ORDER BY bin.completeness DESC"
         contamination_sort_sql_command = " ORDER BY bin.contamination DESC"
 
-        context = "Display of all bins"  # Initialisation par défaut du contexte
+        context = "Display of all bins"  # Default context initialisation
 
         conn = get_db_connection()
         cur = conn.cursor()
 
-        # Préparer les colonnes à récupérer de chaque table
+        # Prepare the columns to fetch from each tables
         bin_columns = ['bin.id as bin_id', 'bin.bin_name', 'bin.completeness', 'bin.contamination', "sample.sample_name",
                     "CAST(SUBSTR(bin_name, INSTR(bin_name, '.') + 1) AS INTEGER) AS bin_number"]
         taxonomy_columns = [
@@ -793,17 +793,17 @@ def export_bins():
             'taxonomy."_species_" as species'
         ]
 
-        # Joindre les tables bin et taxonomy
+        # join tables bin and taxonomy
         join_query = "LEFT JOIN taxonomy ON bin.taxonomic_id = taxonomy.id"
 
-        # Construire la requête de base avec DISTINCT pour éviter les duplications
+        # Build base request with DISTINCT to avoid duplication
         query = f"SELECT DISTINCT {', '.join(bin_columns + taxonomy_columns)} FROM bin {join_query}"
         query += " JOIN sample ON sample.id = bin.sample_id "
 
         conditions = []
         params = []
 
-        # Ajouter des conditions basées sur map_number ou kegg_id
+        # Add conditions based on map_number or kegg_id
         if map_number:
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
@@ -819,7 +819,7 @@ def export_bins():
             else:
                 context = f"Display of bins for Map number: {map_number}"
         elif kegg_id:
-            # Modification ici pour utiliser ko_id
+            # Modified to use ko_id
             query += " JOIN bin_map_kegg bmk ON bin.id = bmk.bin_id"
             query += " JOIN map_kegg mk ON bmk.map_kegg_id = mk.id"
             query += " JOIN kegg k ON mk.kegg_id = k.id"
@@ -827,7 +827,7 @@ def export_bins():
             params.append(kegg_id)
             context = f"Display of bins for KEGG ID: {kegg_id}"
         elif taxon:
-            # Modification ici pour utiliser taxonomy_id
+            # Modified to use taxonomy_id
             conditions.append("? IN (kingdom, phylum, class, \"order\", family, genus, species)")
             params.append(taxon if taxon != "none" else "")
             context = f"Display of bins for taxonomy entry: {taxon}"
@@ -857,10 +857,10 @@ def export_bins():
         cur.close()
         conn.close()
 
-        # Préparer les noms des colonnes pour l'affichage
+        # Prepare column names for render
         display_column_labels = [col.split(' as ')[1] if ' as ' in col else col.split('.')[1] for col in bin_columns]
 
-        # Organiser les données pour le CSV
+        # Organise CSV data
         bins = []
         sample_bins = {}
         for row in rows:
@@ -872,7 +872,7 @@ def export_bins():
                 sample_bins[sample_name] = []
             sample_bins[sample_name].append(bin_data['bin_name'])
 
-        # Générer le CSV
+        # Generate CSV
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow(["Pankegg", "bin"])
@@ -895,7 +895,7 @@ def export_maps():
         taxon = request.values.get('taxon')
         search_query = request.values.get('search_query')
 
-        context = "Display of all maps"  # Initialisation par défaut du contexte
+        context = "Display of all maps"  # Default context initialisation
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -971,7 +971,7 @@ def export_maps():
         cur.close()
         conn.close()
 
-        # Organiser les données pour le CSV
+        # Organise data for CSV
         maps = []
         map_kos = {}
         for row in rows:
@@ -980,13 +980,13 @@ def export_maps():
                 map_kos[map_key] = []
             map_kos[map_key].append(row[2])  # ko_id
 
-        # Générer le CSV
+        # Generate CSV
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow(["Pankegg", "maps"])
         writer.writerow(["Filter", context])
         for map_key, ko_ids in map_kos.items():
-            # Filtrer les None avant de joindre les ko_ids
+            # Filter None before merging ko_ids
             ko_ids = [ko_id for ko_id in ko_ids if ko_id is not None]
             writer.writerow([map_key[0], ', '.join(ko_ids)])
 
@@ -1005,7 +1005,7 @@ def export_kegg():
         taxon = request.values.get('taxon')
         search_query = request.values.get('search_query')
 
-        context = "Display of all KEGG IDs"  # Initialisation par défaut du contexte
+        context = "Display of all KEGG IDs"  # Default context initialisation
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -1057,12 +1057,12 @@ def export_kegg():
         cur.close()
         conn.close()
 
-        # Organiser les données pour le CSV
+        # Organise data for CSV
         kegg_entries = []
         for row in rows:
             kegg_entries.append(row)  # ko_id, kegg_name, kegg_full_name
 
-        # Générer le CSV
+        # Generate CSV
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow(["Pankegg", "kegg"])
@@ -1082,16 +1082,16 @@ def export_kegg():
 @app.route('/bin_query')
 def show_bins2():
     try:
-        # Obtenir les colonnes demandées, sinon utiliser un ensemble par défaut
+        # Fetch requested columns otherwise use default columns
         requested_columns = request.args.getlist('columns')
         # print(requested_columns)
         default_columns = ['id', 'bin_name', 'completeness', 'contamination', 'taxonomic_id']
         columns = requested_columns if requested_columns else default_columns
 
-        # Construire une requête SQL sécurisée en vérifiant que chaque colonne demandée est valide
+        # Build SQL request checking that each requested column is Valid
         safe_columns = [col for col in columns if col in default_columns]
         if not safe_columns:
-            safe_columns = default_columns  # Utiliser les colonnes par défaut si aucune colonne demandée n'est valide
+            safe_columns = default_columns  # Use default columns if none of the column requested are Valid
 
         conn = get_db_connection()
         cur = conn.cursor()
@@ -1112,7 +1112,7 @@ def taxonomy():
         cur = conn.cursor()
 
         if level:
-            # Mise à jour de la requête pour joindre les tables et compter les bins associés
+            # Update the request to join the tables and count associated bins
             query = f"""
             SELECT TRIM(LOWER(t._{level}_)) AS taxon, COUNT(b.id) AS bins_associated
             FROM taxonomy t
@@ -1631,10 +1631,10 @@ def toggle_gtdb_filter():
     try:
         session['gtdb_filter'] = request.form.get('gtdb_filter') == 'on'
 
-        # Rediriger en conservant les paramètres actuels
+        # Redirect while preserving current settings
         map_number = request.form.get('map_number')
         kegg_id = request.form.get('kegg_id')
-        taxon = request.form.get('taxon')  # Utilisez request.form au lieu de request.args
+        taxon = request.form.get('taxon')  
 
         if map_number:
             return redirect(url_for('show_bins', map_number=map_number))
@@ -1660,9 +1660,9 @@ def set_sort_option():
 def home():
     try:
         if 'gtdb_filter' not in session:
-            session['gtdb_filter'] = False  # Valeur par défaut
+            session['gtdb_filter'] = False  # Default value
         if 'selected_sort_option' not in session:
-            session['selected_sort_option'] = 'option1'  # ou toute autre valeur par défaut
+            session['selected_sort_option'] = 'option1'  # Or any other default value
         return render_template('index.html', content="Testing")
     except Exception as e:
         return handle_sql_error(e)

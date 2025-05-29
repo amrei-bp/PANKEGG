@@ -111,12 +111,12 @@
 
         collapses.forEach(collapse => {
             if (areAnyShown) {
-                // Si au moins un est ouvert, ferme tous
+                // If at least one is open, collapse all
                 if (collapse.classList.contains('show')) {
                     new bootstrap.Collapse(collapse, { toggle: true });
                 }
             } else {
-                // Si tous sont fermés, ouvre tous
+                // if all are closed, open all
                 if (!collapse.classList.contains('show')) {
                     new bootstrap.Collapse(collapse, { toggle: true });
                 }

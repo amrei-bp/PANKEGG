@@ -30,13 +30,13 @@ def drop_table(conn, table_name):
 
 
 def insert_taxonomy(cur, tax_data):
-    # Vérifier si l'entrée existe déjà
+    # Check if entry exist already
     cur.execute(SELECT_TAXONOMY_ID, tax_data[2:9])
     result = cur.fetchone()
     if result:
         return result[0]
     else:
-        # Insérer la nouvelle entrée taxonomique
+        # Insert new taxonomic entry
         cur.execute(INSERT_TAXONOMY, tax_data[2:9])
         return cur.lastrowid
 
@@ -48,7 +48,7 @@ def insert_bin(cur, bin_name, taxonomic_id, sample_id):
         cur.execute(INSERT_BIN, (bin_name, taxonomic_id, sample_id))
 
 def load_pathways(pathway_file):
-    """Charge les données des pathways depuis un fichier et les stocke dans un dictionnaire."""
+    """Load Pathways data from file and store in a dict."""
     pathways_dict = {}
     with open(pathway_file, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
@@ -64,7 +64,7 @@ def load_pathways(pathway_file):
 
 
 def load_ko_descriptions(ko_file):
-    """Charge les descriptions des KO depuis un fichier et les stocke dans un dictionnaire."""
+    """Load Kegg orthologs description from file and store in a dict."""
     ko_dict = {}
     with open(ko_file, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
@@ -303,7 +303,7 @@ def link_maps_to_kos(cur, maps_dict, map_translate_table):
                     ko_id = cur.fetchone()
                     if ko_id:
                         ko_id = ko_id[0]
-                        # Insérer la jointure dans bin_map si elle n'existe pas déjà
+                        # Insert joint in bin_map if doesn't exist
                         cur.execute(INSERT_MAP_KEGG, (map_id, ko_id, ko_is_in_map, map_id, ko_id, ko_is_in_map))
 
 
@@ -560,8 +560,8 @@ def count_map_kegg_ids(cur):
 
 
 def total_shared_associations(cur):
-    # Cette requête calcule la somme totale des associations partagées,
-    # où chaque bin_count est le nombre de bins partageant un même map_kegg_id.
+    # Sum the shared association
+    # Where each bin_count is the number of bins sharing the same map_kegg_id.
     query = """
     SELECT SUM(bin_count)
     FROM (
@@ -580,10 +580,10 @@ def link_kegg_to_map(cur, kos, map_id, bin_id):
         if ko_entry:
             ko_id = ko_entry.split(":")[1]
             cur.execute(SELECT_KEGG_ID, (ko_id,))
-            kegg_id = cur.fetchone()[0]  # Supposons que kegg_id est toujours valide
+            kegg_id = cur.fetchone()[0]  # Consider kegg_id as always valid
 
             cur.execute(SELECT_MAP_KEGG_ID, (map_id, kegg_id,))
-            map_kegg_id = cur.fetchone()[0]  # Supposons que map_kegg_id est toujours valide
+            map_kegg_id = cur.fetchone()[0]  # Consider map_kegg_id as always valid
 
             cur.execute(INSERT_BIN_MAP_KEGG, (bin_id, map_kegg_id, bin_id, map_kegg_id))
 

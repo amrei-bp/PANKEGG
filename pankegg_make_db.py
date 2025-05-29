@@ -56,7 +56,7 @@ def main():
     if not os.path.exists(directory_output):
         os.makedirs(directory_output)
     
-    # Test 1
+    # Test 1: Output path validation
     database_path = os.path.join(directory_output, f'{database_name}.db')
     print(f"[DEBUG] Output DB path: {os.path.abspath(database_path)}")  
 

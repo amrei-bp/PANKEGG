@@ -323,7 +323,7 @@ def show_maps():
             <input class="form-check-input" type="checkbox" role="switch" id="gtdbFilter" name="gtdb_filter" {{ 'checked' if session.get('gtdb_filter', False) else '' }}>
             <label class="form-check-label" for="gtdbFilter">GTDB quality filtering</label>
         </div>
-        <!-- Conserver les paramètres actuels de la requête -->
+        <!-- Preserve parameters of request -->
         {% if request.values.get('map_number') %}
             <input type="hidden" name="map_number" value="{{ request.values.get('map_number') }}">
         {% endif %}

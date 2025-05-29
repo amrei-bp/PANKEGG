@@ -97,10 +97,10 @@ CREATE_TABLES = {
     """
 }
 
-# Commande pour supprimer des tables
+# Delete Table
 DROP_TABLE = "DROP TABLE IF EXISTS {table_name}"
 
-# Commandes pour insérer des données
+# Insert different data
 INSERT_TAXONOMY = """
     INSERT INTO taxonomy (_kingdom_, _phylum_, _class_, _order_, _family_, _genus_, _species_)
     VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -116,7 +116,7 @@ INSERT_SAMPLE = """
     VALUES (?);
 """
 
-# Commandes pour sélectionner des données
+# Select data
 SELECT_TAXONOMY_ID = """
     SELECT id FROM taxonomy WHERE
     _kingdom_ = ? AND _phylum_ = ? AND _class_ = ? AND _order_ = ? AND
@@ -125,7 +125,8 @@ SELECT_TAXONOMY_ID = """
 
 # sql_commands.py
 
-# Ajout des commandes pour insérer des données dans les nouvelles tables
+# Commands to insert data in tables
+
 # INSERT_MAP = """
 #     INSERT INTO map (pathway_name, map_number)
 #     SELECT ?, ?

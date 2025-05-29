@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2>Sample vs Sample Comparison</h2>
 
-    <!-- Sélection des échantillons -->
+    <!-- Select samples -->
     <div class="row mt-3">
         <div class="col-md-6">
             <label for="sample1">Select Sample 1:</label>
@@ -33,7 +33,7 @@
             </div>
             <div class="collapse" id="heatmap-content">
             <div class="card-body">
-                <!-- Menu des groupes de pathways -->
+                <!-- Menu for pathway groups -->
                 <div id="pathway-group-menu">
                     <div class="card">
                         <div class="card-header">
@@ -64,20 +64,20 @@
                         </div>
                     </div>
                 </div>
-                <!-- Légende pour la heatmap -->
+                <!-- Heatmap legend -->
                 <div class="mt-3">
                     <div class="alert alert-info" role="alert">
                         <strong>Legend:</strong> The colour of the heatmap corresponds to the percentage of pathway completion.
                     </div>
                 </div>
 
-                <!-- Conteneurs pour les heatmaps -->
+                <!-- Heatmap container -->
                 <div class="row mt-4">
                     <div class="col-md-6" id="heatmaps-container1">
-                        <!-- Les heatmaps pour Sample 1 seront insérées ici dynamiquement -->
+                        <!-- Sample 1 heatmap dynamicly inserted here -->
                     </div>
                     <div class="col-md-6" id="heatmaps-container2">
-                        <!-- Les heatmaps pour Sample 2 seront insérées ici dynamiquement -->
+                        <!-- Sample 2 heatmap dynamicly inserted here -->
                     </div>
                 </div>
 
@@ -98,7 +98,7 @@
             </div>
             <div class="collapse" id="scatter-content">
             <div class="card-body">
-                <!-- Conteneur pour les scatter plots -->
+                <!-- scatterplot containers -->
                 <div class="row">
                     <div class="col-md-6">
                         <div id="scatterplot-container1"></div>
@@ -123,7 +123,7 @@
             </div>
             <div class="collapse" id="pca-content">
             <div class="card-body">
-                <!-- Conteneur pour les PCA plots -->
+                <!-- PCA containers -->
                 <div class="row">
                     <div class="col-md-6">
                         <div id="pca-container1" style="width:100%; height:400px;"></div>
@@ -171,7 +171,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Les données seront insérées ici dynamiquement -->
+                                                    <!-- Data will be dynamicly inserted -->
                                                 </tbody>
                                             </table>
                                         </div>
@@ -187,9 +187,9 @@
         </div>
     </div>
 
-    <!-- Section pour les futures fonctionnalités -->
+    <!-- Section for future functionality -->
     <div class="mt-5">
-        <!-- Ajoutez ici d'autres sections à venir -->
+        <!-- Add new sections here -->
     </div>
 </div>
 
@@ -197,12 +197,12 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <script type="text/javascript">
-    // Fonction pour générer un ID valide pour un élément HTML
+    // Function to generate valid ID for an HTML element
 function generateValidId(str) {
     return str.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
-// Fonction pour générer la liste des maps avec les noms des pathways en tant que liens
+// Function to create the list of maps with Pathway names as links
 function generateMapList(mapDetails) {
     return Object.entries(mapDetails).map(([map, pathway]) =>
         `<p><a href="/map?search_query=${map}" target="_blank">${map}</a> - ${pathway}</p>`
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var toggleOptionsBtn = document.getElementById('toggle-options');
     var pathwayOptionsDiv = document.getElementById('pathway-options');
 
-    // Récupère la liste des échantillons pour remplir les dropdowns
+    // Fetch sample list to feed dropdown
     fetch("{{ url_for('get_samples') }}")
         .then(response => response.json())
         .then(data => {
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-    // Fonction pour récupérer les données des heatmaps et les afficher
+    // Fetch and display heatmap data
     function fetchHeatmapData(sample, container, sampleNumber, selectedGroups) {
         var formData = new FormData();
         formData.append('sample', sample);
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(`Data for sample ${sampleNumber}:`, data);  // Log de débogage
+            console.log(`Data for sample ${sampleNumber}:`, data);  // debug log
             if (data.error) {
                 errorDiv.innerHTML = data.error;
                 return;
@@ -282,22 +282,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: `${data.context}<br>${group}`,
                     xaxis: {
                         title: 'Bins',
-                        tickangle: 45,  // Rotation des labels de l'axe x
-                        automargin: true  // Ajustement des marges pour éviter que les labels soient coupés
+                        tickangle: 45,  // Rotate label on X-axis
+                        automargin: true  // Prevent cuts in the label by adapting the margin
                     },
                     yaxis: {
-                        automargin: true  // Ajustement des marges pour éviter que les labels soient coupés
+                        automargin: true  // Prevent cuts in the label by adapting the margin
                     }
                 };
 
                 Plotly.newPlot(divId, plotData, layout);
 
-                // Création d'un conteneur pour centrer le bouton
+                // Create a container to center the button
                 var btnContainer = document.createElement('div');
                 btnContainer.className = 'd-flex justify-content-center mt-2';
                 container.appendChild(btnContainer);
 
-                // Ajout du bouton "Map Details" au conteneur centré
+                // Add button "Map Details" to the container
                 var btn = document.createElement('button');
                 btn.className = 'btn btn-info';
                 btn.setAttribute('data-bs-toggle', 'offcanvas');
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 btnContainer.appendChild(btn);
 
-                // Ajout de l'offcanvas pour les détails des maps
+                // add the offcanvas for map details
                 var offcanvas = document.createElement('div');
                 offcanvas.id = `offcanvasDetails${sampleNumber}_${validGroup}`;
                 offcanvas.className = 'offcanvas offcanvas-end';
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour récupérer les détails des maps et les afficher dans l'offcanvas
+    // Function to fetch the map details and render in the offcanvas
     function fetchMapDetails(mapNumbers, offcanvasId) {
         fetch("{{ url_for('get_map_details') }}", {
             method: 'POST',
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 offcanvasBody.innerHTML = data.error;
             } else {
-                console.log('Map details:', data.map_details);  // Log de débogage
+                console.log('Map details:', data.map_details);  // Debug log
                 offcanvasBody.innerHTML = generateMapList(data.map_details);
             }
         })
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour récupérer les données des scatter plots et les afficher
+    // Function to fetch scatterplot data and render them
     function fetchScatterplotData(sample, container) {
         var formData = new FormData();
         formData.append('sample', sample);
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(`Scatterplot data for sample:`, data);  // Log de débogage
+            console.log(`Scatterplot data for sample:`, data);  // Debug log
             if (data.error) {
                 errorDiv.innerHTML = data.error;
                 return;
@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour récupérer et afficher les données des pathways communs
+    // Function to fetch and display common pathway data
     function fetchCommonPathwaysData(sample1, sample2, sample1Name, sample2Name) {
         var formData = new FormData();
         formData.append('sample1', sample1);
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(`Common Pathways data:`, data);  // Log de débogage
+            console.log(`Common Pathways data:`, data);  // Debug log
             if (data.error) {
                 errorDiv.innerHTML = data.error;
                 return;
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour récupérer les données de la PCA et les afficher
+    // Function to fetch and render PCA data
     function fetchPCAData(sample, container, sampleName) {
         var formData = new FormData();
         formData.append('sample', sample);
@@ -519,11 +519,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour mettre à jour les heatmaps
+    // Function to update the heatmaps
     function updateHeatmaps() {
         heatmapsContainer1.innerHTML = '';
         heatmapsContainer2.innerHTML = '';
-        errorDiv.innerHTML = '';  // Efface les erreurs précédentes
+        errorDiv.innerHTML = '';  // erase previous errors
 
         var selectedGroups = Array.from(document.querySelectorAll('.form-check-input:checked')).map(checkbox => checkbox.value);
 
@@ -540,11 +540,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fonction pour mettre à jour les scatter plots
+    // Function to update the scatterplots
     function updateScatterplots() {
         scatterplotContainer1.innerHTML = '';
         scatterplotContainer2.innerHTML = '';
-        errorDiv.innerHTML = '';  // Efface les erreurs précédentes
+        errorDiv.innerHTML = '';  // erase previous errors
 
         if (sample1Select.value) {
             fetchScatterplotData(sample1Select.value, scatterplotContainer1);
@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fonction pour mettre à jour les pathways communs
+    // Function to update common pathways 
     function updateCommonPathways() {
         var sample1Name = sample1Select.selectedOptions[0].text;
         var sample2Name = sample2Select.selectedOptions[0].text;
@@ -565,11 +565,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchCommonPathwaysData(sample1Select.value, sample2Select.value, sample1Name, sample2Name);
     }
 
-    // Fonction pour mettre à jour la PCA
+    // Function to update PCA
     function updatePCA() {
         pcaContainer1.innerHTML = '';
         pcaContainer2.innerHTML = '';
-        errorDiv.innerHTML = '';  // Efface les erreurs précédentes
+        errorDiv.innerHTML = '';  // erase previous errors
 
         if (sample1Select.value) {
             fetchPCAData(sample1Select.value, pcaContainer1, sample1Select.selectedOptions[0].text);
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Mettez à jour les visualisations lorsqu'un échantillon est sélectionné
+    // Update renders when a sample is selected
     sample1Select.addEventListener('change', function() {
         updateHeatmaps();
         updateScatterplots();
@@ -593,10 +593,10 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePCA();
     });
 
-    // Mettez à jour les heatmaps lorsque le bouton "Apply Filter" est cliqué
+    // Update heatmaps when "Apply Filter" button is clicked
     applyFilterBtn.addEventListener('click', updateHeatmaps);
 
-    // Change le texte du bouton de collapse en fonction de l'état
+    // Change collapse button text according to state
     pathwayOptionsDiv.addEventListener('shown.bs.collapse', function () {
         toggleOptionsBtn.innerHTML = 'Hide all options';
     });
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleOptionsBtn.innerHTML = 'Show all options';
     });
 
-    // Initialisez les visualisations au chargement de la page
+    // Initialise renders when page is loaded
     updateScatterplots();
     updateCommonPathways();
     updatePCA();
