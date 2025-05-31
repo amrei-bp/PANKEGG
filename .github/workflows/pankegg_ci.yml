@@ -42,5 +42,5 @@ jobs:
         run: |
           source $(conda info --base)/etc/profile.d/conda.sh
           conda activate pankegg_env
-          python pankegg_make_db.py -h || true
-          python pankegg_app.py -h || true
+          python pankegg_make_db.py --help || true
+          python pankegg_app.py --help || true
