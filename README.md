@@ -42,6 +42,85 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 
 ---
 
+## Flash start
+
+This Rushstart will set up Pankegg, and launch the web application to explore a minimal test data.
+
+### 1. Install Pankegg and Dependencies
+
+Install Pankegg via pip, conda, or pixi.  
+See the [Installation](#installation) section for detailed options.
+
+```bash
+wget https://github.com/RVanDamme/PANKEGG/archive/refs/heads/master.zip
+unzip master.zip
+cd PANKEGG-master
+pip install .
+```
+### 2. Launch the Web Application
+
+Start the web server using the database present in the repository:
+
+```bash
+python pankegg_app.py --d data/pankegg.db
+```
+
+Now, open your web browser and go to the IP address written in your terminal (probably (http://127.0.0.1:5000)[http://127.0.0.1:5000]) to interactively explore your metagenomic data!
+
+## Quickstart
+
+This Quickstart guide will walk you through setting up Pankegg, running the pipeline on example data, and launching the web application to explore your results.
+
+### 1. Install Pankegg and Dependencies
+
+Install Pankegg via pip, conda, or pixi.  
+See the [Installation](#installation) section for detailed options.
+
+```bash
+wget https://github.com/RVanDamme/PANKEGG/archive/refs/heads/master.zip
+unzip master.zip
+cd PANKEGG-master
+pip install .
+```
+
+---
+
+### 2. Download Example Test Data
+
+Download and extract the example dataset:
+
+```bash
+wget https://osf.io/5v3zc/download -O pankegg_test_data.zip
+unzip pankegg_test_data.zip
+```
+
+---
+
+### 3. Build the SQL Database
+
+Generate a Pankegg database from the provided CSV using the included test data (for both Sourmash and GTDB-TK classification):
+
+```bash
+python pankegg_make_db.py -i pankegg_test_data/pankegg_test_sourmash.csv -o test_sourmash --output_dir pankegg_test_data
+```
+
+---
+
+### 4. Launch the Web Application
+
+Start the web server using the database you generated or the provided test databases:
+
+```bash
+python pankegg_app.py --d pankegg_test_data/test_sourmash
+```
+
+Now, open your web browser and go to the IP address written in your terminal (probably (http://127.0.0.1:5000)[http://127.0.0.1:5000]) to interactively explore your metagenomic data!
+
+---
+
+For more details, troubleshooting, or advanced options, see the [Usage and Tests](#usage-and-tests) section.
+
+
 ## Mission Statement
 
 Pankegg aims to provide a comprehensive tool for the analysis and visualization of metabolic pathways across various samples and bins.  
@@ -210,7 +289,9 @@ pankegg_make_db --help
 pankegg_app --help
 ```
 
-If the commands are not in your PATH then use the whole path to the executable or for Pixi use:
+If the commands are not in your PATH then use the whole path to the executable 
+
+For Pixi use:
 
 ```bash
 pixi run pankegg_make_db --help
