@@ -8,7 +8,7 @@ import io
 import json
 import click
 import sys
-from importlib.resources import files
+from importlib
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
