@@ -16,12 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Mambaforge
+      - name: Set up Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge3
           python-version: "3.10"
-          channels: conda-forge,defaults
+          channels: conda-forge
 
       - name: Install dependencies via conda-lock
         run: |
@@ -55,14 +55,10 @@ jobs:
         run: |
           source $(conda info --base)/etc/profile.d/conda.sh
           conda activate pankegg_env
-          # Start Flask app in background
-          (python pankegg_app.py --d data/pankegg.db > server.log 2>&1 &) 
+          (python pankegg_app.py --d data/pankegg.db > server.log 2>&1 &)
           SERVER_PID=$!
-          # Wait for the server to start
           sleep 8
           cat server.log
-          # Check for expected output
           grep "Using database: data/pankegg.db" server.log
           grep "Serving Flask app" server.log
-          # Shut down the server
           kill $SERVER_PID
