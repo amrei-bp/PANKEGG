@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for, Response, jsonify, abort
