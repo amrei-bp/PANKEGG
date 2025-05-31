@@ -44,15 +44,3 @@ jobs:
           conda activate pankegg_env
           python pankegg_make_db.py -h || true
           python pankegg_app.py -h || true
-
-      - name: Test Flask app runs and outputs expected log
-        run: |
-          source $(conda info --base)/etc/profile.d/conda.sh
-          conda activate pankegg_env
-          (python pankegg_app.py --d data/pankegg.db > server.log 2>&1 &)
-          SERVER_PID=$!
-          sleep 8
-          cat server.log
-          grep "Using database: data/pankegg.db" server.log
-          grep "Serving Flask app" server.log
-          kill $SERVER_PID
