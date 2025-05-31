@@ -1,0 +1,68 @@
+name: PanKEGG CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test-conda:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Mambaforge
+          python-version: "3.10"
+          channels: conda-forge,defaults
+
+      - name: Install dependencies via conda-lock
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          mamba create -n pankegg_env --file conda.recipe/conda-lock.yml
+          conda activate pankegg_env
+          pip install -e .
+
+      - name: Lint with flake8
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate pankegg_env
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Test with pytest
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate pankegg_env
+          pytest
+
+      - name: CLI help commands
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate pankegg_env
+          python pankegg_make_db.py -h || true
+          python pankegg_app.py -h || true
+
+      - name: Test Flask app runs and outputs expected log
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate pankegg_env
+          # Start Flask app in background
+          (python pankegg_app.py --d data/pankegg.db > server.log 2>&1 &) 
+          SERVER_PID=$!
+          # Wait for the server to start
+          sleep 8
+          cat server.log
+          # Check for expected output
+          grep "Using database: data/pankegg.db" server.log
+          grep "Serving Flask app" server.log
+          # Shut down the server
+          kill $SERVER_PID
