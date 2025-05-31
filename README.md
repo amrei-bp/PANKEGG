@@ -372,10 +372,10 @@ Each table stores specific information related to bins, pathways, taxonomy, and 
 
 To verify your installation and familiarize yourself with Pankegg, you can run a test using provided data. Download the example archive, unzip it, and generate test databases using the included CSV files:
 
-- Download the test data archive from OSF:
+- Download the test data archive from OSF (https://osf.io/wjuet):
 
     ```bash
-    wget https://osf.io/fake_test_data_archive.zip -O pankegg_test_data.zip
+    wget https://osf.io/5v3zc/download -O pankegg_test_data.zip
     ```
 
 - Unzip the archive (creates a directory called `pankegg_test_data`):
@@ -664,3 +664,8 @@ Renaud Van Damme (@RVanDamme)
 Arnaud Vanbelle (@Avanbelle)
 
 ---
+
+## AI and LLM
+
+AI/LLM were used as "writing buddy" during the redaction of the README.md (e.g. ensuring a readable markdown structure and correcting the syntax/grammar).
+The logic and code were initially made by humans (@RVanDamme and @Avanbelle), before using AI/LLM on the code to debug and refactor it. 
