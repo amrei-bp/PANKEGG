@@ -2,15 +2,14 @@
 name = "pankegg"
 channels = ["conda-forge", "defaults"]
 
-dependencies = [
-    "python>=3.8",
-    "flask",
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "scipy",
-    "jinja2",
-    "click",
-    "pip",
-    "importlib-metadata"
-]
+[dependencies]
+python = ">=3.8"
+flask = "*"
+pandas = "*"
+numpy = "*"
+scikit-learn = "*"
+scipy = "*"
+jinja2 = "*"
+click = "*"
+pip = "*"
+importlib-metadata = "*"

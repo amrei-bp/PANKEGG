@@ -159,7 +159,14 @@ You can install Pankegg and all necessary dependencies via **conda**, **pip**, o
 
 #### Using conda
 
-Create and activate a new conda environment using the provided `meta.yaml` file (found in the `conda.recipe` directory):
+For a more stable installation, create and activate a new conda environment using the provided `conda-lock.yml` file (found in the `conda.recipe` directory):
+
+```bash
+conda-lock install --name pankegg_env conda-lock.yml
+conda activate pankegg_env
+```
+
+Alternatively, Create and activate a new conda environment using the provided `meta.yaml` file (found in the `conda.recipe` directory):
 
 ```bash
 conda env create -f conda.recipe/environment.yml
@@ -186,7 +193,7 @@ pip install flask pandas numpy scikit-learn scipy jinja2 click setuptools import
 
 #### Using pixi
 
-If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.toml` with:
+If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.lock` and `pixi.toml` with:
 
 ```bash
 pixi install

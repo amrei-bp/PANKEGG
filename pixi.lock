@@ -1,0 +1,8 @@
+version: 6
+environments:
+  default:
+    channels:
+    - url: https://conda.anaconda.org/conda-forge/
+    - url: https://conda.anaconda.org/defaults/
+    packages: {}
+packages: []
