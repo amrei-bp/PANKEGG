@@ -9,6 +9,7 @@ import json
 import click
 import sys
 import importlib
+from importlib.resources import files
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
