@@ -36,33 +36,51 @@
     <!-- Filtering Form -->
     <form id="filterForm" method="POST" action="{{ url_for('show_maps') }}" class="mb-4">
         <input type="hidden" name="bin_id" value="{{ bin_id or request.values.get('bin_id', '') }}">
-        <div class="input-group mb-2" style="align-items: flex-start;">
-            <div class="input-group-prepend" style="margin-right: 8px;">
-                <label class="input-group-text">
-                    <input type="radio" name="filter_mode" value="sample"
-                    {% if filter_mode == 'sample' %}checked{% endif %} style="margin-right:4px;"> Sample
-                </label>
-                <label class="input-group-text" style="margin-left: 5px;">
-                    <input type="radio" name="filter_mode" value="bin"
-                    {% if filter_mode == 'bin' %}checked{% endif %} style="margin-right:4px;"> Bin
-                </label>
+
+        <!-- Filter by Sample/Bin tags (first row) -->
+        <div class="mb-2">
+            <div class="input-group">
+                <div class="input-group-prepend" style="margin-right: 8px;">
+                    <label class="input-group-text">
+                        <input type="radio" name="filter_mode" value="sample"
+                        {% if filter_mode == 'sample' %}checked{% endif %} style="margin-right:4px;"> Sample
+                    </label>
+                    <label class="input-group-text" style="margin-left: 5px;">
+                        <input type="radio" name="filter_mode" value="bin"
+                        {% if filter_mode == 'bin' %}checked{% endif %} style="margin-right:4px;"> Bin
+                    </label>
+                </div>
+                <div class="filter-tags" id="filterTags" style="display: flex; align-items: center;">
+                    <!-- Chips/tags are rendered dynamically by JS below -->
+                </div>
             </div>
-            <div class="filter-tags" id="filterTags" style="display: flex; align-items: center;">
-                <!-- Chips/tags are rendered dynamically by JS below -->
-            </div>
-            <input type="text" name="search_query" class="form-control" style="max-width:180px;margin-left:8px;" placeholder="Search Map Number or Pathway Name" value="{{ search_query or '' }}">
-            <input type="text" name="ko_id" class="form-control" style="max-width:120px;margin-left:8px;" placeholder="Filter by KO ID" value="{{ ko_id or '' }}">
-            <button type="submit" class="btn btn-outline-secondary">Filter</button>
-            <button type="button" class="btn btn-outline-danger" id="clearTagsBtn" style="margin-left:6px;"
-                onclick="resetAllFilters();">Clear</button>
-            <script>
-            function resetAllFilters() {
-                window.location.href = "{{ url_for('show_maps') }}";
-            }
-            </script>
-            <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
         </div>
+
+        <!-- Filter by pathway number/name (second row) -->
+        <div class="mb-2">
+            <div class="input-group">
+                <input type="text" name="search_query" class="form-control" style="max-width:500px;" placeholder="Search Map Number or Pathway Name" value="{{ search_query or '' }}">
+            </div>
+        </div>
+
+        <!-- Filter by KO ID (third row) -->
+        <div class="mb-2">
+            <div class="input-group">
+                <input type="text" name="ko_id" class="form-control" style="max-width:500px;" placeholder="Filter by KO ID" value="{{ ko_id or '' }}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+        <button type="button" class="btn btn-outline-danger" id="clearTagsBtn" style="margin-left:6px;"
+            onclick="resetAllFilters();">Clear</button>
+        <script>
+        function resetAllFilters() {
+            window.location.href = "{{ url_for('show_maps') }}";
+        }
+        </script>
+        <input type="hidden" name="taxon" value="{{ taxon or request.values.get('taxon', '') }}">
     </form>
+
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
