@@ -1666,7 +1666,7 @@ def get_default_db_path():
 @click.option('--database', "--d", default=get_default_db_path(), help='Path to the SQLite database file.')
 def start_server(database):
     app.config['PANKEGG_DB_PATH'] = database
-    print(db_path)
+    print(f"[CLI] Using database: {database}")
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
