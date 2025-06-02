@@ -104,7 +104,7 @@ unzip pankegg_test_data.zip
 Generate a Pankegg database from the provided CSV using the included test data (for both Sourmash and GTDB-TK classification):
 
 ```bash
-python pankegg_make_db.py -i pankegg_test_data/pankegg_test_sourmash.csv -o test_sourmash --output_dir pankegg_test_data
+python pankegg_make_db.py -i pankegg_test_data/sourmash_example.csv -o test_sourmash --output_dir pankegg_test_data
 ```
 
 ---
