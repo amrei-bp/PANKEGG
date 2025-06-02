@@ -468,7 +468,13 @@ To verify your installation and familiarize yourself with Pankegg, you can run a
 - Download the test data archive from OSF (https://osf.io/wjuet):
 
     ```bash
-    wget https://osf.io/5v3zc/download -O pankegg_test_data.zip
+    wget https://osf.io/download/5v3zc/ -O pankegg_test_data.zip
+    ```
+
+    OR
+
+    ```bash
+    curl -L -o pankegg_test_data.zip  https://osf.io/download/5v3zc/
     ```
 
 - Unzip the archive (creates a directory called `pankegg_test_data`):
