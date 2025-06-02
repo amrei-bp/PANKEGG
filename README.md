@@ -17,6 +17,7 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 - [Mission Statement](#mission-statement)
 - [Foreword](#foreword)
 - [Installation](#installation)
+    - [Windows Subsystem for Linux](#windows-subsytem-for-linux)
 - [Usage and Tests](#usage-and-tests)
     - [Pankegg_make_db.py](#pankegg_make_dbpy)
         - [Usage Make DB](#usage-make-db)
@@ -276,6 +277,12 @@ If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.lock` an
 ```bash
 pixi install
 ```
+
+#### Windows Subsystem for Linux 
+
+If you are using WSL, you should install Pankegg in the WSL itself and **NOT on your Windows drive**. This is required because of the disparity between the Linux FileSystem and the Windows FileSystem, preventing the tools when installed present in the Windows FS to run correctly through WSL.
+
+We also recommend storing your database in the WSL rather than on your Windows drive. While this is not critical, it is a better practice and ensures that Pankegg will read the database properly.
 
 ---
 
