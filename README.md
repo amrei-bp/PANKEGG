@@ -278,9 +278,9 @@ If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.lock` an
 pixi install
 ```
 
-#### Windows Subsystem for Linux 
+### Windows Subsystem for Linux 
 
-If you are using WSL, you should install Pankegg in the WSL itself and **NOT on your Windows drive**. This is required because of the disparity between the Linux FileSystem and the Windows FileSystem, preventing the tools when installed present in the Windows FS to run correctly through WSL.
+If you are using WSL, you should install Pankegg in the WSL itself and **NOT on your Windows drive**. This is required because of the disparity between the Linux FileSystem and the Windows FileSystem, which prevents the tools from running correctly through WSL when installed in the Windows FS.
 
 We also recommend storing your database in the WSL rather than on your Windows drive. While this is not critical, it is a better practice and ensures that Pankegg will read the database properly.
 
