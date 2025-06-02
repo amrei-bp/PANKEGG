@@ -17,7 +17,7 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 - [Mission Statement](#mission-statement)
 - [Foreword](#foreword)
 - [Installation](#installation)
-    - [Windows Subsystem for Linux](#windows-subsytem-for-linux)
+    - [Windows Subsystem for Linux](#windows-subsystem-for-linux)
 - [Usage and Tests](#usage-and-tests)
     - [Pankegg_make_db.py](#pankegg_make_dbpy)
         - [Usage Make DB](#usage-make-db)
