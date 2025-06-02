@@ -20,24 +20,13 @@ from scipy.spatial.distance import pdist
 # Import your robust DB print function
 from lib.db_utils import print_db_status
 
-# set database path
-if "--d" in sys.argv or "--db" in sys.argv:
-    try:
-        if "--d" in sys.argv:
-            idx = sys.argv.index("--d")
-        else:
-            idx = sys.argv.index("--db")
-        db_path_arg = sys.argv[idx + 1]
-        os.environ["PANKEGG_DB_PATH"] = db_path_arg
-        print(f"[CLI] Using database: {db_path_arg}")
-    except (IndexError, ValueError):
-        print("ERROR: No database path provided after --d/--db flag.")
-        sys.exit(1)
+app = Flask(__name__)
+app.secret_key = 'local'  # Change this before running a production server (for a local server this is acceptable)
 
 # Helper: Get DB path (env > default)
 def resolve_db_path():
     # Try to get from environment variable first
-    db_path = os.getenv('PANKEGG_DB_PATH')
+    db_path = app.config.get('PANKEGG_DB_PATH')
     if db_path:
         return db_path
     # Fallback: use importlib.resources to locate within package
@@ -47,11 +36,6 @@ def resolve_db_path():
     except Exception:
         # Fallback to relative path if not installed as package
         return os.path.join('data', 'pankegg.db')
-
-
-app = Flask(__name__)
-app.secret_key = 'local'  # Change this before running a production server (for a local server this is acceptable)
-
 
 def get_db_connection():
     db_path = resolve_db_path()
@@ -1681,8 +1665,7 @@ def get_default_db_path():
 @click.command()
 @click.option('--database', "--d", default=get_default_db_path(), help='Path to the SQLite database file.')
 def start_server(database):
-    global db_path
-    db_path = database
+    app.config['PANKEGG_DB_PATH'] = database
     print(db_path)
     app.run(host='0.0.0.0', port=5000, debug=True)
 
