@@ -300,8 +300,8 @@ If the commands are not in your PATH then use the whole path to the executable
 For Pixi use:
 
 ```bash
-pixi run pankegg_make_db --help
-pixi run pankegg_app --help
+pixi run pankegg_make_db.py --help
+pixi run pankegg_app.py --help
 ```
 
 For more detailed instructions on how to use Pankegg, see the [Usage and Tests](#usage-and-tests) section.
@@ -537,7 +537,7 @@ To start the Pankegg web server with your database, use the following command (r
 By default, the web server will start on your local IP address (host `0.0.0.0`) and port `5000`.  
 Once started, you can access the Pankegg interface in your browser by navigating to:
 
-http://0.0.0.0:5000)[http://0.0.0.0:5000]
+[http://0.0.0.0:5000](http://0.0.0.0:5000)
 
 You will be able to browse, filter, and visualize all results contained in your selected database.
 
