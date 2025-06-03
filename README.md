@@ -552,26 +552,26 @@ For more details or troubleshooting, see the [Reporting Bugs & Contributing](#re
 
 ### Home
 
-At the top, a navigation bar provides quick access to all major sections: Home, Bin, Map, Kegg, Taxonomy, and Visualisation. Each of these sections links to a their page where you can browse detailed information about your bins, pathway maps, KEGG identifiers, and taxonomic classifications, or use the different interactive visualisation tools. The navbar ensures that you can effortlessly switch between functional modules.
+At the top, a navigation bar provides quick access to all major sections: Home, Bin, Map, Kegg, Taxonomy, and Visualisation. Each of these sections links to a page where you can browse detailed information about your bins, pathway maps, KEGG identifiers, and taxonomic classifications, or use the different interactive visualisation tools. The navbar ensures that you can switch between functional modules.
 
-The home page is a redundancy of the navigation bar with short description of each of the pages of PANKEGG. The Visualisation page is also expended in all of it's components (Sample VS Sample; Bin VS Bin; Taxonomy comparison; PCA).
+The landing page, `Home`, links to all elements that are also present in the navigation bar, and provides a short description for each one. Additionally, it shows the full content of the `Visualisation` page, Sample VS Sample; Bin VS Bin; Taxonomy comparison; PCA, and briefly describes each one.
 
 ![Figure: Home Page Example](figures/1.home.png)
 
 
 ---
 
-### Bin Information
+### Bin
 
-The Bin Information page allows you to view and manage all bins in your project, organized by sample. At the top, you will find options to toggle **the visibility** of all bins or all **taxonomy classifications** with a single click.
+The `Bin` information page allows you to view and manage all bins in your project, organized by sample. At the top, you will find options to toggle **the visibility** of all bins or all **taxonomy classifications** with a single click.
 
-A dedicated panel provides advanced **sorting, search, and filtering** options:
-- **Sort bins** by Bin Name, Completeness, or Contamination.
-- **Filter/search** by sample name, bin name, or any taxonomic rank (Kingdom, Phylum, Class, Order, Family, Genus, Species). By default the search is on the sample name and bin name, for the taxonomic rank select one or more before searching.
+A panel provides advanced **sorting, search, and filtering** options:
+- **Sort by** Bin Name, Completeness, or Contamination.
+- **Filter/search** by sample name, bin name, or any taxonomic rank (Kingdom, Phylum, Class, Order, Family, Genus, Species). By default the search is on the sample name and bin name, for filtering by taxonomic rank select one or more before searching.
 - **GTDB quality filtering** can be enabled to display only the bins passing Genome Taxonomy DataBase selection criteria (completeness - 5*contamination >50).
 
 
-Each bin is displayed in a table under its sample, with columns for bin name, genus, species, completeness, and contamination.  
+Each bin is displayed in a table below its Sample Name, with columns for bin name, genus, species, completeness, and contamination.  
 For each bin, you can:
 - **View associated maps (pathways)** or **KEGG orthologs** with a single click.
 - **Toggle taxonomy classification** to expand or collapse the display of detailed taxonomic information.
