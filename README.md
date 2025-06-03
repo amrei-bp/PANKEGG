@@ -453,19 +453,19 @@ To verify your installation and familiarize yourself with Pankegg, you can run a
 - Unzip the archive (creates a directory called `pankegg_test_data`):
 
     ```bash
-    unzip pankegg_test_data.zip -d pankegg_test_data
+    unzip pankegg_test_data.zip
     ```
 
 - Create a test database for Sourmash classification:
 
     ```bash
-    python pankegg_make_db.py -i pankegg_test_data/pankegg_test_sourmash.csv -o test_sourmash --output_dir pankegg_test_data
+    python pankegg_make_db.py -i pankegg_test_data/sourmash_example.csv -o test_sourmash --output_dir pankegg_test_data
     ```
 
 - Create a test database for GTDB-TK classification:
 
     ```bash
-    python pankegg_make_db.py -i pankegg_test_data/pankegg_test_gtdbtk.csv -o test_gtdbtk --output_dir pankegg_test_data --gtdbtk
+    python pankegg_make_db.py -i pankegg_test_data/gtdbtk_example.csv -o test_gtdbtk --output_dir pankegg_test_data --gtdbtk
     ```
 
 After running these commands, you should find `test_sourmash.db` and `test_gtdbtk.db` inside the `pankegg_test_data` directory. There is also `sourmash_example.db` and `gtdbtk_example.db` in the `pankegg_test_data` directory.
