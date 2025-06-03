@@ -98,7 +98,7 @@ or use the the database you generated in point 3:
 python pankegg_app.py --d pankegg_test_data/test_sourmash
 ```
 
-Now, open your web browser and go to the IP address written in your terminal ( (http://0.0.0.0:5000)[http://0.0.0.0:5000]) to interactively explore your metagenomic data!
+Now, open your web browser and go to the IP address written in your terminal ( [http://0.0.0.0:5000](http://0.0.0.0:5000)) to interactively explore your metagenomic data!
 
 ---
 
@@ -228,10 +228,10 @@ conda-lock install --name pankegg_env conda-lock.yml
 conda activate pankegg_env
 ```
 
-Alternatively, Create and activate a new conda environment using the provided `meta.yaml` file (found in the `conda.recipe` directory):
+Alternatively, create and activate a new conda environment using the provided `environment.yml` file (found in the `conda.recipe` directory):
 
 ```bash
-conda env create -f conda.recipe/environment.yml
+conda env create -f environment.yml
 conda activate pankegg_env
 ```
 
@@ -253,10 +253,10 @@ pip install flask pandas numpy scikit-learn scipy jinja2 click setuptools import
 
 #### Using pixi
 
-If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.lock` and `pixi.toml` with:
+If you use [pixi](https://prefix.dev/docs/pixi/), you can use the `pixi.lock` and run all the Pankegg commands with:
 
 ```bash
-pixi install
+pixi run <pankegg_command>
 ```
 
 ### Windows Subsystem for Linux 
@@ -276,14 +276,7 @@ pankegg_make_db --help
 pankegg_app --help
 ```
 
-If the commands are not in your PATH then use the whole path to the executable 
-
-For Pixi use:
-
-```bash
-pixi run pankegg_make_db.py --help
-pixi run pankegg_app.py --help
-```
+If the commands are not in your PATH then use the whole path to the executable.
 
 For more detailed instructions on how to use Pankegg, see the [Usage and Tests](#usage-and-tests) section.
 
