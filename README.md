@@ -244,7 +244,6 @@ For a more stable installation, create and activate a new conda environment usin
 
 ```bash
 conda-lock install --name pankegg_env conda.recipe/conda-lock.yml
-conda create --name pankegg_env --file conda.recipe/conda-lock.yml
 conda activate pankegg_env
 ```
 
