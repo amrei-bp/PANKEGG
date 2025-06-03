@@ -583,20 +583,19 @@ These features make it easy to explore, filter, and compare bin quality and taxo
 
 ---
 
-### Map Information
+### Map
 
-The Map Information page gives you a comprehensive overview of all metabolic pathways (KEGG maps) present in your dataset. Each pathway is listed with its map number, pathway name, and a completion percentage, which indicates the proportion of KEGG orthologs (KOs) found in your data relative to the total for that pathway.
+The `Map` information page gives you an overview of all metabolic pathways (KEGG maps) present in your dataset. Each pathway is listed with its map number, pathway name, and a completion percentage, which indicates the proportion of KEGG orthologs (KOs) found in your data relative to the total number of KOs for that pathway.
 
 At the top of the page, you’ll find options to toggle all map details and export your current view. The legend explains how KOs are visualized:
 - **Dark blue**: KEGG ID officially present in the pathway
 - **Light blue**: KEGG ID not officially present in the pathway
 
-Pathway completion is calculated using the number of detected KOs divided by the total number of theoretical KOs for the pathway.  
 *Note: Not all KOs contribute equally to pathway function, so this value is only an approximate indicator.*
 
 #### Filtering and Search
 
-You can filter maps by sample, bin, pathway name, or KO identifier using the controls above the table. When filtering by a bin or sample, the pathway completion percentage is recalculated to reflect only the KOs found within the selected bin(s) or sample(s), providing a focused view of its metabolic potential.
+You can filter maps by sample, bin, pathway name, or KO identifier using the controls above the table. When filtering by bin or sample, the pathway completion percentage is recalculated to only include the KOs found within the selected bin(s) or sample(s), providing a focused view of its metabolic potential.
 
 #### Viewing KO Details
 
@@ -610,7 +609,7 @@ If you filter through KO IDS, the filtered KO will be highlighted in orange to d
 
 The “KEGG info” button provides a direct link to the pathway’s entry on the KEGG website for further reference.
 
-The “Highlight pathways” button opens a sidebar slider with all relevant KO IDs for the selected pathway. You can quickly copy these IDs and use them in the KEGG color tool to generate a custom view of the pathway map on the KEGG website. What is highlighted in pink represents the KOs found in your current data.
+The “Highlight pathways” button opens a sidebar slider with all relevant KO IDs for the selected pathway. You can quickly copy these IDs and use them in the KEGG color tool to generate a custom view of the pathway map on the KEGG website. The KOs found in your current data will then be highlighted with color.
 
 This combination of interactive filtering, KO details, and external links makes it easy to explore pathway presence, completion, and functional highlights across all your bins and samples.
 
@@ -623,19 +622,19 @@ For examples the (Carbon Metabolism pathway)[https://www.kegg.jp/pathway/map0120
 
 ---
 
-### KEGG Identifiers
+### KEGG
 
-The KEGG Identifiers page provides an overview of all KEGG orthologs (KO IDs) detected in your dataset. The main table displays, for each KO, its ID, KO name, and a full name/description. You can use the search bar at the top to filter the KEGG IDs.
+The `KEGG` page provides an overview of all KEGG orthologs (KO IDs) detected in your dataset. The main table displays, for each KEGG ortholog (KO), its ID, KO name, and a full name/description. You can use the search bar at the top to filter the KEGG IDs.
 
 You see the complete list of KOs across your entire project, with quick-access buttons to:
-- **View Bins:** Show which bins that contains the selected KO.
-- **View Maps:** See which metabolic pathways (maps) include the KO.
-- **View Details:** Expand to show detailed information for each bin and sample in which the KO is present, including associated GO terms and EggNOG annotations if available.
+- **View Bins:** Show which bins contain the selected KO.
+- **View Maps:** See which metabolic pathways (maps) include the selected KO.
+- **View Details:** Expand to show detailed information for each bin and sample in which the KO is present, including associated GO terms and EggNOG annotations, if available.
 - **KEGG info:** Open the corresponding KO entry on the KEGG website for more detailed biological context.
 
-When you filter from the Bin Information page, the KEGG Identifiers view will display only those KOs present in the selected bin, helping you focus on its functional profile.
+When you apply filters on the `Bin` page, the KEGG Identifiers view will display only those KOs present in the selected bin, helping you focus on its functional profile.
 
-Expanding "View Details" for a KO reveals a breakdown by bin and sample, listing associated GO-terms (if any), the KO's connection in EggNOG annotation, and the EggNOG functional description where available. Enabling you trace each KO through the dataset, beware that you can have multiple entry of a kegg ortholog within the same bin as we parse the entire EggNOG annotation file and those files can be redundant.
+Beware that when viewing the details of KOs you can have multiple entries within the same bin as we parse the entire EggNOG annotation file and those files can be redundant.
 
 All action buttons are designed for seamless exploration: filter bins and maps based on any KO of interest, or instantly jump to its external reference.
 
@@ -646,9 +645,9 @@ All action buttons are designed for seamless exploration: filter bins and maps b
 
 ### Taxonomy
 
-The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.). Simply select the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxons detected at that rank, alongside the number of bins classified under each taxon.
+The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.) by simply selecting the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxons detected at that rank, alongside the number of bins classified under each taxon.
 
-The "unclassified" taxons are qualified in this table as their Rank letter followed by 2 underscore (e.g. S__).
+The "unclassified" taxons are qualified in this table as their rank letter followed by 2 underscore (e.g. S__).
 
 For each taxon, you have quick access buttons to:
 - View only the **bins** classified as this taxon,
@@ -668,18 +667,18 @@ The Sample vs Sample page enables detailed comparison between any two selected s
 
 To begin, choose two samples from the dropdown menus. The page then displays a suite of visualizations and tables to help you interpret differences and similarities:
 
-- **Pathway Heatmap:**  
-  Select a pathway category to visualize completion levels for each bin and each pathway in both samples. Pathway completion is shown as a heatmap—bins with more complete pathways are colored closer to red, while less complete pathways are closer to blue. 
+- **Heatmap:**  
+Select a pathway category to visualize completion levels for each bin and each pathway in both samples. Pathway completion is shown as a heatmap—bins with more complete pathways are colored closer to red, while less complete pathways are closer to blue. You can also select multiple pathway categories. Each category is plotted individually and displayed underneath each other. 
 *Note: Completion is calculated as the proportion of orthologs detected in each bin out of the total number required for the pathway.*
 
-- **Bin Quality Scatterplot:**  
-  For each sample, a scatterplot shows completeness versus contamination for all bins, allowing quick assessment of bin quality distribution within and between samples.
+- **Scatterplot:**  
+  The bin quality scatterplot shows, for each sample, the completeness versus contamination for all bins, allowing quick assessment of bin quality distribution within and between samples.
 
-- **PCA (Principal Component Analysis):**  
-  PCA plots are clustered for each sample, displaying the distribution of bins in reduced dimensionality space. This highlights similarities or differences in bin composition and functional potential.
+- **Bin PCA:**  
+  PCA (Principal Component Analysis) plots are generated for all bins in each sample, displaying the distribution of bins in reduced dimensionality space. This highlights similarities or differences in bin composition and functional potential. 
 *Note: This should only be used if there are sufficient amount of bins provided, a PCA on e.g. 3 bins has no value*
 
-- **Common Pathways Table and Barplot:**  
+- **Common Pathways:**  
   A table lists all detected pathways, with counts of shared and unique orthologs for each sample. You can filter pathways using the search bar. Below, a barplot provides a visual summary of these counts, making it easy to spot pathways enriched or unique to each sample.
 
 These combined tools offer a comprehensive, multi-angle comparison of the functional and taxonomic profiles of your samples.
