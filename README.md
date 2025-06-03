@@ -243,14 +243,14 @@ You can install Pankegg and all necessary dependencies via **conda**, **pip**, o
 For a more stable installation, create and activate a new conda environment using the provided `conda-lock.yml` file (found in the `conda.recipe` directory):
 
 ```bash
-conda-lock install --name pankegg_env conda.recipe/conda-lock.yml
+conda-lock install --name pankegg_env conda-lock.yml
 conda activate pankegg_env
 ```
 
-Alternatively, Create and activate a new conda environment using the provided `meta.yaml` file (found in the `conda.recipe` directory):
+Alternatively, create and activate a new conda environment using the provided `environment.yml` file (found in the `conda.recipe` directory):
 
 ```bash
-conda env create -f conda.recipe/environment.yml
+conda env create -f environment.yml
 conda activate pankegg_env
 ```
 
