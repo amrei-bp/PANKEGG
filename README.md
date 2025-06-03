@@ -16,6 +16,9 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 - [Mission Statement](#mission-statement)
 - [Introduction](#introduction)
 - [Installation](#installation)
+    - [Download via wget or curl](#Download)
+    - [Clone via git](#clone_via_git)
+    - [Install dependencies](#install_dependencies)
     - [Windows Subsystem for Linux](#windows-subsystem-for-linux)
 - [Pankegg_make_db.py](#pankegg_make_dbpy)
     - [Supported Input Files](#supported_input_files)
@@ -690,7 +693,7 @@ These combined tools offer a comprehensive, multi-angle comparison of the functi
 
 ### Bin vs Bin
 
-The Bin vs Bin comparison page allows you to directly compare the metabolic potential of any two bins, whether they belong to the same sample or different samples. After selecting two bins, the page displays a comprehensive table listing all metabolic pathways, showing the count of orthologs detected in both bins, or uniquely in each bin. You can use the search bar to filter pathways of interest.
+The Bin vs Bin comparison page allows you to directly compare the metabolic potential of any two bins, whether they belong to the same sample or to different samples. After selecting two bins, the page displays a table listing all metabolic pathways, showing the count of orthologs detected in both bins, or uniquely in each bin. You can use the search bar to filter pathways of interest.
 
 Below the table, a barplot visually summarizes these pathway counts, making it easy to identify pathways that are shared or unique to each bin.
 
@@ -708,7 +711,7 @@ The Taxonomy Comparison page allows you to compare the taxonomic composition and
 
 Below, a heatmap visualizes the number of bins present at specific metabolic pathways for each taxon at the selected rank. Pathways (rows) are compared against taxonomic groups (columns), with color indicating the number of bins: red signifies higher number of bins, while blue indicates lower number of bins.
 
-These combined visualizations help you quickly assess both the taxonomic structure and functional diversity present in your data.
+These combined visualizations help you to quickly assess both the taxonomic structure and functional diversity present in your data.
 
 ![Figure: Taxonomy Comparison Page](figures/10.Taxonomy_comparison.png)
 
@@ -717,10 +720,10 @@ These combined visualizations help you quickly assess both the taxonomic structu
 
 ### PCA
 
-The PCA page provides Principal Component Analysis (PCA) visualizations to help you explore the global structure and relationships in your dataset. You can choose to perform PCA based on one of three categories:
-- **KEGG Orthologs (KO):** The samples are differentiated based on their KO content.
-- **Metabolic Pathways (Maps):** Uses pathway presence as the feature for the PCA.
-- **Taxonomic Classification:** Allows you to select a specific rank (such as phylum, class, order, etc.) and projects the samples based on taxonomic composition.
+The PCA page provides Principal Component Analysis (PCA) visualizations to help you explore the global structure and relationships in your dataset. You can choose to perform PCA:
+- **Based on KOs:** The samples are differentiated by their KEGG Orthologs.
+- **Based on Maps:** The samples are differentiated by their metabolic pathways (maps).
+- **Based on Taxonomy:** The samples are differentiated by their taxonomic composition based on the specified rank (such as phylum, class, order, etc.).
 
 The resulting PCA plot visualizes your samples in a reduced dimensional space, helping to highlight patterns, clusters, or differences driven by functional or taxonomic profiles. The explained variance for the principal components is displayed below the plot to indicate how much of the data's variation is captured.
 *Note: We recommand using this tool only if you have enough samples.*
