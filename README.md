@@ -1,6 +1,6 @@
 # Pankegg ![Pankegg Logo](figures/PANKEGG_logo_small.png)
  
-*A powerful parser and Visualizer for metagenome bin annotation, classification, and quality assessment.*
+*A powerful parser and visualizer for metagenome bin annotation, classification, and quality assessment.*
 
 Pankegg is a flexible and user-friendly interactive software suite built with Python, SQL, Jinja, JavaScript, and Flask, designed to visualize and compare bin annotations, taxonomic classifications, and quality metrics (estimated by CheckM2). It enables interactive exploration and comparison of results across bins and samples through a local web server interface.
 
@@ -14,20 +14,23 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 
 - [Quickstart](#quickstart)
 - [Mission Statement](#mission-statement)
-- [Foreword](#foreword)
+- [Introduction](#introduction)
 - [Installation](#installation)
+    - [Download via wget or curl](#Download)
+    - [Clone via git](#clone_via_git)
+    - [Install dependencies](#install_dependencies)
     - [Windows Subsystem for Linux](#windows-subsystem-for-linux)
-- [Usage and Tests](#usage-and-tests)
-    - [Pankegg_make_db.py](#pankegg_make_dbpy)
-        - [Usage Make DB](#usage-make-db)
-        - [Parameters Make DB](#parameters-make-db)
-        - [Output Make DB](#output-make-db)
-        - [Test Make DB](#test-make-db)
-    - [Pankegg_app.py](#pankegg_apppy)
-        - [Usage APP](#usage-app)
-        - [Parameters APP](#parameters-app)
-        - [Output APP](#output-app)
-        - [Test APP](#test-app)
+- [Pankegg_make_db.py](#pankegg_make_dbpy)
+    - [Supported Input Files](#supported_input_files)
+    - [Usage Make DB](#usage-make-db)
+    - [Parameters Make DB](#parameters-make-db)
+    - [Output Make DB](#output-make-db)
+    - [Test Make DB](#test-make-db)
+- [Pankegg_app.py](#pankegg_apppy)
+    - [Usage APP](#usage-app)
+    - [Parameters APP](#parameters-app)
+    - [Output APP](#output-app)
+    - [Test APP](#test-app)
 - [The Pankegg Web Page](#the-pankegg-web-page)
     - [Home](#home)
     - [Bin Information](#bin-information)
@@ -46,7 +49,7 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 
 ## Quickstart
 
-This Quickstart guide will walk you through setting up Pankegg, running the pipeline on test data, and launching the web application to explore your results.
+This quickstart guide will walk you through setting up Pankegg, running the pipeline on test data, and launching the web application to explore your results.
 
 ### 1. Install Pankegg and Dependencies
 
@@ -118,43 +121,11 @@ Our goal is to facilitate research and understanding in the field of metagenomic
 
 ---
 
-## Foreword
+## Introduction
 
 Pankegg is composed of two main tools:  
-- The data parser and SQL database creator ([Pankegg_make_db.py](#pankegg_make_dbpy)), and  
-- The web server for interactive data exploration ([Pankegg_app.py](#pankegg_apppy)).
-
-> **Note:**  
-> In this documentation, the terms “map” and “pathway” are sometimes used interchangeably. Typically, “map” refers to the KEGG database’s map ID (e.g., `map00010`), while “pathway” refers to the biological pathway name. Although the KEGG database provides both a pathway ID and a map ID, this tool focuses on the map ID, which is generally more complete and reliable for referencing metabolic pathways.
-
-### Pankegg Make DB
-
-The `Pankegg_make_db.py` parser processes a CSV file where each line lists the required input files for a single sample. It compiles the information from these files into a structured SQL database, making downstream exploration fast and efficient.
-
-#### Supported Input Files
-
-| Tool      | Input File (generic name) | Data Extracted |
-|-----------|--------------------------|---------------|
-| checkm2   | quality_report.tsv       | bin completeness and contamination              |
-| Sourmash  | *.txt                    | ID, Status and Taxonomic classification         |
-| GTDB-TK   | *.summary.tsv            | User genome and Taxonomic classification        |
-| EggNOG    | *.annotations.tsv        | KEGG Orthologs, KEGG Pathways, GO terms, Description  |
-
-#### Additional Data Files Provided by Pankegg
-
-| File Name               | Description                                                                   | Data Origin                             |
-|-------------------------|-------------------------------------------------------------------------------|-----------------------------------------|
-| kegg_map_info.tsv       | Contains mapID, pathway name, and total number of orthologs per pathway (map) | Extracted from KEGG pathway database    |
-| kegg_map_orthologs.tsv  | Contains mapID, pathway name, and list of orthologs per pathway (map)         | Extracted from KEGG pathway database    |
-| ko.txt                  | Contains the IDs and names of orthologs                                       | Extracted from KEGG orthologs database  |
-| pathway.txt             | Contains map IDs (pathways) and their names                                   | Extracted from KEGG pathway database    |
-| pathway_groups.txt      | Maps IDs grouped by KEGG sub-categories                                       | Extracted from KEGG pathway database    |
-
----
-
-### Pankegg APP
-
-The `pankegg_app.py` web server uses the database generated by the parser and provides an interactive browser-based interface to explore your results. For more detailed usage instructions, see [Pankegg_app.py](#pankegg_apppy).
+- **Pankegg Make DB**, the data parser and SQL database creator ([Pankegg_make_db.py](#pankegg_make_dbpy)), which processes a CSV file where each line lists the required input files for a single sample. It compiles the information from these files into a structured SQL database, making downstream exploration fast and efficient,  and  
+- **Pankegg APP**, the web server for interactive data exploration ([Pankegg_app.py](#pankegg_apppy)), which uses the database generated by the parser and provides an interactive browser-based interface to explore your results.
 
 The web interface is divided into two main categories:
 - **Navigation and Search:** Effortlessly browse and filter all available data to find exactly what you need.
@@ -176,6 +147,9 @@ Pankegg provides multiple interactive features:
 - **Bin vs Bin:** Plot and table of KEGGs shared or unique between two bins for metabolic pathways.
 - **Taxonomic Comparison:** For a given rank, see sample-wise composition plots (abundance = number of bins classified as taxon / total bins), and pathway-vs-taxa heatmaps.
 - **PCA:** Dedicated page for visualizing principal component analysis (PCA) of each sample, based on KOs, maps, or taxonomy.
+
+> **Note:**  
+> In this documentation, the terms “map” and “pathway” are sometimes used interchangeably. Typically, “map” refers to the KEGG database’s map ID (e.g., `map00010`), while “pathway” refers to the biological pathway name. Although the KEGG database provides both a pathway ID and a map ID, this tool focuses on the map ID, which is generally more complete and reliable for referencing metabolic pathways.
 
 ---
 
@@ -220,7 +194,7 @@ You can install Pankegg and all necessary dependencies via **conda**, **pip**, o
 
 #### Using conda
 
-For a more stable installation, create and activate a new conda environment using the provided `conda-lock.yml` file (found in the `conda.recipe` directory):
+For a stable installation, use [conda-lock](https://github.com/conda/conda-lock) to create and activate a stable conda environment using the provided `conda-lock.yml` file (found in the `conda.recipe` directory):
 
 ```bash
 conda-lock install --name pankegg_env conda-lock.yml
@@ -243,7 +217,7 @@ From within the repository folder, install all dependencies by running:
 pip install .
 ```
 
-Or, to install dependencies only:
+Or, install dependencies only:
 
 ```bash
 pip install flask pandas numpy scikit-learn scipy jinja2 click setuptools importlib-metadata
@@ -282,11 +256,30 @@ For more detailed instructions on how to use Pankegg, see the [Usage and Tests](
 
 ---
 
-## Usage and Tests
+## Pankegg_make_db.py
 
-### Pankegg_make_db.py
+### Supported Input Files
 
-#### Usage Make DB
+| Tool      | Input File (generic name) | Data Extracted |
+|-----------|--------------------------|---------------|
+| checkm2   | quality_report.tsv       | bin completeness and contamination              |
+| Sourmash  | *.txt                    | ID, Status and Taxonomic classification         |
+| GTDB-TK   | *.summary.tsv            | User genome and Taxonomic classification        |
+| EggNOG    | *.annotations.tsv        | KEGG Orthologs, KEGG Pathways, GO terms, Description  |
+
+#### Additional Input Files Provided by Pankegg
+
+| File Name               | Description                                                                   | Data Origin                             |
+|-------------------------|-------------------------------------------------------------------------------|-----------------------------------------|
+| kegg_map_info.tsv       | Contains mapID, pathway name, and total number of orthologs per pathway (map) | Extracted from KEGG pathway database    |
+| kegg_map_orthologs.tsv  | Contains mapID, pathway name, and list of orthologs per pathway (map)         | Extracted from KEGG pathway database    |
+| ko.txt                  | Contains the IDs and names of orthologs                                       | Extracted from KEGG orthologs database  |
+| pathway.txt             | Contains map IDs (pathways) and their names                                   | Extracted from KEGG pathway database    |
+| pathway_groups.txt      | Maps IDs grouped by KEGG sub-categories                                       | Extracted from KEGG pathway database    |
+
+---
+
+### Usage Make DB
 
 To create the SQL database, you will need a CSV file listing all your samples and their corresponding input directories or files.  
 The expected CSV format uses the following header:
@@ -399,23 +392,23 @@ For GTDBTK
 
 ---
 
-#### Parameters Make DB
+### Parameters Make DB
 
 - `-i, --input`  
   Path to the CSV file listing all samples and their input files/directories (required).
 
 - `-o, --output`  
-  Name for the output database file (**without the extension**). The default is `pankegg`. The `.db` extension is automatically added to the output name.
+  Name of the output database file (**without the extension**). The default is `pankegg`. The `.db` extension is automatically added to the output name.
 
 - `--output_dir`  
-  Directory where the database will be written. The default is `./db_output`.
+  Directory the database will be written to. The default is `./db_output`.
 
 - `--gtdbtk`  
   Use this flag if your classification files were generated with GTDB-TK instead of Sourmash.
 
 ---
 
-#### Output Make DB
+### Output Make DB
 
 The output is an SQLite database (`*.db`) that can be opened with tools like `sqlite3`, but is best used with `pankegg_app.py` for interactive browsing.  
 The database contains the following tables:
@@ -435,7 +428,7 @@ Each table stores specific information related to bins, pathways, taxonomy, and 
 
 ---
 
-#### Test Make DB
+### Test Make DB
 To verify your installation and familiarize yourself with Pankegg, you can run a test using provided data. Download the example archive, unzip it, and generate test databases using the included CSV files:
 
 - Download the test data archive from OSF (https://osf.io/wjuet):
@@ -468,8 +461,8 @@ To verify your installation and familiarize yourself with Pankegg, you can run a
     python pankegg_make_db.py -i pankegg_test_data/gtdbtk_example.csv -o test_gtdbtk --output_dir pankegg_test_data --gtdbtk
     ```
 
-After running these commands, you should find `test_sourmash.db` and `test_gtdbtk.db` inside the `pankegg_test_data` directory. There is also `sourmash_example.db` and `gtdbtk_example.db` in the `pankegg_test_data` directory.
-Those 2 are the same databases but already generated by us, the validity of `pankegg_make_db.py` can thus be tested by comparing the 2 files.
+After running these commands, you should find newly created `test_sourmash.db` and `test_gtdbtk.db` inside the `pankegg_test_data` directory. This is in addition to the already existing `sourmash_example.db` and `gtdbtk_example.db` files in the same directory.
+The existing and newly generated respective databases should be identical, so the validity of `pankegg_make_db.py` can be tested by comparing the two files.
 
 ---
 
@@ -478,9 +471,9 @@ For more details or troubleshooting, please consult the [Reporting Bugs & Reques
 
 ---
 
-### Pankegg_app.py
+## Pankegg_app.py
 
-#### Usage APP
+### Usage APP
 
 Before running the web application, it is highly recommended to **change the `app.secret_key`** (found at line 50 in `pankegg_app.py`) to a secure value of your choice.  
 This key is used by Flask for session security. Leaving it as the default ('local') is fine for local or testing use, but for any real-world or multi-user deployment, you should generate and use a strong, unique secret key to prevent session tampering and increase security.
@@ -494,7 +487,7 @@ To start the Pankegg web server with your database, use the following command (r
 
 ---
 
-#### Parameters APP
+### Parameters APP
 
 - `--d` or `--db`  
   Path to the SQLite database you want to browse.  
@@ -505,7 +498,7 @@ To start the Pankegg web server with your database, use the following command (r
 
 ---
 
-#### Output APP
+### Output APP
 
 By default, the web server will start on your local IP address (host `0.0.0.0`) and port `5000`.  
 Once started, you can access the Pankegg interface in your browser by navigating to:
@@ -516,7 +509,7 @@ You will be able to browse, filter, and visualize all results contained in your 
 
 ---
 
-#### Test APP
+### Test APP
 
 You can test the web interface using either the database provided with the repository, example databases from the test data, or your own generated databases.  
 Here are example commands (replace BASH with the actual commands):
@@ -562,26 +555,26 @@ For more details or troubleshooting, see the [Reporting Bugs & Contributing](#re
 
 ### Home
 
-At the top, a navigation bar provides quick access to all major sections: Home, Bin, Map, Kegg, Taxonomy, and Visualisation. Each of these sections links to a their page where you can browse detailed information about your bins, pathway maps, KEGG identifiers, and taxonomic classifications, or use the different interactive visualisation tools. The navbar ensures that you can effortlessly switch between functional modules.
+At the top, a navigation bar provides quick access to all major sections: Home, Bin, Map, Kegg, Taxonomy, and Visualisation. Each of these sections links to a page where you can browse detailed information about your bins, pathway maps, KEGG identifiers, and taxonomic classifications, or use the different interactive visualisation tools. The navbar ensures that you can switch between functional modules.
 
-The home page is a redundancy of the navigation bar with short description of each of the pages of PANKEGG. The Visualisation page is also expended in all of it's components (Sample VS Sample; Bin VS Bin; Taxonomy comparison; PCA).
+The landing page, `Home`, links to all elements that are also present in the navigation bar, and provides a short description for each one. Additionally, it shows the full content of the `Visualisation` page, Sample VS Sample; Bin VS Bin; Taxonomy comparison; PCA, and briefly describes each one.
 
 ![Figure: Home Page Example](figures/1.home.png)
 
 
 ---
 
-### Bin Information
+### Bin
 
-The Bin Information page allows you to view and manage all bins in your project, organized by sample. At the top, you will find options to toggle **the visibility** of all bins or all **taxonomy classifications** with a single click.
+The `Bin` information page allows you to view and manage all bins in your project, organized by sample. At the top, you will find options to toggle **the visibility** of all bins or all **taxonomy classifications** with a single click.
 
-A dedicated panel provides advanced **sorting, search, and filtering** options:
-- **Sort bins** by Bin Name, Completeness, or Contamination.
-- **Filter/search** by sample name, bin name, or any taxonomic rank (Kingdom, Phylum, Class, Order, Family, Genus, Species). By default the search is on the sample name and bin name, for the taxonomic rank select one or more before searching.
+A panel provides advanced **sorting, search, and filtering** options:
+- **Sort by** Bin Name, Completeness, or Contamination.
+- **Filter/search** by sample name, bin name, or any taxonomic rank (Kingdom, Phylum, Class, Order, Family, Genus, Species). By default the search is on the sample name and bin name, for filtering by taxonomic rank select one or more before searching.
 - **GTDB quality filtering** can be enabled to display only the bins passing Genome Taxonomy DataBase selection criteria (completeness - 5*contamination >50).
 
 
-Each bin is displayed in a table under its sample, with columns for bin name, genus, species, completeness, and contamination.  
+Each bin is displayed in a table below its Sample Name, with columns for bin name, genus, species, completeness, and contamination.  
 For each bin, you can:
 - **View associated maps (pathways)** or **KEGG orthologs** with a single click.
 - **Toggle taxonomy classification** to expand or collapse the display of detailed taxonomic information.
@@ -593,20 +586,19 @@ These features make it easy to explore, filter, and compare bin quality and taxo
 
 ---
 
-### Map Information
+### Map
 
-The Map Information page gives you a comprehensive overview of all metabolic pathways (KEGG maps) present in your dataset. Each pathway is listed with its map number, pathway name, and a completion percentage, which indicates the proportion of KEGG orthologs (KOs) found in your data relative to the total for that pathway.
+The `Map` information page gives you an overview of all metabolic pathways (KEGG maps) present in your dataset. Each pathway is listed with its map number, pathway name, and a completion percentage, which indicates the proportion of KEGG orthologs (KOs) found in your data relative to the total number of KOs for that pathway.
 
 At the top of the page, you’ll find options to toggle all map details and export your current view. The legend explains how KOs are visualized:
 - **Dark blue**: KEGG ID officially present in the pathway
 - **Light blue**: KEGG ID not officially present in the pathway
 
-Pathway completion is calculated using the number of detected KOs divided by the total number of theoretical KOs for the pathway.  
 *Note: Not all KOs contribute equally to pathway function, so this value is only an approximate indicator.*
 
 #### Filtering and Search
 
-You can filter maps by sample, bin, pathway name, or KO identifier using the controls above the table. When filtering by a bin or sample, the pathway completion percentage is recalculated to reflect only the KOs found within the selected bin(s) or sample(s), providing a focused view of its metabolic potential.
+You can filter maps by sample, bin, pathway name, or KO identifier using the controls above the table. When filtering by bin or sample, the pathway completion percentage is recalculated to only include the KOs found within the selected bin(s) or sample(s), providing a focused view of its metabolic potential.
 
 #### Viewing KO Details
 
@@ -620,7 +612,7 @@ If you filter through KO IDS, the filtered KO will be highlighted in orange to d
 
 The “KEGG info” button provides a direct link to the pathway’s entry on the KEGG website for further reference.
 
-The “Highlight pathways” button opens a sidebar slider with all relevant KO IDs for the selected pathway. You can quickly copy these IDs and use them in the KEGG color tool to generate a custom view of the pathway map on the KEGG website. What is highlighted in pink represents the KOs found in your current data.
+The “Highlight pathways” button opens a sidebar slider with all relevant KO IDs for the selected pathway. You can quickly copy these IDs and use them in the KEGG color tool to generate a custom view of the pathway map on the KEGG website. The KOs found in your current data will then be highlighted with color.
 
 This combination of interactive filtering, KO details, and external links makes it easy to explore pathway presence, completion, and functional highlights across all your bins and samples.
 
@@ -633,19 +625,19 @@ For examples the (Carbon Metabolism pathway)[https://www.kegg.jp/pathway/map0120
 
 ---
 
-### KEGG Identifiers
+### KEGG
 
-The KEGG Identifiers page provides an overview of all KEGG orthologs (KO IDs) detected in your dataset. The main table displays, for each KO, its ID, KO name, and a full name/description. You can use the search bar at the top to filter the KEGG IDs.
+The `KEGG` page provides an overview of all KEGG orthologs (KO IDs) detected in your dataset. The main table displays, for each KEGG ortholog (KO), its ID, KO name, and a full name/description. You can use the search bar at the top to filter the KEGG IDs.
 
 You see the complete list of KOs across your entire project, with quick-access buttons to:
-- **View Bins:** Show which bins that contains the selected KO.
-- **View Maps:** See which metabolic pathways (maps) include the KO.
-- **View Details:** Expand to show detailed information for each bin and sample in which the KO is present, including associated GO terms and EggNOG annotations if available.
+- **View Bins:** Show which bins contain the selected KO.
+- **View Maps:** See which metabolic pathways (maps) include the selected KO.
+- **View Details:** Expand to show detailed information for each bin and sample in which the KO is present, including associated GO terms and EggNOG annotations, if available.
 - **KEGG info:** Open the corresponding KO entry on the KEGG website for more detailed biological context.
 
-When you filter from the Bin Information page, the KEGG Identifiers view will display only those KOs present in the selected bin, helping you focus on its functional profile.
+When you apply filters on the `Bin` page, the KEGG Identifiers view will display only those KOs present in the selected bin, helping you focus on its functional profile.
 
-Expanding "View Details" for a KO reveals a breakdown by bin and sample, listing associated GO-terms (if any), the KO's connection in EggNOG annotation, and the EggNOG functional description where available. Enabling you trace each KO through the dataset, beware that you can have multiple entry of a kegg ortholog within the same bin as we parse the entire EggNOG annotation file and those files can be redundant.
+Beware that when viewing the details of KOs you can have multiple entries within the same bin as we parse the entire EggNOG annotation file and those files can be redundant.
 
 All action buttons are designed for seamless exploration: filter bins and maps based on any KO of interest, or instantly jump to its external reference.
 
@@ -656,9 +648,9 @@ All action buttons are designed for seamless exploration: filter bins and maps b
 
 ### Taxonomy
 
-The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.). Simply select the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxons detected at that rank, alongside the number of bins classified under each taxon.
+The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.) by simply selecting the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxons detected at that rank, alongside the number of bins classified under each taxon.
 
-The "unclassified" taxons are qualified in this table as their Rank letter followed by 2 underscore (e.g. S__).
+The "unclassified" taxons are qualified in this table as their rank letter followed by 2 underscore (e.g. S__).
 
 For each taxon, you have quick access buttons to:
 - View only the **bins** classified as this taxon,
@@ -678,18 +670,18 @@ The Sample vs Sample page enables detailed comparison between any two selected s
 
 To begin, choose two samples from the dropdown menus. The page then displays a suite of visualizations and tables to help you interpret differences and similarities:
 
-- **Pathway Heatmap:**  
-  Select a pathway category to visualize completion levels for each bin and each pathway in both samples. Pathway completion is shown as a heatmap—bins with more complete pathways are colored closer to red, while less complete pathways are closer to blue. 
+- **Heatmap:**  
+Select a pathway category to visualize completion levels for each bin and each pathway in both samples. Pathway completion is shown as a heatmap—bins with more complete pathways are colored closer to red, while less complete pathways are closer to blue. You can also select multiple pathway categories. Each category is plotted individually and displayed underneath each other. 
 *Note: Completion is calculated as the proportion of orthologs detected in each bin out of the total number required for the pathway.*
 
-- **Bin Quality Scatterplot:**  
-  For each sample, a scatterplot shows completeness versus contamination for all bins, allowing quick assessment of bin quality distribution within and between samples.
+- **Scatterplot:**  
+  The bin quality scatterplot shows, for each sample, the completeness versus contamination for all bins, allowing quick assessment of bin quality distribution within and between samples.
 
-- **PCA (Principal Component Analysis):**  
-  PCA plots are clustered for each sample, displaying the distribution of bins in reduced dimensionality space. This highlights similarities or differences in bin composition and functional potential.
+- **Bin PCA:**  
+  PCA (Principal Component Analysis) plots are generated for all bins in each sample, displaying the distribution of bins in reduced dimensionality space. This highlights similarities or differences in bin composition and functional potential. 
 *Note: This should only be used if there are sufficient amount of bins provided, a PCA on e.g. 3 bins has no value*
 
-- **Common Pathways Table and Barplot:**  
+- **Common Pathways:**  
   A table lists all detected pathways, with counts of shared and unique orthologs for each sample. You can filter pathways using the search bar. Below, a barplot provides a visual summary of these counts, making it easy to spot pathways enriched or unique to each sample.
 
 These combined tools offer a comprehensive, multi-angle comparison of the functional and taxonomic profiles of your samples.
@@ -701,7 +693,7 @@ These combined tools offer a comprehensive, multi-angle comparison of the functi
 
 ### Bin vs Bin
 
-The Bin vs Bin comparison page allows you to directly compare the metabolic potential of any two bins, whether they belong to the same sample or different samples. After selecting two bins, the page displays a comprehensive table listing all metabolic pathways, showing the count of orthologs detected in both bins, or uniquely in each bin. You can use the search bar to filter pathways of interest.
+The Bin vs Bin comparison page allows you to directly compare the metabolic potential of any two bins, whether they belong to the same sample or to different samples. After selecting two bins, the page displays a table listing all metabolic pathways, showing the count of orthologs detected in both bins, or uniquely in each bin. You can use the search bar to filter pathways of interest.
 
 Below the table, a barplot visually summarizes these pathway counts, making it easy to identify pathways that are shared or unique to each bin.
 
@@ -719,7 +711,7 @@ The Taxonomy Comparison page allows you to compare the taxonomic composition and
 
 Below, a heatmap visualizes the number of bins present at specific metabolic pathways for each taxon at the selected rank. Pathways (rows) are compared against taxonomic groups (columns), with color indicating the number of bins: red signifies higher number of bins, while blue indicates lower number of bins.
 
-These combined visualizations help you quickly assess both the taxonomic structure and functional diversity present in your data.
+These combined visualizations help you to quickly assess both the taxonomic structure and functional diversity present in your data.
 
 ![Figure: Taxonomy Comparison Page](figures/10.Taxonomy_comparison.png)
 
@@ -728,10 +720,10 @@ These combined visualizations help you quickly assess both the taxonomic structu
 
 ### PCA
 
-The PCA page provides Principal Component Analysis (PCA) visualizations to help you explore the global structure and relationships in your dataset. You can choose to perform PCA based on one of three categories:
-- **KEGG Orthologs (KO):** The samples are differentiated based on their KO content.
-- **Metabolic Pathways (Maps):** Uses pathway presence as the feature for the PCA.
-- **Taxonomic Classification:** Allows you to select a specific rank (such as phylum, class, order, etc.) and projects the samples based on taxonomic composition.
+The PCA page provides Principal Component Analysis (PCA) visualizations to help you explore the global structure and relationships in your dataset. You can choose to perform PCA:
+- **Based on KOs:** The samples are differentiated by their KEGG Orthologs.
+- **Based on Maps:** The samples are differentiated by their metabolic pathways (maps).
+- **Based on Taxonomy:** The samples are differentiated by their taxonomic composition based on the specified rank (such as phylum, class, order, etc.).
 
 The resulting PCA plot visualizes your samples in a reduced dimensional space, helping to highlight patterns, clusters, or differences driven by functional or taxonomic profiles. The explained variance for the principal components is displayed below the plot to indicate how much of the data's variation is captured.
 *Note: We recommand using this tool only if you have enough samples.*
