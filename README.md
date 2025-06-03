@@ -12,7 +12,6 @@ Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sour
 
 ## Table of Contents
 
-- [Flash Start](#flash-start)
 - [Quickstart](#quickstart)
 - [Mission Statement](#mission-statement)
 - [Foreword](#foreword)
