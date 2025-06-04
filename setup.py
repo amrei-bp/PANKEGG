@@ -16,6 +16,7 @@ setup(
         'setuptools',
         'click',
         'importlib-metadata; python_version<"3.8"',
+        'pytest==8.4.0',
     ],
     entry_points={
         'console_scripts': [
