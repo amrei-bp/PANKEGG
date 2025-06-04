@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>download – PANKEGG</title>
+<title>Pankegg_make_db.py – PANKEGG</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -106,7 +141,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tool_introduction.html">The tools</a></li><li class="breadcrumb-item"><a href="./Pankegg_make_db.html">Pankegg_make_db.py</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -206,7 +241,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Pankegg_make_db.html" class="sidebar-item-text sidebar-link">
+  <a href="./Pankegg_make_db.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Pankegg_make_db.py</span></a>
   </div>
 </li>
@@ -263,17 +298,205 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#input-file-format" id="toc-input-file-format" class="nav-link active" data-scroll-target="#input-file-format">Input file format</a>
+  <ul class="collapse">
+  <li><a href="#create-the-input-file" id="toc-create-the-input-file" class="nav-link" data-scroll-target="#create-the-input-file">Create the input file</a></li>
+  </ul></li>
+  <li><a href="#parameters-make-db" id="toc-parameters-make-db" class="nav-link" data-scroll-target="#parameters-make-db">Parameters Make DB</a></li>
+  <li><a href="#output-make-db" id="toc-output-make-db" class="nav-link" data-scroll-target="#output-make-db">Output Make DB</a></li>
+  <li><a href="#run-with-testdata" id="toc-run-with-testdata" class="nav-link" data-scroll-target="#run-with-testdata">Run with Testdata</a>
+  <ul class="collapse">
+  <li><a href="#download-the-test-data-archive-from-osf" id="toc-download-the-test-data-archive-from-osf" class="nav-link" data-scroll-target="#download-the-test-data-archive-from-osf">Download the test data archive from OSF:</a></li>
+  <li><a href="#unzip-the-archive" id="toc-unzip-the-archive" class="nav-link" data-scroll-target="#unzip-the-archive">Unzip the archive:</a></li>
+  <li><a href="#create-a-test-database-for-sourmash-classification" id="toc-create-a-test-database-for-sourmash-classification" class="nav-link" data-scroll-target="#create-a-test-database-for-sourmash-classification">Create a test database for Sourmash classification:</a></li>
+  <li><a href="#create-a-test-database-for-gtdb-tk-classification" id="toc-create-a-test-database-for-gtdb-tk-classification" class="nav-link" data-scroll-target="#create-a-test-database-for-gtdb-tk-classification">Create a test database for GTDB-TK classification:</a></li>
+  </ul></li>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting">Troubleshooting</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tool_introduction.html">The tools</a></li><li class="breadcrumb-item"><a href="./Pankegg_make_db.html">Pankegg_make_db.py</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Pankegg_make_db.py</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
 
+
+<p><br></p>
+<p>Pankegg’s data parser that constructs the SQL database that is later used in the web application.</p>
+<section id="input-file-format" class="level2">
+<h2 class="anchored" data-anchor-id="input-file-format">Input file format</h2>
+<p>To create the SQL database, you will need a CSV file listing all your samples and their corresponding input directories or files.<br>
+The expected CSV format uses the following header:</p>
+<pre><code>Sample name,Annotation_dir,classification_dir,Checkm2_dir</code></pre>
+<p>Each subsequent line represents a sample, and should look like one of the following examples:</p>
+<ul>
+<li>For Sourmash classification:</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">SAMPLE1,/Path/to/SAMPLE1/bin_annotation/*.annotations.tsv,/Path/to/SAMPLE1/sourmash/*,/Path/to/SAMPLE1/checkm2_dir/quality_report.tsv</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">SAMPLE2,/Path/to/SAMPLE2/bin_annotation/*.annotations.tsv,/Path/to/SAMPLE2/sourmash/*,/Path/to/SAMPLE2/checkm2_dir/quality_report.tsv</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>For GTDB-TK classification (when using the <code>--gtdbtk</code> flag):</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">SAMPLE1,/Path/to/SAMPLE1/bin_annotation/*.annotations.tsv,/Path/to/SAMPLE1/gtdb_results/*.summary.tsv,/Path/to/SAMPLE1/checkm2_dir/quality_report.tsv</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">SAMPLE2,/Path/to/SAMPLE2/bin_annotation/*.annotations.tsv,/Path/to/SAMPLE2/gtdb_results/*.summary.tsv,/Path/to/SAMPLE2/checkm2_dir/quality_report.tsv</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="create-the-input-file" class="level3">
+<h3 class="anchored" data-anchor-id="create-the-input-file">Create the input file</h3>
+<p>You can create this input CSV file automatically with a bash loop, depending on how your data are organized:</p>
+<section id="if-your-results-are-grouped-by-sample" class="level4">
+<h4 class="anchored" data-anchor-id="if-your-results-are-grouped-by-sample">If your results are grouped by sample:</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Dir/</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> SAMPLEID1/</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── bin_annotation/</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── sourmash/</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── gtdb_results/</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── checkm2_dir/</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> SAMPLEID2/</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">├──</span> bin_annotation/</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">├──</span> sourmash/</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">├──</span> gtdb_results/</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">└──</span> checkm2_dir/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Run the following script to include Sourmash annotation:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Sample name,Annotation_dir,classification_dir,Checkm2_dir"</span> <span class="op">&gt;</span> samples.csv</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sample <span class="kw">in</span> Dir/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">name</span><span class="op">=</span><span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$sample</span><span class="st">"</span><span class="va">)</span><span class="kw">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">ann_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/bin_annotation/*.annotations.tsv"</span><span class="kw">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">class_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/sourmash/*"</span><span class="kw">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">checkm2_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/checkm2_dir/quality_report.tsv"</span><span class="kw">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"</span><span class="va">$name</span><span class="st">,</span><span class="va">$ann_path</span><span class="st">,</span><span class="va">$class_path</span><span class="st">,</span><span class="va">$checkm2_path</span><span class="st">"</span> <span class="op">&gt;&gt;</span> samples.csv<span class="kw">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Run the following script to include GTDBTK annotation:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Sample name,Annotation_dir,classification_dir,Checkm2_dir"</span> <span class="op">&gt;</span> samples.csv</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sample <span class="kw">in</span> Dir/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   <span class="va">name</span><span class="op">=</span><span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$sample</span><span class="st">"</span><span class="va">)</span><span class="kw">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="va">ann_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/bin_annotation/*.annotations.tsv"</span><span class="kw">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="va">class_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/gtdb_results/*.summary.tsv"</span><span class="kw">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>   <span class="va">checkm2_path</span><span class="op">=</span><span class="st">"</span><span class="va">$sample</span><span class="st">/checkm2_dir/quality_report.tsv"</span><span class="kw">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="bu">echo</span> <span class="st">"</span><span class="va">$name</span><span class="st">,</span><span class="va">$ann_path</span><span class="st">,</span><span class="va">$class_path</span><span class="st">,</span><span class="va">$checkm2_path</span><span class="st">"</span> <span class="op">&gt;&gt;</span> samples.csv<span class="kw">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="if-your-results-are-grouped-by-tool-then-sample" class="level4">
+<h4 class="anchored" data-anchor-id="if-your-results-are-grouped-by-tool-then-sample">If your results are grouped by tool, then sample:</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Dir/</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> bin_annotation/</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID1/</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID2/</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> sourmash/</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID1/</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID2/</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> gtdb_results/</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID1/</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── SAMPLEID2/</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> checkm2_dir/</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>   <span class="ex">├──</span> SAMPLEID1/</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>   <span class="ex">├──</span> SAMPLEID2/</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>   <span class="ex">└──</span> ...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Run the following script to include Sourmash annotation:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Sample name,Annotation_dir,classification_dir,Checkm2_dir"</span> <span class="op">&gt;</span> samples.csv</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sample <span class="kw">in</span> Dir/bin_annotation/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">name</span><span class="op">=</span><span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$sample</span><span class="st">"</span><span class="va">)</span><span class="kw">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">ann_path</span><span class="op">=</span><span class="st">"Dir/bin_annotation/</span><span class="va">$name</span><span class="st">/*.annotations.tsv"</span><span class="kw">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">class_path</span><span class="op">=</span><span class="st">"Dir/sourmash/</span><span class="va">$name</span><span class="st">/*"</span><span class="kw">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">checkm2_path</span><span class="op">=</span><span class="st">"Dir/checkm2_dir/</span><span class="va">$name</span><span class="st">/quality_report.tsv"</span><span class="kw">;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"</span><span class="va">$name</span><span class="st">,</span><span class="va">$ann_path</span><span class="st">,</span><span class="va">$class_path</span><span class="st">,</span><span class="va">$checkm2_path</span><span class="st">"</span> <span class="op">&gt;&gt;</span> samples.csv<span class="kw">;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Run the following script to include GTDBTK annotation:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Sample name,Annotation_dir,classification_dir,Checkm2_dir"</span> <span class="op">&gt;</span> samples.csv</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sample <span class="kw">in</span> Dir/bin_annotation/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">name</span><span class="op">=</span><span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$sample</span><span class="st">"</span><span class="va">)</span><span class="kw">;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">ann_path</span><span class="op">=</span><span class="st">"Dir/bin_annotation/</span><span class="va">$name</span><span class="st">/*.annotations.tsv"</span><span class="kw">;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">class_path</span><span class="op">=</span><span class="st">"Dir/gtdb_results/</span><span class="va">$name</span><span class="st">/*.summary.tsv"</span><span class="kw">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">checkm2_path</span><span class="op">=</span><span class="st">"Dir/checkm2_dir/</span><span class="va">$name</span><span class="st">/quality_report.tsv"</span><span class="kw">;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"</span><span class="va">$name</span><span class="st">,</span><span class="va">$ann_path</span><span class="st">,</span><span class="va">$class_path</span><span class="st">,</span><span class="va">$checkm2_path</span><span class="st">"</span> <span class="op">&gt;&gt;</span> samples.csv<span class="kw">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="parameters-make-db" class="level2">
+<h2 class="anchored" data-anchor-id="parameters-make-db">Parameters Make DB</h2>
+<ul>
+<li><p><code>-i, --input</code><br>
+Path to the CSV file listing all samples and their input files/directories (required).</p></li>
+<li><p><code>-o, --output</code><br>
+Name of the output database file (<strong>without the extension</strong>). The default is <code>pankegg</code>. The <code>.db</code> extension is automatically added to the output name.</p></li>
+<li><p><code>--output_dir</code><br>
+Directory the database will be written to. The default is <code>./db_output</code>.</p></li>
+<li><p><code>--gtdbtk</code><br>
+Use this flag if your classification files were generated with GTDB-TK instead of Sourmash.</p></li>
+</ul>
+</section>
+<section id="output-make-db" class="level2">
+<h2 class="anchored" data-anchor-id="output-make-db">Output Make DB</h2>
+<p>The output is an SQLite database (<code>*.db</code>) that can be opened with tools like <code>sqlite3</code>, but is best used with <code>pankegg_app.py</code> for interactive browsing.</p>
+<p>The database contains the following tables:</p>
+<ul>
+<li><code>taxonomy</code></li>
+<li><code>bin</code></li>
+<li><code>map</code></li>
+<li><code>kegg</code></li>
+<li><code>bin_map_kegg</code></li>
+<li><code>bin_map</code></li>
+<li><code>map_kegg</code></li>
+<li><code>bin_extra</code></li>
+<li><code>bin_extra_kegg</code></li>
+<li><code>sample</code></li>
+</ul>
+<p>Each table stores specific information related to bins, pathways, taxonomy, and annotation results for easy querying and visualization.</p>
+</section>
+<section id="run-with-testdata" class="level2">
+<h2 class="anchored" data-anchor-id="run-with-testdata">Run with Testdata</h2>
+<p>To verify your installation and familiarize yourself with Pankegg, you can run a test using provided data. Download the example archive, unzip it, and generate test databases using the included CSV files:</p>
+<section id="download-the-test-data-archive-from-osf" class="level3">
+<h3 class="anchored" data-anchor-id="download-the-test-data-archive-from-osf">Download the test data archive from <a href="https://osf.io/wjuet">OSF</a>:</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://osf.io/download/5v3zc/ <span class="at">-O</span> pankegg_test_data.zip</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>OR</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> <span class="at">-o</span> pankegg_test_data.zip  https://osf.io/download/5v3zc/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="unzip-the-archive" class="level3">
+<h3 class="anchored" data-anchor-id="unzip-the-archive">Unzip the archive:</h3>
+<p>This will create a directory called <code>pankegg_test_data</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> pankegg_test_data.zip</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="create-a-test-database-for-sourmash-classification" class="level3">
+<h3 class="anchored" data-anchor-id="create-a-test-database-for-sourmash-classification">Create a test database for Sourmash classification:</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> pankegg_make_db.py <span class="at">-i</span> pankegg_test_data/sourmash_example.csv <span class="at">-o</span> test_sourmash <span class="at">--output_dir</span> pankegg_test_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="create-a-test-database-for-gtdb-tk-classification" class="level3">
+<h3 class="anchored" data-anchor-id="create-a-test-database-for-gtdb-tk-classification">Create a test database for GTDB-TK classification:</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> pankegg_make_db.py <span class="at">-i</span> pankegg_test_data/gtdbtk_example.csv <span class="at">-o</span> test_gtdbtk <span class="at">--output_dir</span> pankegg_test_data <span class="at">--gtdbtk</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>After running these commands, you should find newly created <code>test_sourmash.db</code> and <code>test_gtdbtk.db</code> inside the <code>pankegg_test_data</code> directory. This is in addition to the already existing <code>sourmash_example.db</code> and <code>gtdbtk_example.db</code> files in the same directory.</p>
+<p>The existing and newly generated respective databases should be identical, so the validity of <code>pankegg_make_db.py</code> can be tested by comparing the two files.</p>
+</section>
+</section>
+<section id="troubleshooting" class="level2">
+<h2 class="anchored" data-anchor-id="troubleshooting">Troubleshooting</h2>
+<p>For more details or troubleshooting, please consult the <a href="./reporting_bugs.html">Reporting Bugs &amp; Contributing</a> section.</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

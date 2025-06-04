@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>download – PANKEGG</title>
+<title>Reporting bugs &amp; contributing – PANKEGG</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -106,7 +106,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Reporting bugs &amp; contributing</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -263,17 +263,129 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#contributing-guidelines" id="toc-contributing-guidelines" class="nav-link active" data-scroll-target="#contributing-guidelines">Contributing guidelines</a>
+  <ul class="collapse">
+  <li><a href="#getting-started-with-pankegg" id="toc-getting-started-with-pankegg" class="nav-link" data-scroll-target="#getting-started-with-pankegg">Getting started with Pankegg</a></li>
+  <li><a href="#did-you-find-a-bug" id="toc-did-you-find-a-bug" class="nav-link" data-scroll-target="#did-you-find-a-bug">Did you find a bug?</a></li>
+  <li><a href="#how-to-work-on-a-new-featurebug" id="toc-how-to-work-on-a-new-featurebug" class="nav-link" data-scroll-target="#how-to-work-on-a-new-featurebug">How to work on a new feature/bug</a></li>
+  <li><a href="#how-we-work-with-git" id="toc-how-we-work-with-git" class="nav-link" data-scroll-target="#how-we-work-with-git">How we work with Git</a>
+  <ul class="collapse">
+  <li><a href="#general-stuff-about-git-and-commit-messages" id="toc-general-stuff-about-git-and-commit-messages" class="nav-link" data-scroll-target="#general-stuff-about-git-and-commit-messages">General stuff about git and commit messages</a></li>
+  <li><a href="#how-we-do-code-reviews" id="toc-how-we-do-code-reviews" class="nav-link" data-scroll-target="#how-we-do-code-reviews">How we do code reviews</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Reporting bugs &amp; contributing</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
 
+
+<p><br></p>
+<section id="contributing-guidelines" class="level1">
+<h1>Contributing guidelines</h1>
+<p>We thank you for taking the time to contribute, whether with <em>bugs</em>, <em>code</em> or with <em>ideas</em>, to the project.</p>
+<section id="getting-started-with-pankegg" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started-with-pankegg">Getting started with Pankegg</h2>
+<p>Before contributing, take a moment to explore the repository:</p>
+<ul>
+<li><code>pankegg_make_db.py</code>: builds the SQLite database from your annotation CSV files.</li>
+<li><code>pankegg_app.py</code>: launches the Flask web interface to browse bins and KEGG pathways.</li>
+<li><code>lib/</code>: utility modules with SQL commands and database helpers.</li>
+<li><code>templates/</code>: Jinja HTML templates for the web pages.</li>
+<li><code>data/</code>: example files and a sample <code>pankegg.db</code>.</li>
+<li><code>setup.py</code> and <code>.github/workflows/</code>: packaging and CI configuration.</li>
+</ul>
+<p>We recommend inspecting <code>data/pankegg.db</code> with <code>sqlite3</code> and reviewing the templates to see how queries render in the app. The README walks through building a database and starting the server.</p>
+</section>
+<section id="did-you-find-a-bug" class="level2">
+<h2 class="anchored" data-anchor-id="did-you-find-a-bug">Did you find a bug?</h2>
+<ul>
+<li><p>Ensure that the bug was not already reported by <a href="https://github.com/RVanDamme/PANKEGG/issues?q=is%3Aissue%20label%3Abug%20%5BBUG%5D%20in%3Atitle">searching reported Issues</a>.</p></li>
+<li><p>If you’re unable to find an (open) issue addressing the problem, <a href="https://github.com/RVanDamme/PANKEGG/issues/new?title=%5BBUG%5D">open a new one</a>. Be sure to prefix the issue title with <strong>[BUG]</strong> and to include:</p></li>
+<li><p>a <em>clear</em> description,</p></li>
+<li><p>as much relevant information as possible, and</p></li>
+<li><p>a <em>code sample</em> or a database <em>test case</em> demonstrating the problematic behaviour that is occurring.</p></li>
+</ul>
+</section>
+<section id="how-to-work-on-a-new-featurebug" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-work-on-a-new-featurebug">How to work on a new feature/bug</h2>
+<p>Create an issue on Github or you can alternatively pick one already created.</p>
+<p>Assign yourself to that issue.</p>
+<p>Discussions on how to proceed about that issue take place in the comment section on that issue.</p>
+<p>Some of the work might have been done already by somebody, hence we avoid unnecessary work duplication and a waste of time and effort. Other reason for discussing the issue beforehand is to communicate with the team the changes as some of the features might impact different components, and we can plan accordingly.</p>
+</section>
+<section id="how-we-work-with-git" class="level2">
+<h2 class="anchored" data-anchor-id="how-we-work-with-git">How we work with Git</h2>
+<p>All work should take place in a dedicated branch with a short descriptive name.</p>
+<p>Use comments in your code, choose variable and function names that clearly show what you intend to implement.</p>
+<p>Once the feature is done you can request it to be merged back into <code>main</code> by making a Pull Request.</p>
+<p>Before making the pull request it is a good idea to rebase your branch to <code>main</code> to ensure that eventual conflicts with the <code>main</code> branch is solved before the PR is reviewed and we can therefore have a clean merge.</p>
+<section id="general-stuff-about-git-and-commit-messages" class="level3">
+<h3 class="anchored" data-anchor-id="general-stuff-about-git-and-commit-messages">General stuff about git and commit messages</h3>
+<p>In general it is better to commit often. Small commits are easier to roll back and also makes the code easier to review.</p>
+<p>Write helpful commit messages that describes the changes and possibly why they were necessary.</p>
+<p>Each commit should contain changes that are functionally connected and/or related. If you for example want to write <em>and</em> in the first line of the commit message this is an indicator that it should have been two commits.</p>
+<p>Learn how to select chunks of changed files to do multiple separate commits of unrelated things. This can be done with either <code>git add -p</code> or <code>git commit -p</code>.</p>
+<section id="helpful-commit-messages" class="level4">
+<h4 class="anchored" data-anchor-id="helpful-commit-messages">Helpful commit messages</h4>
+<p>The commit messages may be seen as meta-comments on the code that are incredibly helpful for anyone who wants to know how this piece of software is working, including colleagues (current and future) and external users.</p>
+<p>Some tips about writing helpful commit messages:</p>
+<ol type="1">
+<li>Separate subject (the first line of the message) from body with a blank line.</li>
+<li>Limit the subject line to 50 characters.</li>
+<li>Capitalize the subject line.</li>
+<li>Do not end the subject line with a period.</li>
+<li>Use the imperative mood in the subject line.</li>
+<li>Wrap the body at 72 characters.</li>
+<li>Use the body to explain what and why vs.&nbsp;how.</li>
+</ol>
+<p>For an in-depth explanation of the above points, please see <a href="http://chris.beams.io/posts/git-commit/">How to Write a Git Commit Message</a>.</p>
+</section>
+</section>
+<section id="how-we-do-code-reviews" class="level3">
+<h3 class="anchored" data-anchor-id="how-we-do-code-reviews">How we do code reviews</h3>
+<p>A code review is initiated when someone has made a Pull Request in the appropriate repo on github.</p>
+<p>Work should not continue on the branch <em>unless</em> it is a <a href="https://github.blog/2019-02-14-introducing-draft-pull-requests/">Draft Pull Request</a>. Once the PR is marked ready the review can start.</p>
+<p>The initiator of the PR should recruit a reviewer that get assigned reviewer duty on the branch.</p>
+<p>Other people may also look at and review the code.</p>
+<p>A reviewers job is to:</p>
+<ul>
+<li>Write polite and friendly comments - remember that it can be tough to have other people critizising your work, a little kindness goes a long way. This does not mean we should not comment on things that need to be changed of course.</li>
+<li>Read the code and make sure it is understandable</li>
+<li>Make sure that commit messages and commits are structured so that it is possible to understand why certain changes were made.</li>
+</ul>
+<p>Once the review is positive the Pull Request can be <em>merged</em> into <code>main</code> and the feature branch deleted.</p>
+<hr>
+<p>Thanks again.</p>
+
+
+</section>
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

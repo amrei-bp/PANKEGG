@@ -1,23 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/installation_test.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
     <loc>https://amrei-bp.github.io/PANKEGG/quickstart.html</loc>
-    <lastmod>2025-06-04T14:13:48.464Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amrei-bp.github.io/PANKEGG/download.html</loc>
-    <lastmod>2025-06-04T14:13:48.464Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amrei-bp.github.io/PANKEGG/input_files.html</loc>
-    <lastmod>2025-06-04T14:13:48.464Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amrei-bp.github.io/PANKEGG/dependencies.html</loc>
-    <lastmod>2025-06-04T14:13:48.464Z</lastmod>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
   </url>
   <url>
     <loc>https://amrei-bp.github.io/PANKEGG/index.html</loc>
-    <lastmod>2025-06-04T14:13:48.464Z</lastmod>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/installation.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/authors.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/tool_introduction.html</loc>
+    <lastmod>2025-06-04T22:35:15.155Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/input_files.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/Pankegg_make_db.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/CONTRIBUTING.html</loc>
+    <lastmod>2025-06-04T22:35:15.114Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/Pankegg_app.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/download.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/reporting_bugs.html</loc>
+    <lastmod>2025-06-04T22:35:15.154Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amrei-bp.github.io/PANKEGG/web_interface.html</loc>
+    <lastmod>2025-06-04T22:35:15.155Z</lastmod>
   </url>
 </urlset>
