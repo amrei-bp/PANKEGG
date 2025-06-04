@@ -2,9 +2,9 @@ name: PanKEGG CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master" , "OpenAI_Codex_Test" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master" , "OpenAI_Codex_Test" ]
 
 permissions:
   contents: read
@@ -44,3 +44,9 @@ jobs:
           conda activate pankegg_env
           python pankegg_make_db.py --help || true
           python pankegg_app.py --help || true
+
+      - name: Run test suite
+        run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate pankegg_env
+          pytest -vv
