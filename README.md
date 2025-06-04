@@ -94,7 +94,7 @@ Start the web server using the database present in the repository:
 python pankegg_app.py --d data/pankegg.db
 ```
 
-or use the the database you generated in point 3:
+or use the database you generated in point 3:
 
 ```bash
 python pankegg_app.py --d pankegg_test_data/test_sourmash
