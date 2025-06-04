@@ -4,7 +4,7 @@ project:
 website:
   title: "PANKEGG"
   navbar:
-    logo: figures/PANKEGG_logo_small.png
+    logo: ../figures/PANKEGG_logo_small.png
     tools:
       - icon: github
         menu:
