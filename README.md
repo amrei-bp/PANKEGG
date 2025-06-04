@@ -475,7 +475,7 @@ For more details or troubleshooting, please consult the [Reporting Bugs & Reques
 
 ### Usage APP
 
-Before running the web application, it is highly recommended to **change the `app.secret_key`** (found at line 50 in `pankegg_app.py`) to a secure value of your choice.  
+Before running the web application, it is highly recommended to **change the `app.secret_key`** (located around line 24 in `pankegg_app.py`) to a secure value of your choice.
 This key is used by Flask for session security. Leaving it as the default ('local') is fine for local or testing use, but for any real-world or multi-user deployment, you should generate and use a strong, unique secret key to prevent session tampering and increase security.
 
 To start the Pankegg web server with your database, use the following command (replace with your actual database path):
