@@ -97,7 +97,7 @@ python pankegg_app.py --d data/pankegg.db
 or use the database you generated in point 3:
 
 ```bash
-python pankegg_app.py --d pankegg_test_data/test_sourmash
+python pankegg_app.py --d pankegg_test_data/test_sourmash.db
 ```
 
 Now, open your web browser and go to the IP address written in your terminal ( [http://0.0.0.0:5000](http://0.0.0.0:5000)) to interactively explore your metagenomic data!
@@ -138,7 +138,7 @@ The web interface is divided into two main categories:
 | Bins       | Visualize all bins for each sample, review CheckM2 quality and classifications. Generate quality plots, see maps/KEGGs for bins. | Sample Name, Bin Name, Taxonomy, Maps, KEGGs          |
 | Maps       | Visualize all pathways detected in your data, check pathway “completeness”, highlight orthologs present per pathway.             | Sample Name, Bin Name, Taxonomy, Map (ID/Name), KEGGs |
 | KEGGs      | List all KEGGs present globally or in a specific bin; find patterns in ortholog/bin names.                                       | Ortholog Name Pattern, Bin Name (via Bins page)       |
-| Taxonomy   | View tables for each taxonomic rank, listing taxons found and their abundance.                                                   | Taxonomic Rank                                        |
+| Taxonomy   | View tables for each taxonomic rank, listing taxa found and their abundance.                                                   | Taxonomic Rank                                        |
 
 #### Feature Pages
 
@@ -466,7 +466,7 @@ The existing and newly generated respective databases should be identical, so th
 
 ---
 
-For more details or troubleshooting, please consult the [Reporting Bugs & Requesting Addons](#reporting-bugs--requesting-addons) section.
+For more details or troubleshooting, please consult the [Reporting Bugs & Contributing](#reporting-bugs--contributing) section.
 
 
 ---
@@ -648,9 +648,9 @@ All action buttons are designed for seamless exploration: filter bins and maps b
 
 ### Taxonomy
 
-The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.) by simply selecting the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxons detected at that rank, alongside the number of bins classified under each taxon.
+The Taxonomy page allows you to explore the taxonomic composition of your dataset at any rank (such as phylum, class, order, etc.) by simply selecting the desired taxonomic level from the dropdown menu at the top of the page. The resulting table lists all taxa detected at that rank, alongside the number of bins classified under each taxon.
 
-The "unclassified" taxons are qualified in this table as their rank letter followed by 2 underscore (e.g. S__).
+The "unclassified" taxa are qualified in this table as their rank letter followed by 2 underscore (e.g. S__).
 
 For each taxon, you have quick access buttons to:
 - View only the **bins** classified as this taxon,
@@ -726,7 +726,7 @@ The PCA page provides Principal Component Analysis (PCA) visualizations to help 
 - **Based on Taxonomy:** The samples are differentiated by their taxonomic composition based on the specified rank (such as phylum, class, order, etc.).
 
 The resulting PCA plot visualizes your samples in a reduced dimensional space, helping to highlight patterns, clusters, or differences driven by functional or taxonomic profiles. The explained variance for the principal components is displayed below the plot to indicate how much of the data's variation is captured.
-*Note: We recommand using this tool only if you have enough samples.*
+*Note: We recommend using this tool only if you have enough samples.*
 
 ![Figure: PCA Page](figures/11.PCA.png)
 
