@@ -4,9 +4,7 @@ title: "Supported input"
 <br>
 Pankegg was developed to integrate output files from a variety of metagenomics tools, such as CheckM2, Sourmash, GTDB-TK and EggNOG. You can combine them all, or only add the ones that are interesting for you.
 
----
-
-### Input files
+## Input files
 
 | Tool      | Input File | Data Extracted |
 |-----------|--------------------------|---------------|
@@ -18,9 +16,7 @@ Pankegg was developed to integrate output files from a variety of metagenomics t
 : Supported input files {.striped .hover}
 
 
----
-
-### Additional Input Files Provided by Pankegg
+## Additional Input Files Provided by Pankegg
 
 
 PANKEGG requires more input files. However, these are already provided and you don't need to worry about them. They are located in the `data` directory. 

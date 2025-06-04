@@ -1,0 +1,15 @@
+---
+title: "Test the installation"
+---
+
+
+Once the installation is complete, you can run Pankegg using:
+
+```bash
+pankegg_make_db --help
+pankegg_app --help
+```
+
+If the commands are not in your PATH then use the whole path to the executable.
+
+For more detailed instructions on how to use Pankegg, see the [Usage and Tests](#usage-and-tests) section.

@@ -4,28 +4,42 @@ project:
 website:
   title: "PANKEGG"
   navbar:
-    logo: ../figures/PANKEGG_logo_small.png
+    logo: figures/PANKEGG_logo_small.png
     tools:
       - icon: github
         menu:
           - text: Source Code
-            url:  https://github.com/RVanDamme/PANKEGG
+            url: https://github.com/RVanDamme/PANKEGG
+
   sidebar:
     style: "floating"
     border: true
+    search: true
     bread-crumbs: false
     contents:
       - section: "Home"
         contents:
           - index.qmd
-      - section: "Getting started"
-        contents: 
+      - section: "Getting Started"
+        contents:
           - quickstart.qmd
           - input_files.qmd
-      - sections: "Installation"
-        contents: 
-          - download.qmd
-          - dependencies.qmd
+      - section: "Installation"
+        contents:
+          - installation.qmd
+          - installation_test.qmd
+      - section: "The tools"
+        contents:
+          - tool_introduction.qmd
+          - Pankegg_make_db.qmd
+          - Pankegg_app.qmd
+      - section: "Web Interface"
+        contents:
+          - web_interface.qmd
+      - section: "Additional Information"
+        contents:
+          - CONTRIBUTING.md
+          - authors.qmd
 
 format:
   html:
@@ -35,6 +49,3 @@ format:
 
 execute:
   freeze: auto
-
-
-

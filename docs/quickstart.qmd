@@ -17,8 +17,6 @@ cd PANKEGG-master
 pip install .
 ```
 
----
-
 ## Download Example Test Data (optional)
 
 Download and extract the example dataset:
@@ -28,8 +26,6 @@ wget https://osf.io/5v3zc/download -O pankegg_test_data.zip
 unzip pankegg_test_data.zip
 ```
 
----
-
 ## Build the SQL Database (optional) 
 
 Generate a Pankegg database from the provided CSV using the included test data (for both Sourmash and GTDB-TK classification):
@@ -37,9 +33,6 @@ Generate a Pankegg database from the provided CSV using the included test data (
 ```bash
 python pankegg_make_db.py -i pankegg_test_data/sourmash_example.csv -o test_sourmash --output_dir pankegg_test_data
 ```
-
----
-
 
 ## Launch the Web Application
 
@@ -55,11 +48,7 @@ or use the the database you generated in point 3:
 python pankegg_app.py --d pankegg_test_data/test_sourmash
 ```
 
----
-
 ## Open web browser
 
 
 Now, open your web browser and go to the IP address written in your terminal ( [http://0.0.0.0:5000](http://0.0.0.0:5000)) to interactively explore your metagenomic data!
-
----
