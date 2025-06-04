@@ -65,7 +65,7 @@ pip install .
 
 ---
 
-### 2. Download Example Test Data (optional)
+### 2. Download Example Test Data 
 
 Download and extract the example dataset:
 
@@ -76,13 +76,22 @@ unzip pankegg_test_data.zip
 
 ---
 
-### 3. Build the SQL Database (optional) 
+### 3. Build the SQL Database
 
-Generate a Pankegg database from the provided CSV using the included test data (for both Sourmash and GTDB-TK classification):
+The test data comes with two pre-built databases, `sourmash_example.db` and `gtdb_example.db`, which you can use for Step 4.
+
+Otherwise, you can generate a Pankegg database from the provided CSVs using the included test data (for both Sourmash and GTDB-TK classification):
 
 ```bash
 python pankegg_make_db.py -i pankegg_test_data/sourmash_example.csv -o test_sourmash --output_dir pankegg_test_data
 ```
+**Or**
+
+```bash
+python pankegg_make_db.py -i pankegg_test_data/gtdbtk_example.csv -o test_gtdbtk --output_dir pankegg_test_data --gtdbtk
+```
+> **Note:**  
+> Making the database with gtdb-tk datasets requires the `--gtdbtk` argument.
 
 ---
 
@@ -94,7 +103,7 @@ Start the web server using the database present in the repository:
 python pankegg_app.py --d data/pankegg.db
 ```
 
-or use the database you generated in point 3:
+Or use one of the pre-built databases or the database you generated in point 3:
 
 ```bash
 python pankegg_app.py --d pankegg_test_data/test_sourmash.db
