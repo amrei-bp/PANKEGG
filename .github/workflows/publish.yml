@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
   push:
-    branches: main
+    branches: separate_documentation
 
 name: Quarto Publish
 
@@ -17,9 +17,15 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Render and Publish
+      - name: Render Quarto Project
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          path: docs  # Specify the path to your Quarto project
+
+      - name: Publish to GitHub Pages
         uses: quarto-dev/quarto-actions/publish@v2
         with:
-          target: gh-pages docs
+          target: gh-pages
+          path: docs  # Specify the path to your Quarto project
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
