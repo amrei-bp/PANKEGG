@@ -46,6 +46,7 @@ format:
     theme: flatly
     css: styles.css
     toc: true
+format-links: false
 
 execute:
   freeze: auto
