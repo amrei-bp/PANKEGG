@@ -24,10 +24,11 @@ requirements:
     - jinja2
     - click
     - importlib-metadata
+    - pytest==8.4.0
 
 test:
   requires:
-    - pytest
+    - pytest==8.4.0
   commands:
     - python -c "import flask"
     - python -c "import pandas"
