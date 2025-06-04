@@ -2,6 +2,17 @@
 
 We thank you for taking the time to contribute, whether with *bugs*, *code* or with *ideas*, to the project.
 
+## Getting started with Pankegg
+
+Before contributing, take a moment to explore the repository:
+- `pankegg_make_db.py`: builds the SQLite database from your annotation CSV files.
+- `pankegg_app.py`: launches the Flask web interface to browse bins and KEGG pathways.
+- `lib/`: utility modules with SQL commands and database helpers.
+- `templates/`: Jinja HTML templates for the web pages.
+- `data/`: example files and a sample `pankegg.db`.
+- `setup.py` and `.github/workflows/`: packaging and CI configuration.
+
+We recommend inspecting `data/pankegg.db` with `sqlite3` and reviewing the templates to see how queries render in the app. The README walks through building a database and starting the server.
 
 ## Did you find a bug?
 
