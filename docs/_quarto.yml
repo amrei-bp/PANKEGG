@@ -1,0 +1,37 @@
+project:
+  type: website
+
+website:
+  title: "PANKEGG"
+  navbar:
+    logo: figures/PANKEGG_logo_small.png
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            url:  https://github.com/RVanDamme/PANKEGG
+  sidebar:
+    style: "floating"
+    border: true
+    bread-crumbs: false
+    contents:
+      - section: "Home"
+        contents:
+          - index.qmd
+      - section: "Getting started"
+        contents: 
+          - quickstart.qmd
+          - input_files.qmd
+      - sections: "Installation"
+        contents: 
+          - download.qmd
+          - dependencies.qmd
+
+format:
+  html:
+    theme: flatly
+    css: styles.css
+    toc: true
+
+
+
