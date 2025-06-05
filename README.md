@@ -1,9 +1,34 @@
-# Welcome to PANKEGG
+# Welcome to PANKEGG!
 
 
-- [Overview](#overview)
-- [Mission Statement](#mission-statement)
-- [Features and Benefits](#features-and-benefits)
+
+![](figures/PANKEGG_logo_small.png)
+
+Welcome to the Pankegg documentation. Here you will find all the information you need to get started with Pankegg.
+
+## Overview
+ 
+*A powerful parser and visualizer for metagenome bin annotation, classification, and quality assessment.*
+
+Pankegg is a flexible and user-friendly interactive software suite built with Python, SQL, Jinja, JavaScript, and Flask, designed to visualize and compare bin annotations, taxonomic classifications, and quality metrics (estimated by CheckM2). It enables interactive exploration and comparison of results across bins and samples through a local web server interface.
+
+Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sourmash, or GTDB-TK. While it can be integrated into any workflow, it was originally conceived as the final step of the [MUFFIN pipeline](https://github.com/RVanDamme/MUFFIN) to provide a comprehensive visualization and analysis platform.
+
+## Mission Statement
+
+Pankegg aims to provide a comprehensive tool for the analysis and visualization of metabolic pathways across various samples and bins.  
+Our goal is to facilitate research and understanding in the field of metagenomics and bioinformatics.
+
+
+## Features and Benefits
+
+- Compare samples and bins with ease
+- Visualize taxonomic compositions
+- Analyze pathway completions
+- Export data for further analysis
+
+# Table of Contents
+
 - [Getting started](#getting-started)
   - [Install Pankegg and
     Dependencies](#install-pankegg-and-dependencies)
@@ -63,46 +88,8 @@
   - [PCA](#pca)
 - [Additional Information](#additional-information)
   - [Reporting Bugs & Contributing](#reporting-bugs--contributing)
+  - [Authors](#authors)
   - [AI and LLM](#ai-and-llm)
-
-![](figures/PANKEGG_logo_small.png)
-
-Welcome to the Pankegg documentation. Here you will find all the
-information you need to get started with Pankegg.
-
-## Overview
-
-*A powerful parser and visualizer for metagenome bin annotation,
-classification, and quality assessment.*
-
-Pankegg is a flexible and user-friendly interactive software suite built
-with Python, SQL, Jinja, JavaScript, and Flask, designed to visualize
-and compare bin annotations, taxonomic classifications, and quality
-metrics (estimated by CheckM2). It enables interactive exploration and
-comparison of results across bins and samples through a local web server
-interface.
-
-Pankegg is ideal for anyone working with output files from CheckM2,
-EggNOG, Sourmash, or GTDB-TK. While it can be integrated into any
-workflow, it was originally conceived as the final step of the [MUFFIN
-pipeline](https://github.com/RVanDamme/MUFFIN) to provide a
-comprehensive visualization and analysis platform.
-
-## Mission Statement
-
-Pankegg aims to provide a comprehensive tool for the analysis and
-visualization of metabolic pathways across various samples and bins.  
-Our goal is to facilitate research and understanding in the field of
-metagenomics and bioinformatics.
-
-## Features and Benefits
-
-- Compare samples and bins with ease
-- Visualize taxonomic compositions
-- Analyze pathway completions
-- Export data for further analysis
-
-[back to top](#pankegg-documentation)
 
 # Getting started
 
@@ -190,8 +177,6 @@ directory.
 | pathway_groups.txt | Maps IDs grouped by KEGG sub-categories | Extracted from KEGG pathway database |
 
 Additional input, built into PANKEGG
-
-[back to top](#pankegg-documentation)
 
 # Installation
 
@@ -960,13 +945,11 @@ only if you have enough samples.*
 Contributions from the community are welcome ! See the [Contributing
 guidelines](CONTRIBUTING.md)
 
-<br>
+## Authors
 
 <a href="https://github.com/RVanDamme/PANKEGG/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=RVanDamme/PANKEGG" alt="contrib.rocks image" />
 </a>
-
-------------------------------------------------------------------------
 
 ## AI and LLM
 
