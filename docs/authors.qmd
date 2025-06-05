@@ -1,13 +1,10 @@
 ---
 title: "Authors and contributors"
 ---
-<br>
 
 <a href="https://github.com/RVanDamme/PANKEGG/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=RVanDamme/PANKEGG" alt="contrib.rocks image" />
 </a>
-
----
 
 ## AI and LLM
 
