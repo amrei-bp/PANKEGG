@@ -27,7 +27,7 @@ jobs:
           path: docs/PANKEGG_documentation.qmd
 
       - name: List files for debugging
-        run: ls -la docs/-site/
+        run: ls -la docs/_site/
 
       - name: Commit PDF
         run: |
