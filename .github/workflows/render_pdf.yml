@@ -38,10 +38,10 @@ jobs:
         uses: quarto-dev/quarto-actions/render@v2
         with:
           to: gfm
-          path: docs/_site/README.qmd
+          path: docs/README.qmd
 
       - name: Move README.md to root
-        run: mv docs/README.md ./README.md
+        run: mv docs/_site/README.md ./README.md
 
       - name: Commit PDF and README
         run: |
