@@ -24,12 +24,6 @@ jobs:
         with:
           path: docs  # Specify the path to your Quarto project
 
-      - name: List files for debugging
-        run: |
-          ls -la docs
-          ls -la docs/_site
-          ls -la
-
       - name: Render Documentation Quarto Document to PDF
         uses: quarto-dev/quarto-actions/render@v2
         with:
@@ -51,11 +45,20 @@ jobs:
       - name: Move README.md to root
         run: mv docs/README.md ./README.md
 
-      - name: remove Contributing.md
-        run: rm -f README.md || true 
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs  # Path to the directory containing the rendered site
+          name: github-pages
+          retention-days: 1
+          exclude: |
+            CONTRIBUTING.md
 
-      - name: Move CONTRIBUTING.md to root
-        run: mv docs/CONTRIBUTING.md ../CONTRIBUTING.md
+      - name: List files for debugging
+        run: |
+          ls -la docs
+          ls -la docs/_site
+          ls -la
 
       - name: Commit PDF and README
         run: |
