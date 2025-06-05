@@ -50,7 +50,7 @@ jobs:
           ls -la 
 
       - name: Move README.md to root
-        run: mv docs/_site/README.md ./README.md
+        run: mv docs/README.md ./README.md
 
       - name: Commit PDF and README
         run: |
