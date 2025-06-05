@@ -17,22 +17,30 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
-          # Ensure LaTeX is installed for PDF rendering
-          tinytex: true
+          tinytex: true  # Ensure LaTeX is installed for PDF rendering
 
-      - name: Render Specific Quarto Document
+      - name: Render Specific Quarto Document to PDF
         uses: quarto-dev/quarto-actions/render@v2
         with:
           to: pdf
           path: docs/PANKEGG_documentation.qmd
 
-      - name: Move PDF 
+      - name: Move PDF
         run: mv docs/_site/PANKEGG_documentation.pdf docs/PANKEGG_documentation.pdf
 
-      - name: Commit PDF
+      - name: Render README to GFM
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          to: gfm
+          path: docs/README.qmd
+
+      - name: Move README.md to root
+        run: mv docs/README.md ./README.md
+
+      - name: Commit PDF and README
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add docs/PANKEGG_documentation.pdf
-          git commit -m "Rendered PDF from PANKEGG_documentation.qmd"
+          git add docs/PANKEGG_documentation.pdf README.md
+          git commit -m "Rendered PDF and README from documentation"
           git push
