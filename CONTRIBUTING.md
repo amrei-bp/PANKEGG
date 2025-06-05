@@ -1,7 +1,6 @@
 ---
 title: "Reporting bugs & contributing"
 ---
-<br>
 
 # Contributing guidelines
 
