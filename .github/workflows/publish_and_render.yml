@@ -1,0 +1,77 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: master
+
+name: Quarto Publish and Render Documentation
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: true  # Ensure LaTeX is installed for PDF rendering
+
+      - name: Render Quarto Project
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          path: docs  # Specify the path to your Quarto project
+
+      - name: Render Documentation Quarto Document to PDF
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          to: pdf
+          path: docs/PANKEGG_documentation.qmd
+
+      - name: Move PDF
+        run: mv docs/_site/PANKEGG_documentation.pdf docs/PANKEGG_documentation.pdf
+
+      - name: Delete README.md
+        run: rm -f README.md || true  # Use `|| true` to prevent failure if README.md does not exist
+
+      - name: Render GitHub README to GFM
+        uses: quarto-dev/quarto-actions/render@v2
+        with:
+          to: gfm
+          path: docs/README.qmd
+
+      - name: Move README.md to root
+        run: mv docs/README.md ./README.md
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs  # Path to the directory containing the rendered site
+          name: github-pages
+          retention-days: 1
+          exclude: |
+            CONTRIBUTING.md
+
+      - name: List files for debugging
+        run: |
+          ls -la docs
+          ls -la docs/_site
+          ls -la
+
+      - name: Commit PDF and README
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add docs/PANKEGG_documentation.pdf README.md
+          git commit -m "Rendered PDF and README from documentation"
+          git push
+
+      - name: Publish to GitHub Pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          path: docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
