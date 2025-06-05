@@ -19,3 +19,7 @@ Thumbs.db
 # Flask stuff:
 instance/
 .webassets-cache
+
+# Quarto files
+docs/.quarto/
+docs/_site/

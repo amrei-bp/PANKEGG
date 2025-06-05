@@ -1,0 +1,15 @@
+---
+title: "Authors and contributors"
+---
+<br>
+
+<a href="https://github.com/RVanDamme/PANKEGG/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=RVanDamme/PANKEGG" alt="contrib.rocks image" />
+</a>
+
+---
+
+## AI and LLM
+
+AI/LLM were used as "writing buddy" during the redaction of the README.md (e.g. ensuring a readable markdown structure and correcting the syntax/grammar).
+The logic and code were initially made by humans (@RVanDamme and @Avanbelle), before using AI/LLM on the code to debug and refactor it. 

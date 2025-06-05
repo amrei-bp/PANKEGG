@@ -1,0 +1,32 @@
+---
+title: "Supported input"
+---
+<br>
+Pankegg was developed to integrate output files from a variety of metagenomics tools, such as CheckM2, Sourmash, GTDB-TK and EggNOG. You can combine them all, or only add the ones that are interesting for you.
+
+## Input files
+
+| Tool      | Input File | Data Extracted |
+|-----------|--------------------------|---------------|
+| checkm2   | quality_report.tsv       | bin completeness and contamination              |
+| Sourmash  | *.txt                    | ID, Status and Taxonomic classification         |
+| GTDB-TK   | *.summary.tsv            | User genome and Taxonomic classification        |
+| EggNOG    | *.annotations.tsv        | KEGG Orthologs, KEGG Pathways, GO terms, Description  |
+
+: Supported input files {.striped .hover}
+
+
+## Additional Input Files Provided by Pankegg
+
+
+PANKEGG requires more input files. However, these are already provided and you don't need to worry about them. They are located in the `data` directory. 
+
+| File Name               | Description                                                                   | Data Origin                             |
+|-------------------------|-------------------------------------------------------------------------------|-----------------------------------------|
+| kegg_map_info.tsv       | Contains mapID, pathway name, and total number of orthologs per pathway (map) | Extracted from KEGG pathway database    |
+| kegg_map_orthologs.tsv  | Contains mapID, pathway name, and list of orthologs per pathway (map)         | Extracted from KEGG pathway database    |
+| ko.txt                  | Contains the IDs and names of orthologs                                       | Extracted from KEGG orthologs database  |
+| pathway.txt             | Contains map IDs (pathways) and their names                                   | Extracted from KEGG pathway database    |
+| pathway_groups.txt      | Maps IDs grouped by KEGG sub-categories                                       | Extracted from KEGG pathway database    |
+
+: Additional input, built into PANKEGG {.striped .hover}

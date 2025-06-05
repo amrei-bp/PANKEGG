@@ -1,0 +1,29 @@
+---
+title: "Welcome to Pankegg"
+---
+
+
+![](figures/PANKEGG_logo_small.png)
+
+Welcome to the Pankegg documentation. Here you will find all the information you need to get started with Pankegg.
+
+## Overview
+ 
+*A powerful parser and visualizer for metagenome bin annotation, classification, and quality assessment.*
+
+Pankegg is a flexible and user-friendly interactive software suite built with Python, SQL, Jinja, JavaScript, and Flask, designed to visualize and compare bin annotations, taxonomic classifications, and quality metrics (estimated by CheckM2). It enables interactive exploration and comparison of results across bins and samples through a local web server interface.
+
+Pankegg is ideal for anyone working with output files from CheckM2, EggNOG, Sourmash, or GTDB-TK. While it can be integrated into any workflow, it was originally conceived as the final step of the [MUFFIN pipeline](https://github.com/RVanDamme/MUFFIN) to provide a comprehensive visualization and analysis platform.
+
+## Mission Statement
+
+Pankegg aims to provide a comprehensive tool for the analysis and visualization of metabolic pathways across various samples and bins.  
+Our goal is to facilitate research and understanding in the field of metagenomics and bioinformatics.
+
+
+## Features and Benefits
+
+- Compare samples and bins with ease
+- Visualize taxonomic compositions
+- Analyze pathway completions
+- Export data for further analysis
