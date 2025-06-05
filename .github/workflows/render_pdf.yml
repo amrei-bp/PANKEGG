@@ -23,6 +23,7 @@ jobs:
       - name: Render Specific Quarto Document
         uses: quarto-dev/quarto-actions/render@v2
         with:
+          to: pdf
           path: PANKEGG_documentation.qmd
 
       - name: Commit PDF
