@@ -34,11 +34,20 @@ jobs:
           ls -la docs/_site
           ls -la 
 
+      - name: Delete README.md
+        run: rm README.md
+
       - name: Render README to GFM
         uses: quarto-dev/quarto-actions/render@v2
         with:
           to: gfm
           path: docs/README.qmd
+      
+      - name: List files for debugging
+        run: |
+          ls -la docs
+          ls -la docs/_site
+          ls -la 
 
       - name: Move README.md to root
         run: mv docs/_site/README.md ./README.md
