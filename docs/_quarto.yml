@@ -1,5 +1,10 @@
 project:
   type: website
+  render:
+    - "*.qmd"
+    - PANKEGG_documentation.qmd
+    - "README.qmd"
+  
 
 website:
   title: "PANKEGG"
@@ -46,7 +51,7 @@ format:
     theme: flatly
     css: styles.css
     toc: true
-format-links: false
+    format-links: false
 
 execute:
   freeze: auto

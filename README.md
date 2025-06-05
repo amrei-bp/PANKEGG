@@ -1,1 +1,1 @@
-docs/_site/README.md
+_site/README.md

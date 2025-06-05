@@ -1,0 +1,40 @@
+---
+title: "PANKEGG Documentation"
+format: 
+    pdf: 
+        toc: false
+        output-file: PANKEGG_documentation.pdf
+
+---
+
+{{< include index.qmd >}}
+\tableofcontents
+
+# Getting started 
+
+{{< include quickstart.qmd >}}
+{{< include input_files.qmd >}}
+
+# Installation
+
+{{< include installation.qmd >}}
+{{< include installation_test.qmd >}}
+
+# The tools
+
+{{< include tool_introduction.qmd >}}
+{{< include Pankegg_make_db.qmd >}}
+{{< include Pankegg_app.qmd >}}
+
+# Web Interface
+
+{{< include web_interface.qmd >}}
+
+# Additional Information
+
+## Reporting Bugs & Contributing
+
+Contributions from the community are welcome ! See the [Contributing guidelines](CONTRIBUTING.md)
+
+{{< include authors.qmd >}}
+{{< include welcome.qmd >}}
