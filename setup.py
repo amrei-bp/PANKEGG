@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pankegg',
-    version='1.0',
+    version='2.0.0',
     packages=find_packages(include=['lib', 'lib.*']),
     include_package_data=True,
     py_modules=['pankegg_make_db', 'pankegg_app'],
