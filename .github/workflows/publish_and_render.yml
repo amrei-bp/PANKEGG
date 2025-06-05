@@ -55,7 +55,7 @@ jobs:
         run: rm -f README.md || true 
 
       - name: Move CONTRIBUTING.md to root
-        run: mv docs/CONTRIBUTING.md ./CONTRIBUTING.md
+        run: mv docs/CONTRIBUTING.md ../CONTRIBUTING.md
 
       - name: Commit PDF and README
         run: |
