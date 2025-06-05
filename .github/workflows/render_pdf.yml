@@ -28,12 +28,6 @@ jobs:
       - name: Move PDF
         run: mv docs/_site/PANKEGG_documentation.pdf docs/PANKEGG_documentation.pdf
 
-      - name: List files for debugging
-        run: |
-          ls -la docs
-          ls -la docs/_site
-          ls -la 
-
       - name: Render README to GFM
         uses: quarto-dev/quarto-actions/render@v2
         with:

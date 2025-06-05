@@ -24,6 +24,21 @@ jobs:
         with:
           path: docs  # Specify the path to your Quarto project
 
+      - name: List files for debugging
+        run: |
+          ls -la docs
+          ls -la docs/_site
+          ls -la 
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs  # Path to the directory containing the rendered site
+          name: github-pages
+          retention-days: 1
+          exclude: |
+            CONTRIBUTING.md
+
       - name: Publish to GitHub Pages
         uses: quarto-dev/quarto-actions/publish@v2
         with:

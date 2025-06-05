@@ -1,11 +1,6 @@
 project:
   type: website
-  render:
-    - "*.qmd"
-    - PANKEGG_documentation.qmd
-    - "README.qmd"
   
-
 website:
   title: "PANKEGG"
   navbar:
