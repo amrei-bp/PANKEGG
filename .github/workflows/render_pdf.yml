@@ -30,6 +30,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add PANKEGG_documentation.pdf
+          git add docs/PANKEGG_documentation.pdf
           git commit -m "Rendered PDF from PANKEGG_documentation.qmd"
           git push
