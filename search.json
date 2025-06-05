@@ -165,6 +165,61 @@
     ]
   },
   {
+    "objectID": "tool_introduction.html",
+    "href": "tool_introduction.html",
+    "title": "Introduction to the tools",
+    "section": "",
+    "text": "Pankegg is composed of two main tools:\nThe web interface is divided into two main categories:",
+    "crumbs": [
+      "The tools",
+      "Introduction to the tools"
+    ]
+  },
+  {
+    "objectID": "tool_introduction.html#feature-pages",
+    "href": "tool_introduction.html#feature-pages",
+    "title": "Introduction to the tools",
+    "section": "Feature Pages",
+    "text": "Feature Pages\nPankegg provides multiple interactive features:\n\nSample vs Sample: Heatmap of selected pathways, scatter plots for bin quality, PCA of bins, tables/plots showing KEGGs unique or shared between samples/pathways.\nBin vs Bin: Plot and table of KEGGs shared or unique between two bins for metabolic pathways.\nTaxonomic Comparison: For a given rank, see sample-wise composition plots (abundance = number of bins classified as taxon / total bins), and pathway-vs-taxa heatmaps.\nPCA: Dedicated page for visualizing principal component analysis (PCA) of each sample, based on KOs, maps, or taxonomy.\n\n\nNote:\nIn this documentation, the terms “map” and “pathway” are sometimes used interchangeably. Typically, “map” refers to the KEGG database’s map ID (e.g., map00010), while “pathway” refers to the biological pathway name. Although the KEGG database provides both a pathway ID and a map ID, this tool focuses on the map ID, which is generally more complete and reliable for referencing metabolic pathways.",
+    "crumbs": [
+      "The tools",
+      "Introduction to the tools"
+    ]
+  },
+  {
+    "objectID": "input_files.html",
+    "href": "input_files.html",
+    "title": "Supported input",
+    "section": "",
+    "text": "Pankegg was developed to integrate output files from a variety of metagenomics tools, such as CheckM2, Sourmash, GTDB-TK and EggNOG. You can combine them all, or only add the ones that are interesting for you.",
+    "crumbs": [
+      "Getting Started",
+      "Supported input"
+    ]
+  },
+  {
+    "objectID": "input_files.html#input-files",
+    "href": "input_files.html#input-files",
+    "title": "Supported input",
+    "section": "Input files",
+    "text": "Input files\n\nSupported input files\n\n\n\n\n\n\n\nTool\nInput File\nData Extracted\n\n\n\n\ncheckm2\nquality_report.tsv\nbin completeness and contamination\n\n\nSourmash\n*.txt\nID, Status and Taxonomic classification\n\n\nGTDB-TK\n*.summary.tsv\nUser genome and Taxonomic classification\n\n\nEggNOG\n*.annotations.tsv\nKEGG Orthologs, KEGG Pathways, GO terms, Description",
+    "crumbs": [
+      "Getting Started",
+      "Supported input"
+    ]
+  },
+  {
+    "objectID": "input_files.html#additional-input-files-provided-by-pankegg",
+    "href": "input_files.html#additional-input-files-provided-by-pankegg",
+    "title": "Supported input",
+    "section": "Additional Input Files Provided by Pankegg",
+    "text": "Additional Input Files Provided by Pankegg\nPANKEGG requires more input files. However, these are already provided and you don’t need to worry about them. They are located in the data directory.\n\nAdditional input, built into PANKEGG\n\n\n\n\n\n\n\nFile Name\nDescription\nData Origin\n\n\n\n\nkegg_map_info.tsv\nContains mapID, pathway name, and total number of orthologs per pathway (map)\nExtracted from KEGG pathway database\n\n\nkegg_map_orthologs.tsv\nContains mapID, pathway name, and list of orthologs per pathway (map)\nExtracted from KEGG pathway database\n\n\nko.txt\nContains the IDs and names of orthologs\nExtracted from KEGG orthologs database\n\n\npathway.txt\nContains map IDs (pathways) and their names\nExtracted from KEGG pathway database\n\n\npathway_groups.txt\nMaps IDs grouped by KEGG sub-categories\nExtracted from KEGG pathway database",
+    "crumbs": [
+      "Getting Started",
+      "Supported input"
+    ]
+  },
+  {
     "objectID": "Pankegg_make_db.html",
     "href": "Pankegg_make_db.html",
     "title": "Pankegg_make_db.py",
@@ -228,105 +283,6 @@
     "crumbs": [
       "The tools",
       "Pankegg_make_db.py"
-    ]
-  },
-  {
-    "objectID": "input_files.html",
-    "href": "input_files.html",
-    "title": "Supported input",
-    "section": "",
-    "text": "Pankegg was developed to integrate output files from a variety of metagenomics tools, such as CheckM2, Sourmash, GTDB-TK and EggNOG. You can combine them all, or only add the ones that are interesting for you.",
-    "crumbs": [
-      "Getting Started",
-      "Supported input"
-    ]
-  },
-  {
-    "objectID": "input_files.html#input-files",
-    "href": "input_files.html#input-files",
-    "title": "Supported input",
-    "section": "Input files",
-    "text": "Input files\n\nSupported input files\n\n\n\n\n\n\n\nTool\nInput File\nData Extracted\n\n\n\n\ncheckm2\nquality_report.tsv\nbin completeness and contamination\n\n\nSourmash\n*.txt\nID, Status and Taxonomic classification\n\n\nGTDB-TK\n*.summary.tsv\nUser genome and Taxonomic classification\n\n\nEggNOG\n*.annotations.tsv\nKEGG Orthologs, KEGG Pathways, GO terms, Description",
-    "crumbs": [
-      "Getting Started",
-      "Supported input"
-    ]
-  },
-  {
-    "objectID": "input_files.html#additional-input-files-provided-by-pankegg",
-    "href": "input_files.html#additional-input-files-provided-by-pankegg",
-    "title": "Supported input",
-    "section": "Additional Input Files Provided by Pankegg",
-    "text": "Additional Input Files Provided by Pankegg\nPANKEGG requires more input files. However, these are already provided and you don’t need to worry about them. They are located in the data directory.\n\nAdditional input, built into PANKEGG\n\n\n\n\n\n\n\nFile Name\nDescription\nData Origin\n\n\n\n\nkegg_map_info.tsv\nContains mapID, pathway name, and total number of orthologs per pathway (map)\nExtracted from KEGG pathway database\n\n\nkegg_map_orthologs.tsv\nContains mapID, pathway name, and list of orthologs per pathway (map)\nExtracted from KEGG pathway database\n\n\nko.txt\nContains the IDs and names of orthologs\nExtracted from KEGG orthologs database\n\n\npathway.txt\nContains map IDs (pathways) and their names\nExtracted from KEGG pathway database\n\n\npathway_groups.txt\nMaps IDs grouped by KEGG sub-categories\nExtracted from KEGG pathway database",
-    "crumbs": [
-      "Getting Started",
-      "Supported input"
-    ]
-  },
-  {
-    "objectID": "tool_introduction.html",
-    "href": "tool_introduction.html",
-    "title": "Introduction to the tools",
-    "section": "",
-    "text": "Pankegg is composed of two main tools:\nThe web interface is divided into two main categories:",
-    "crumbs": [
-      "The tools",
-      "Introduction to the tools"
-    ]
-  },
-  {
-    "objectID": "tool_introduction.html#feature-pages",
-    "href": "tool_introduction.html#feature-pages",
-    "title": "Introduction to the tools",
-    "section": "Feature Pages",
-    "text": "Feature Pages\nPankegg provides multiple interactive features:\n\nSample vs Sample: Heatmap of selected pathways, scatter plots for bin quality, PCA of bins, tables/plots showing KEGGs unique or shared between samples/pathways.\nBin vs Bin: Plot and table of KEGGs shared or unique between two bins for metabolic pathways.\nTaxonomic Comparison: For a given rank, see sample-wise composition plots (abundance = number of bins classified as taxon / total bins), and pathway-vs-taxa heatmaps.\nPCA: Dedicated page for visualizing principal component analysis (PCA) of each sample, based on KOs, maps, or taxonomy.\n\n\nNote:\nIn this documentation, the terms “map” and “pathway” are sometimes used interchangeably. Typically, “map” refers to the KEGG database’s map ID (e.g., map00010), while “pathway” refers to the biological pathway name. Although the KEGG database provides both a pathway ID and a map ID, this tool focuses on the map ID, which is generally more complete and reliable for referencing metabolic pathways.",
-    "crumbs": [
-      "The tools",
-      "Introduction to the tools"
-    ]
-  },
-  {
-    "objectID": "CONTRIBUTING.html#getting-started-with-pankegg",
-    "href": "CONTRIBUTING.html#getting-started-with-pankegg",
-    "title": "Reporting bugs & contributing",
-    "section": "Getting started with Pankegg",
-    "text": "Getting started with Pankegg\nBefore contributing, take a moment to explore the repository:\n\npankegg_make_db.py: builds the SQLite database from your annotation CSV files.\npankegg_app.py: launches the Flask web interface to browse bins and KEGG pathways.\nlib/: utility modules with SQL commands and database helpers.\ntemplates/: Jinja HTML templates for the web pages.\ndata/: example files and a sample pankegg.db.\nsetup.py and .github/workflows/: packaging and CI configuration.\n\nWe recommend inspecting data/pankegg.db with sqlite3 and reviewing the templates to see how queries render in the app. The README walks through building a database and starting the server.",
-    "crumbs": [
-      "Additional Information",
-      "Reporting bugs & contributing"
-    ]
-  },
-  {
-    "objectID": "CONTRIBUTING.html#did-you-find-a-bug",
-    "href": "CONTRIBUTING.html#did-you-find-a-bug",
-    "title": "Reporting bugs & contributing",
-    "section": "Did you find a bug?",
-    "text": "Did you find a bug?\n\nEnsure that the bug was not already reported by searching reported Issues.\nIf you’re unable to find an (open) issue addressing the problem, open a new one. Be sure to prefix the issue title with [BUG] and to include:\na clear description,\nas much relevant information as possible, and\na code sample or a database test case demonstrating the problematic behaviour that is occurring.",
-    "crumbs": [
-      "Additional Information",
-      "Reporting bugs & contributing"
-    ]
-  },
-  {
-    "objectID": "CONTRIBUTING.html#how-to-work-on-a-new-featurebug",
-    "href": "CONTRIBUTING.html#how-to-work-on-a-new-featurebug",
-    "title": "Reporting bugs & contributing",
-    "section": "How to work on a new feature/bug",
-    "text": "How to work on a new feature/bug\nCreate an issue on Github or you can alternatively pick one already created.\nAssign yourself to that issue.\nDiscussions on how to proceed about that issue take place in the comment section on that issue.\nSome of the work might have been done already by somebody, hence we avoid unnecessary work duplication and a waste of time and effort. Other reason for discussing the issue beforehand is to communicate with the team the changes as some of the features might impact different components, and we can plan accordingly.",
-    "crumbs": [
-      "Additional Information",
-      "Reporting bugs & contributing"
-    ]
-  },
-  {
-    "objectID": "CONTRIBUTING.html#how-we-work-with-git",
-    "href": "CONTRIBUTING.html#how-we-work-with-git",
-    "title": "Reporting bugs & contributing",
-    "section": "How we work with Git",
-    "text": "How we work with Git\nAll work should take place in a dedicated branch with a short descriptive name.\nUse comments in your code, choose variable and function names that clearly show what you intend to implement.\nOnce the feature is done you can request it to be merged back into main by making a Pull Request.\nBefore making the pull request it is a good idea to rebase your branch to main to ensure that eventual conflicts with the main branch is solved before the PR is reviewed and we can therefore have a clean merge.\n\nGeneral stuff about git and commit messages\nIn general it is better to commit often. Small commits are easier to roll back and also makes the code easier to review.\nWrite helpful commit messages that describes the changes and possibly why they were necessary.\nEach commit should contain changes that are functionally connected and/or related. If you for example want to write and in the first line of the commit message this is an indicator that it should have been two commits.\nLearn how to select chunks of changed files to do multiple separate commits of unrelated things. This can be done with either git add -p or git commit -p.\n\nHelpful commit messages\nThe commit messages may be seen as meta-comments on the code that are incredibly helpful for anyone who wants to know how this piece of software is working, including colleagues (current and future) and external users.\nSome tips about writing helpful commit messages:\n\nSeparate subject (the first line of the message) from body with a blank line.\nLimit the subject line to 50 characters.\nCapitalize the subject line.\nDo not end the subject line with a period.\nUse the imperative mood in the subject line.\nWrap the body at 72 characters.\nUse the body to explain what and why vs. how.\n\nFor an in-depth explanation of the above points, please see How to Write a Git Commit Message.\n\n\n\nHow we do code reviews\nA code review is initiated when someone has made a Pull Request in the appropriate repo on github.\nWork should not continue on the branch unless it is a Draft Pull Request. Once the PR is marked ready the review can start.\nThe initiator of the PR should recruit a reviewer that get assigned reviewer duty on the branch.\nOther people may also look at and review the code.\nA reviewers job is to:\n\nWrite polite and friendly comments - remember that it can be tough to have other people critizising your work, a little kindness goes a long way. This does not mean we should not comment on things that need to be changed of course.\nRead the code and make sure it is understandable\nMake sure that commit messages and commits are structured so that it is possible to understand why certain changes were made.\n\nOnce the review is positive the Pull Request can be merged into main and the feature branch deleted.\n\nThanks again.",
-    "crumbs": [
-      "Additional Information",
-      "Reporting bugs & contributing"
     ]
   },
   {
