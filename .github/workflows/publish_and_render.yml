@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
   push:
-    branches: separate_documentation
+    branches: main
 
 name: Quarto Publish and Render PDF
 
