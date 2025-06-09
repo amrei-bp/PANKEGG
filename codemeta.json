@@ -1,0 +1,37 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "0000-0002-7909-4868",
+      "@type": "Person",
+      "email": "",
+      "name": "RVanDamme",
+      "affiliation": "Department of Animal Biosciences, Faculty of Center for Veterinary Medicine and Animal Science, Swedish University of Agricultural Sciences, Uppsala, Sweden"
+    },
+    {
+      "@id": "0000-0002-0472-0609",
+      "@type": "Person",
+      "email": "",
+      "name": "Amrei",
+      "affiliation": "Department of Animal Biosciences, Faculty of Center for Veterinary Medicine and Animal Science, Swedish University of Agricultural Sciences, Uppsala, Sweden"
+    },
+    {
+      "@id": "0009-0005-9472-6703",
+      "@type": "Person",
+      "email": "",
+      "name": "Avanbelle",
+      "affiliation": "Department of Animal Biosciences, Faculty of Center for Veterinary Medicine and Animal Science, Swedish University of Agricultural Sciences, Uppsala, Sweden"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/RVanDamme/PANKEGG",
+  "datePublished": "2025-06-09",
+  "dateModified": "2025-06-09",
+  "dateCreated": "2025-06-09",
+  "description": "Pankegg is a flexible and user-friendly interactive software suite built with Python, SQL, Jinja, JavaScript, and Flask, designed to visualize and compare bin annotations, taxonomic classifications, and quality metrics (estimated by CheckM2). It enables interactive exploration and comparison of results across bins and samples through a local web server interface.",
+  "keywords": "metagenomics, visualisation, python, SQLite3",
+  "license": "MIT",
+  "title": "PANKEGG",
+  "version": "v2.0.0"
+}

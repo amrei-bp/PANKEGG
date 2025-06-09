@@ -1,0 +1,139 @@
+---
+title: 'PANKEGG: Integrative Visualisation and Comparison of Metagenome-Assembled Genomes Annotation, Taxonomy, and Quality'
+tags:
+  - Python
+  - Flask
+  - Metagenomics
+  - Data visualisation
+authors:
+  - name: Renaud Van Damme
+    orcid: 0000-0002-7909-4868
+    affiliation: 1
+    corresponding: true
+  - name: Arnaud Vanbelle
+    orcid: 0009-0005-9472-6703
+    affiliation: 1
+  - name: Juliette Hayer
+    orcid: 0000-0003-4899-9637
+    affiliation: "2, 3"
+  - name: Amrei Binzer-Panchal
+    orcid: 0000-0002-0472-0609
+    affiliation: 1
+  - name: Erik Bongcam-Rudloff
+    orcid: 0000-0002-1947-8288
+    affiliation: 1
+
+affiliations:
+  - name: Department of Animal Biosciences, Faculty of Center for Veterinary Medicine and Animal Science, Swedish University of Agricultural Sciences, Uppsala, Sweden
+    index: 1
+  - name: MIVEGEC, University of Montpellier, IRD, CNRS, Montpellier, France
+    index: 2
+  - name: Laboratoire Mixte International Drug Resistance in Southeast Asia
+    index: 3
+
+date: 2025-06-09
+bibliography: paper.bib
+---
+
+# Summary
+
+[Pankegg](https://github.com/RVanDamme/PANKEGG) is an interactive software suite for parsing and visualizing metagenome-assembled genomes (MAGs) and exploring their metabolic capabilities. It integrates quality metrics, annotation, and taxonomic classification in one interactive central database.
+Pankegg enables researchers to explore, compare, and interpret their data through a modern browser-based interface, streamlining the analysis of large and complex metagenomic datasets. The software supports output from widely used tools such as CheckM2  [@Chklovski:2022], GTDB-TK [@Chaumeil:2020], Sourmash [@Brown:2016], and EggNOG [@Cantalapiedra:2021], making it a flexible solution for a wide range of microbiome and environmental genomics studies.
+By interconnecting the different analysis results, people can investigate different interactions in the data more visually and conveniently. 
+
+Questions such as:
+
+- How many of my bins pass the GTDB [@Parks:2022] quality threshold?
+- What is their taxonomic classification?
+- What KEGG orthologs are present?
+- What proportion of their respective metabolic pathways is covered by the  KEGG orthologs identified? 
+
+These questions typically require inspecting multiple result files and cross-referencing the information, whereas PanKEGG now offers an all-in-one platform to explore, visualise, interpret, and save the results.
+
+
+# Statement of need
+
+The ever-growing progress of sequencing technologies has made it possible to recover thousands of draft and high-quality genomes directly from a plethora of environmental samples, accelerating our understanding of microbial diversity across ecosystems. Shotgun metagenomics with assembly-based approaches recovers metagenome-assembled genomes (MAGs), giving access to taxonomic and functional profiles of uncultured microorganisms.
+
+
+PANKEGG integrates taxonomic analysis with KEGG pathway annotations, distinguishing itself from tools like MAGFlow/BIgMAG  [@YepesGarcia2024] and Anvi'o [@Eren2021]. While MAGFlow/BIgMAG and Anvi'o metagenomics provide comprehensive metagenomic workflows and their visualisation, PANKEGG focuses on the visualisation and the functional interpretation of orthologs' variations across multiple samples and bins within the context of KEGG pathways [@Kanehisa:2023]. Our focused approach on the KEGG orthologs facilitates a more direct and efficient analysis of metabolic capabilities and variations in microbial communities, even with growing datasets. 
+
+As the volume and complexity of metagenomic data increase, so do the challenges of efficiently comparing and visualizing results from diverse annotation, classification, and quality assessment tools. In just one year (April 2024 to April 2025), over 135,000 new genomes were added to the Genome Taxonomy Database (GTDB). 
+Tools like CheckM2, Sourmash, GTDB-TK, and EggNOG provide key outputs for quality, taxonomy, and functional annotation, but downstream integration and visualization remain non-trivial.
+
+PANKEGG enables users to merge results from any pipeline, workflow, or manual analysis that provides annotation, classification, and quality information into a standardised SQL database. The database allows users to explore the data through an interactive local web application. 
+The tool is designed to analyse finalized metagenome-assembled genomes (MAGs) and critically evaluate bins obtained during the binning stage of assembly-based metagenomic analysis. By integrating CheckM2 quality metrics, annotation, and taxonomic classification, PANKEGG helps users to determine which bins meet accepted standards to be classified and reported as MAGs and which bins should be excluded due to low quality or inconsistency. PANKEGG allows the user to explore and compare the metabolic capabilities of microbial communities.
+ 
+PANKEGG relies on widely used coding languages (Python, JavaScript, and HTML), SQLite as the SQL database engine [@sqlite], and libraries:
+
+- flask [@flask]
+- jinja2 [@jinja2]
+- pandas [@reback2020pandas]
+- numpy [@harris2020array]
+- SciKit-Learn [@scikit-learn]
+- SciPy [@virtanen2020scipy]
+- click [@click]
+- Python SQLite3 [@python-sqlite3]
+
+Making its installation straightforward in most systems through pip [@pip], conda [@conda], and pixi [@pixi] [see Pankegg installation](https://github.com/RVanDamme/PANKEGG?tab=readme-ov-file#installation).
+The software installation was tested on Ubuntu, WSL (Ubuntu 16 to 22), Windows 10 & 11, MacOS, and HPE Cray EX supercomputer systems.
+This unified approach lowers the barrier to integrative metagenomic analysis and empowers specialists and non-specialists to make informed decisions about large-scale metagenome genome-resolved data.
+
+
+
+# Tool Overview
+
+Pankegg consists of two primary tools:
+
+## PANGEGG MAKE DB
+
+This script ingests a CSV file describing the location of annotation (EggNOG), classification (Sourmash or GTDB-TK), and quality metrics (Checkm2) files for each sample. It constructs an SQL database aggregating all relevant results.
+
+
+## PANKEGG APP
+
+The app is a Flask-based web server that connects to the SQL database generated by `pankegg_make_db.py` to offer a simple interface for interfacing, cross-referencing, and filtering the data.
+The interface offers many different information, all of which can be filtered by other data sets. More detailed explanation is in the [Pankegg Web Page documentation](https://github.com/RVanDamme/PANKEGG?tab=readme-ov-file#the-pankegg-web-page)
+Here is a concise summary:
+
+1. Bin page allows visualizing all the bins/MAGs in the database. \autoref{fig:Figure1}
+2. Pathway page, also called the Map page, lets the user visualise the list of pathways in their database. Each contains a “completion value”. The Completion value is an indicator calculated by dividing the number of KEGG orthologs in the database by the total number of KEGG known to be present in the Pathway.  \autoref{fig:Figure2}
+3. KEGG page: It contains the list of KEGG orthologs found in the database. You can expand the information for each ortholog and see the EggNOG entries corresponding (bin ID, sample ID, GO terms, KEGG orthologs associated, EggNOG description).
+4. Review the Taxonomy composition of the input database.
+5. Compare the samples or bins regarding pathway presence, completeness, and quality metrics.
+6. Perform a principal component analysis (PCA) based on functional or taxonomic profiles. This page is only valid with enough data to render a meaningful PCA. Working on a limited number of samples (e.g., 5) is insufficient. Following the recommendation of Shaukat et. al [Shaukat2016173190], we recommend at least 40 bins or MAGs, but the higher the better. 
+
+
+Pankegg’s app is designed to make exploration intuitive. It features sortable and filterable tables, interactive plots, and external links to KEGG and other databases. These features collectively support users in hypothesis generation, genome curation, and discovering ecological and functional trends in complex datasets.
+
+# Figures
+
+![Bin page: This is the typical page showing the bins for each sample in the database. Three samples, with eleven bins, are displayed, including their classification, CheckM2 completeness, and contamination. \label{fig:Figure1}](1.bins.png)
+
+
+![Map page, On this page, we see a list of maps from Samples 1 and 3 filtered for pathways containing the word 'metabolic.' Only one pathway is visible here, which is 15.43% complete. Below it, a list of the KEGG orthologs present in the samples for this pathway is shown. \label{fig:Figure2}](2.maps_filtered.png)
+
+
+# Author contribution
+
+**Renaud Van Damme:** Conceptualization and software development (initial version), supervision, software co-development (current version), testing, writing original draft, review, and editing.
+
+
+**Arnaud Vanbelle:** Conceptualisation, software co-development (current version), testing, review, and editing.
+
+
+**Juliette Hayer:** Methodology, advising on software development, testing, review, and editing.
+
+
+**Amrei Binzer-Panchal:** Methodology, advising on software development, testing, review, and editing.
+
+
+**Erik Bongcam-Rudloff:** Supervision, project administration, advising on software development, testing, review, and editing.
+
+# Acknowledgements
+
+Pankegg was initially conceived as a segment of the [MUFFIN pipeline](https://github.com/RVanDamme/MUFFIN) [@VanDamme2021] for metagenome-assembled genome analysis, and we thank the community for feedback and feature suggestions that made it a stand-alone tool.
+
+We acknowledge the Swedish University of Agricultural Sciences' Bioinformatics Infrastructure (SLUBI) for providing HPC resources to help develop Pankegg.
+
+# References
