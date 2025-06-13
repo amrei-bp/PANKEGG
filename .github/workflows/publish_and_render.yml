@@ -2,6 +2,9 @@ on:
   workflow_dispatch:
   push:
     branches: master
+    paths:
+      - docs/**
+      - .github/workflows/publish_and_render.yml
 
 name: Quarto Publish and Render Documentation
 
