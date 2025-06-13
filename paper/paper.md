@@ -31,7 +31,7 @@ affiliations:
   - name: Laboratoire Mixte International Drug Resistance in Southeast Asia
     index: 3
 
-date: 2025-06-09
+date: 9 June 2025
 bibliography: paper.bib
 ---
 
